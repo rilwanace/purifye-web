@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #131311;
+  --bg-card: #1a1a18;
+  --bg-surface: #212120;
+  --bg-input: #2a2a28;
+  --text-primary: #e8e7e0;
+  --text-secondary: #9c9b95;
+  --text-muted: #6a6a64;
+  --text-dim: #3a3a36;
+  --accent: #5DCAA5;
+  --accent-dim: rgba(93, 202, 165, 0.08);
+  --accent-border: rgba(93, 202, 165, 0.15);
+  --danger: #D85A30;
+  --warning: #D4A843;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-light: rgba(255, 255, 255, 0.04);
+  --font-sans: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
