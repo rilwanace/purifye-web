@@ -1,17 +1,17 @@
 const RED = '#D85A30'
 const GRN = '#5DCAA5'
+const INV = '#E86B3A'
 
-export default function MismatchView({ data, onBack: _onBack }: { data: any; onBack: () => void }) {
+export default function MismatchView({ data, onBack: _onBack, onNewCount }: { data: any; onBack: () => void; onNewCount?: () => void }) {
   const mismatches = data?.mismatches || []
   const summary = data?.summary || {}
 
   return (
-    <div style={{ padding: '0 16px 80px' }}>
-      {/* Summary stats */}
+    <div style={{ padding: '0 16px 100px' }}>
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
         {[
           { label: 'Items Off', value: mismatches.length, color: mismatches.length > 0 ? RED : GRN },
-          { label: 'LKR Gap', value: summary.value_gap ? `LKR ${Math.abs(summary.value_gap).toLocaleString('en', { maximumFractionDigits: 0 })}` : '—', color: RED },
+          { label: 'LKR Gap', value: summary.value_gap ? 'LKR ' + Math.abs(summary.value_gap).toLocaleString('en', { maximumFractionDigits: 0 }) : '—', color: RED },
           { label: 'Last Count', value: summary.last_count_date || '—', color: '#e8e7e0' },
         ].map(s => (
           <div key={s.label} style={{ flex: 1, background: '#1a1a18', borderRadius: 10, padding: '10px 6px', textAlign: 'center', border: '1px solid rgba(255,255,255,.07)' }}>
@@ -37,15 +37,31 @@ export default function MismatchView({ data, onBack: _onBack }: { data: any; onB
             <div style={{ color: '#9c9b95', textAlign: 'right' }}>Diff</div>
             {mismatches.map((m: any) => (
               <>
-                <div key={`n-${m.product_id}`} style={{ color: '#c4c3bc', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.product_name}</div>
-                <div key={`s-${m.product_id}`} style={{ color: '#e8e7e0', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>{m.system_qty}</div>
-                <div key={`c-${m.product_id}`} style={{ color: '#e8e7e0', textAlign: 'right', fontFamily: 'var(--font-mono)' }}>{m.counted_qty}</div>
-                <div key={`d-${m.product_id}`} style={{ color: m.diff > 0 ? GRN : RED, textAlign: 'right', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+                <div key={'n-' + m.product_id} style={{ color: '#c4c3bc', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.product_name}</div>
+                <div key={'s-' + m.product_id} style={{ color: '#e8e7e0', textAlign: 'right', fontFamily: "'DM Mono', monospace" }}>{m.system_qty}</div>
+                <div key={'c-' + m.product_id} style={{ color: '#e8e7e0', textAlign: 'right', fontFamily: "'DM Mono', monospace" }}>{m.counted_qty}</div>
+                <div key={'d-' + m.product_id} style={{ color: m.diff > 0 ? GRN : RED, textAlign: 'right', fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>
                   {m.diff > 0 ? '+' : ''}{m.diff}
                 </div>
               </>
             ))}
           </div>
+        </div>
+      )}
+
+      {onNewCount && (
+        <div style={{ marginTop: 20 }}>
+          <button
+            onClick={onNewCount}
+            style={{
+              width: '100%', padding: 14,
+              background: 'linear-gradient(135deg, #EE7844, #B84D22)',
+              border: 'none', borderRadius: 10,
+              color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer',
+            }}
+          >
+            Start New Count
+          </button>
         </div>
       )}
     </div>
