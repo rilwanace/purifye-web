@@ -4,7 +4,7 @@ import { useToast } from '../shared/components/Toast'
 const BOTS = [
   { id: 'accounting', label: 'Accounting', gradient: 'linear-gradient(145deg, #28997A, #13654C)', path: '/accounting', active: true, icon: '📊' },
   { id: 'inventory',  label: 'Inventory',  gradient: 'linear-gradient(145deg, #EE7844, #B84D22)', path: '/inventory',  active: true,  icon: '📦' },
-  { id: 'social',     label: 'Social',     gradient: 'linear-gradient(145deg, #7068D9, #4840A3)', path: '/social',     active: false, icon: '📣' },
+  { id: 'social',     label: 'Social',     gradient: 'linear-gradient(145deg, #7068D9, #4840A3)', path: '/social',     active: true,  icon: '📣' },
   { id: 'planner',    label: 'Planner',    gradient: 'linear-gradient(145deg, #D4A843, #9E7B28)', path: '/planner',    active: true,  icon: '📅' },
   { id: 'customers',  label: 'Customers',  gradient: 'linear-gradient(145deg, #CF5BA0, #8A3063)', path: '/customers',  active: true,  icon: '👥' },
 ]

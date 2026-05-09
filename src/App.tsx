@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+﻿import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, ProtectedRoute } from './auth/useAuth'
 import { ToastProvider } from './shared/components/Toast'
@@ -14,6 +14,15 @@ import SettingsPage from './accounting/settings/SettingsPage'
 import PlannerLayout from './planner/PlannerLayout'
 import CustomerBot from './customer/CustomerBot'
 import InventoryBot from './inventory/InventoryBot'
+import SocialLayout from './social/SocialLayout'
+import SocialAnalytics from './social/SocialAnalytics'
+import SocialCreate from './social/SocialCreate'
+import SocialCalendar from './social/SocialCalendar'
+import SocialFeed from './social/SocialFeed'
+import SocialLibrary from './social/SocialLibrary'
+import SocialEditor from './social/SocialEditor'
+import SocialOnboarding from './social/SocialOnboarding'
+import SocialSettings from './social/SocialSettings'
 const EmployeePortal = lazy(() => import('./planner/EmployeePortal'))
 
 export default function App() {
@@ -44,6 +53,19 @@ export default function App() {
             </Route>
             <Route path="/inventory" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
               <Route index element={<InventoryBot />} />
+            </Route>
+            <Route path="/social" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
+              <Route index element={<Navigate to="/social/analytics" replace />} />
+              <Route path="onboarding" element={<SocialOnboarding />} />
+              <Route path="editor" element={<SocialEditor />} />
+              <Route element={<SocialLayout />}>
+                <Route path="analytics" element={<SocialAnalytics />} />
+                <Route path="create" element={<SocialCreate />} />
+                <Route path="calendar" element={<SocialCalendar />} />
+                <Route path="feed" element={<SocialFeed />} />
+                <Route path="library" element={<SocialLibrary />} />
+                <Route path="settings" element={<SocialSettings />} />
+              </Route>
             </Route>
             <Route path="/t/:token" element={<Suspense fallback={null}><EmployeePortal /></Suspense>} />
           </Routes>
