@@ -161,7 +161,7 @@ export default function SocialOnboarding() {
               const sample = toneSamples[key as keyof typeof toneSamples]
               return (
                 <div key={key} onClick={() => setTone(sample)} style={{
-                  background: '#1a1a18', border: '1px solid ' + (tone === sample ? 'rgba(112,104,217,0.4)' : 'rgba(255,255,255,0.06)'),
+                  border: '1px solid ' + (tone === sample ? 'rgba(112,104,217,0.4)' : 'rgba(255,255,255,0.06)'),
                   borderRadius: 10, padding: 16, marginBottom: 10, cursor: 'pointer',
                   background: tone === sample ? 'rgba(112,104,217,0.04)' : '#1a1a18',
                 } as any}>
@@ -196,7 +196,7 @@ export default function SocialOnboarding() {
 
           {LANG_OPTIONS.map(opt => (
             <div key={opt.value} onClick={() => setSecLang(opt.value)} style={{
-              background: '#1a1a18', border: '1px solid ' + (secLang === opt.value ? 'rgba(112,104,217,0.4)' : 'rgba(255,255,255,0.06)'),
+              border: '1px solid ' + (secLang === opt.value ? 'rgba(112,104,217,0.4)' : 'rgba(255,255,255,0.06)'),
               borderRadius: 10, padding: 14, marginBottom: 8, cursor: 'pointer',
               background: secLang === opt.value ? 'rgba(112,104,217,0.04)' : '#1a1a18',
             } as any}>

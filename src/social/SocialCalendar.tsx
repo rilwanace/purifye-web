@@ -115,7 +115,7 @@ export default function SocialCalendar() {
         </div>
 
         {/* Day rows */}
-        {days.map((day, i) => {
+        {days.map((day) => {
           const dayStr = fmtDate(day)
           const isToday = dayStr === today
           return (

@@ -59,8 +59,8 @@ export default function SocialEditor() {
   }, [capIdx])
 
   // Draggable logic
-  function makeDraggable(ref: React.RefObject<HTMLDivElement>, pos: { x: number; y: number }, setPos: (p: { x: number; y: number }) => void) {
-    const el = ref.current
+  function makeDraggable(ref: React.RefObject<HTMLDivElement | null>, _pos: { x: number; y: number }, setPos: (p: { x: number; y: number }) => void) {
+    const el = ref.current as HTMLDivElement
     if (!el) return
     let startX = 0, startY = 0, startLeft = 0, startTop = 0, dragging = false
     const bounds = photoRef.current?.getBoundingClientRect()

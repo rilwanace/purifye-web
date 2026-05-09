@@ -95,7 +95,7 @@ export default function SocialAnalytics() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6, marginBottom: 10 }}>
         {metrics.map(m => (
           <div key={m.id} onClick={() => setMetric(m.id)} style={{
-            textAlign: 'center', padding: '14px 6px', background: '#1a1a18', borderRadius: 10,
+            textAlign: 'center', padding: '14px 6px', borderRadius: 10,
             border: '1px solid ' + (metric === m.id ? 'rgba(112,104,217,0.3)' : 'rgba(255,255,255,0.06)'),
             background: metric === m.id ? 'rgba(112,104,217,0.04)' : '#1a1a18',
             cursor: 'pointer',
