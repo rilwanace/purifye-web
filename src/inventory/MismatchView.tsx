@@ -1,6 +1,6 @@
 const RED = '#D85A30'
 const GRN = '#5DCAA5'
-const INV = '#E86B3A'
+
 
 export default function MismatchView({ data, onBack: _onBack, onNewCount }: { data: any; onBack: () => void; onNewCount?: () => void }) {
   const mismatches = data?.mismatches || []
