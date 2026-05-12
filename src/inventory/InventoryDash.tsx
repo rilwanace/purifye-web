@@ -10,6 +10,7 @@ function HeatmapCell({ cell, onClick }: { cell: any; onClick: () => void }) {
   const [hover, setHover] = useState(false)
   return (
     <div
+      className="heatmap-cell"
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}

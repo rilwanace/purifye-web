@@ -68,9 +68,9 @@ export default function ProductDetail({
   )
   if (!data) return null
 
-  const p = data.product || {}
-  const movements = data.movements || []
-  const batches = data.batches || []
+  const p = { name: data.name, code: data.code, unit: data.unit, reorder_level: data.reorder_level, product_type: data.product_type, location_name: data.location_name }
+  const movements = data.recent_movements || []
+  const batches = data.active_batches || []
   const health = data.health || 'ok'
   const healthColor = health === 'critical' ? RED : health === 'low' ? AMB : GRN
 
