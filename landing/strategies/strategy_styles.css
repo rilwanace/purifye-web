@@ -1,0 +1,568 @@
+/* Strategy Library — Shared Design System */
+/* Fonts loaded via Google Fonts: DM Sans + Fraunces */
+
+:root {
+  --bg: #FAFAF7;
+  --card: #FFFFFF;
+  --text: #2C2B28;
+  --text-mid: #6B6A65;
+  --text-light: #9C9B95;
+  --accent: #1D6B52;
+  --accent-light: #E8F5EE;
+  --accent-dark: #0F4A38;
+  --border: rgba(0,0,0,0.08);
+  --purple: #6B5CE7;
+  --purple-light: #F0EEFE;
+  --coral: #D85A30;
+  --coral-light: #FEF0EB;
+  --amber: #B07815;
+  --amber-light: #FDF5E6;
+  --blue: #2B7BB9;
+  --blue-light: #EBF4FB;
+  --warm: #F5F0E8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Page container ── */
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* ── Intro / Inner Thoughts ── */
+.intro {
+  padding: 48px 0 40px;
+}
+
+.thought {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  margin-bottom: 12px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeUp 0.5s ease forwards;
+}
+
+.thought:nth-child(odd)  { color: #534AB7; animation-delay: 0.1s; }
+.thought:nth-child(even) { color: #D85A30; animation-delay: 0.4s; }
+.thought:nth-child(3)    { animation-delay: 0.7s; }
+
+.intro-body {
+  font-size: 15px;
+  color: var(--text-mid);
+  margin-top: 24px;
+  opacity: 0;
+  animation: fadeUp 0.5s ease forwards;
+  animation-delay: 1s;
+}
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Strategy sections ── */
+.section {
+  margin-bottom: 48px;
+}
+
+.section-num {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+
+.section p {
+  font-size: 15px;
+  color: var(--text-mid);
+  margin-bottom: 12px;
+}
+
+.section p strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ── Highlight box ── */
+.highlight {
+  background: var(--accent-light);
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin: 16px 0;
+  font-size: 14px;
+  color: var(--accent-dark);
+  line-height: 1.55;
+}
+
+/* ── Bar chart ── */
+.bar-chart {
+  margin: 20px 0;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.bar-chart-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-light);
+  margin-bottom: 14px;
+  letter-spacing: 0.02em;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.bar-label {
+  width: 80px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.bar-track {
+  flex: 1;
+  height: 24px;
+  background: var(--bg);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.bar-value {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.bar-note {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 10px;
+}
+
+/* ── Stat cards ── */
+.stat-row {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.stat-card {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+
+.stat-card .num {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.stat-card .desc {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+/* ── Month grid ── */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin: 16px 0;
+}
+
+.month-cell {
+  text-align: center;
+  padding: 10px 4px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.month-cell span {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  margin-top: 2px;
+  opacity: 0.7;
+}
+
+.month-peak { background: var(--accent); color: white; }
+.month-mod  { background: var(--accent-light); color: var(--accent-dark); }
+.month-low  { background: var(--warm); color: var(--text-light); }
+
+.month-legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+/* ── Quote block ── */
+.quote-block {
+  background: var(--warm);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 16px 0;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.quote-block .label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+/* ── Checklist card ── */
+.checklist-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  margin: 20px 0;
+}
+
+.checklist-card h4 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.check-box {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.check-box.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.check-box.checked::after {
+  content: '';
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+
+.check-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.check-text.checked-text {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+
+/* ── Divider ── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 48px 0;
+}
+
+/* ── Template pack paywall ── */
+.template-pack {
+  background: var(--card);
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  padding: 24px 20px;
+  margin-top: 16px;
+}
+
+.template-pack h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 19px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.template-pack .subtitle {
+  font-size: 13px;
+  color: var(--text-mid);
+  margin-bottom: 18px;
+}
+
+.template-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.template-item:last-of-type {
+  border-bottom: none;
+}
+
+.template-item .name {
+  color: var(--text);
+  flex: 1;
+}
+
+.template-item .pages {
+  color: var(--text-light);
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.template-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 2px solid var(--border);
+}
+
+.template-total .left {
+  font-size: 13px;
+  color: var(--text-mid);
+}
+
+.template-total .left strong {
+  color: var(--text);
+}
+
+.template-price {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.template-price span {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-light);
+}
+
+.buy-btn {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.buy-btn:hover { background: var(--accent-dark); }
+
+.free-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 10px;
+}
+
+/* ── CTA block ── */
+.cta-block {
+  background: var(--accent-light);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 32px 0 16px;
+}
+
+.cta-block.cta-automate {
+  background: var(--accent-light);
+  border-left: 4px solid var(--accent);
+}
+
+.cta-block.cta-help {
+  background: var(--purple-light);
+  border-left: 4px solid var(--purple);
+}
+
+.cta-block.cta-diy {
+  background: var(--amber-light);
+  border-left: 4px solid var(--amber);
+}
+
+.cta-block h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.cta-block p {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ── Navigation ── */
+.back-nav {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.nav-btn:hover { border-color: var(--accent); }
+
+.nav-btn .arrow {
+  float: right;
+  color: var(--text-light);
+}
+
+/* ── Tax table ── */
+.tax-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 13px;
+  background: var(--card);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.tax-table th {
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  font-weight: 600;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.tax-table td {
+  padding: 9px 12px;
+  border-top: 1px solid var(--border);
+  color: var(--text-mid);
+}
+
+.tax-table td:first-child {
+  color: var(--text);
+}
+
+/* ── Prefill convention (red example data in templates) ── */
+.prefill {
+  color: var(--coral);
+}
+
+/* ── Scroll-reveal (managed via JS / StrategyRenderer) ── */
+.section[data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.section[data-reveal].visible {
+  opacity: 1;
+  transform: translateY(0);
+}

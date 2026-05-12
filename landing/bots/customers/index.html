@@ -1,0 +1,1056 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Customer Bot — Purifye</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#131311;--card:#1a1a18;--sf:#212120;--inp:#2a2a28;--el:#212120;
+  --t1:#e8e7e0;--t2:#c4c3bc;--t3:#9c9b95;
+  --accent:#CF5BA0;--adim:rgba(207,91,160,0.1);--abrd:rgba(207,91,160,0.2);
+  --g1:#CF5BA0;--g2:#8A3063;
+  --grn:#5DCAA5;--red:#D85A30;--amb:#D4A843;--blu:#5B8DEF;
+  --bdr:rgba(255,255,255,0.06);
+  --ff:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a09;color:var(--t1);font-family:var(--ff);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ═══ DEMO FRAME ═══ */
+.demo-section{padding:40px 0 20px;display:flex;flex-direction:column;align-items:center}
+.demo-section .demo-wrap{gap:20px;align-items:center}
+.demo-wrap{display:flex;flex-direction:column;align-items:center;gap:20px}
+.caption{position:fixed;top:0;left:0;right:0;z-index:200;padding:20px 24px 14px;background:rgba(15,15,13,0.97);border-bottom:2px solid rgba(207,91,160,0.5);font-size:20px;font-weight:700;color:#e8e7e0;text-align:center;line-height:1.3;opacity:0;transform:translateY(-100%);transition:opacity .35s,transform .35s;pointer-events:none;letter-spacing:-.3px;word-break:break-word}
+.caption.show{opacity:1;transform:translateY(0)}
+.caption .hl{color:var(--accent);font-weight:700}
+.caption .sub{display:block;font-size:15px;font-weight:400;color:#e8e7e0;margin-top:5px;letter-spacing:0;word-wrap:break-word;white-space:normal}
+.phone{width:375px;height:800px;background:var(--bg);border-radius:44px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 2px #3a3a38,0 0 0 5px #1a1a18,0 0 0 7px #0a0a09,0 30px 60px rgba(0,0,0,.6),0 0 120px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.04)}
+.notch{height:50px;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notch-bar{width:120px;height:28px;background:#0a0a09;border-radius:0 0 18px 18px}
+.nav{padding:10px 18px 0;flex-shrink:0}
+.nav-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.nav-left{display:flex;align-items:center;gap:8px}
+.nav-ic{width:28px;height:28px;border-radius:10px;background:linear-gradient(135deg,var(--g1),var(--g2));display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 4px 12px rgba(207,91,160,.2)}
+.nav-h{font-weight:700;font-size:15px;color:var(--t1);letter-spacing:-.3px}
+.nav-actions{display:flex;gap:6px}
+.nav-btn{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;font-size:14px}
+.pills{display:flex;gap:4px;margin-bottom:2px}
+.pill{flex:1;text-align:center;padding:8px 0;font-size:11px;font-weight:600;font-family:var(--fm);color:#6a6a64;border-radius:10px;transition:all .2s;border:1px solid transparent}
+.pill.on{color:var(--accent);background:var(--adim);border-color:var(--abrd)}
+.scroll{flex:1;overflow:hidden;position:relative}
+.scene{position:absolute;inset:0;padding:10px 18px 20px;overflow-y:auto;scrollbar-width:none;opacity:0;transition:opacity .35s,transform .35s;pointer-events:none;transform:translateX(30px)}
+.scene::-webkit-scrollbar{display:none}
+.scene.in{opacity:1;transform:translateX(0)!important;pointer-events:auto}
+.scene.out-l{opacity:0;transform:translateX(-30px)}
+.bot-bar{height:64px;background:var(--card);border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding:0 6px}
+.bt{display:flex;flex-direction:column;align-items:center;gap:2px}
+.bt-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.bt-lb{font-size:10px;color:var(--t3)}
+.bt.on .bt-lb{color:var(--t1)}
+.bt.on .bt-ic{box-shadow:0 0 12px rgba(207,91,160,.3)}
+
+/* ═══ DEMO SCENE ELEMENTS ═══ */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:12px}
+.met{text-align:center;padding:10px 2px;background:var(--card);border-radius:10px;border:1px solid var(--bdr);opacity:0;transform:translateY(8px);transition:all .3s}
+.met.s{opacity:1;transform:translateY(0)}
+.met-v{font-size:18px;font-weight:700;font-family:var(--fm);line-height:1.2}
+.met-l{font-size:8px;color:var(--t2);font-family:var(--fm);margin-top:2px;text-transform:uppercase}
+.card{background:var(--card);border-radius:10px;padding:12px 10px;margin-bottom:8px;border:1px solid var(--bdr);opacity:0;transform:translateY(8px);transition:all .4s}
+.card.s{opacity:1;transform:translateY(0)}
+.card-title{font-size:10px;font-weight:700;text-align:center;margin-bottom:2px;color:var(--t1)}
+.card-sub{font-size:8px;color:var(--t2);font-family:var(--fm);text-align:center;margin-bottom:8px}
+.daily-bars{display:flex;align-items:flex-end;gap:0;height:80px;padding-bottom:14px;position:relative}
+.daily-bars::after{content:'';position:absolute;bottom:13px;left:0;right:0;height:1px;background:var(--bdr)}
+.d-col{flex:1;display:flex;flex-direction:column;align-items:center;min-width:0}
+.d-stack{width:70%;display:flex;flex-direction:column;gap:1px;align-items:stretch;min-width:4px}
+.d-seg{border-radius:1.5px;transition:height .6s ease}
+.d-seg.ret{background:var(--grn)}.d-seg.new{background:var(--accent)}
+.d-total{font-size:5px;font-weight:700;font-family:var(--fm);color:var(--t2);text-align:center;margin-bottom:1px;min-height:7px}
+.chart-legend{display:flex;gap:12px;justify-content:center;padding:6px 0 2px}
+.chart-legend-item{display:flex;align-items:center;gap:4px}
+.chart-legend-dot{width:6px;height:6px;border-radius:2px}
+.chart-legend-text{font-size:8px;color:var(--t2);font-family:var(--fm)}
+.r-row{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.r-period{font-size:8px;font-family:var(--fm);color:var(--t1);width:38px;flex-shrink:0;text-align:right}
+.r-track{flex:1;height:22px;background:var(--sf);border-radius:6px;overflow:hidden}
+.r-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;width:0;transition:width .8s ease}
+.r-val{font-size:9px;font-weight:700;font-family:var(--fm);color:#fff}
+.action-card{background:var(--card);border-radius:10px;margin-bottom:8px;border:1px solid var(--bdr);overflow:hidden;opacity:0;transform:translateY(8px);transition:all .3s}
+.action-card.s{opacity:1;transform:translateY(0)}
+.action-title{font-size:10px;font-weight:700;font-family:var(--fm);padding:10px 14px;border-bottom:1px solid var(--bdr);color:var(--red)}
+.action-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.action-row:last-child{border-bottom:none}
+.action-ic{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.action-info{flex:1}.action-info-t{font-size:13px;font-weight:500;color:var(--t1)}.action-info-s{font-size:8px;color:var(--t2);font-family:var(--fm);margin-top:1px}
+.action-arrow{font-size:14px;color:var(--t2)}
+.sec-label-d{font-size:9px;font-weight:700;font-family:var(--fm);letter-spacing:.1em;padding:14px 0 8px;display:flex;align-items:center;gap:8px;color:var(--accent);text-transform:uppercase}
+.sec-label-d::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.summary-card{background:var(--card);border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--bdr);opacity:0;transform:translateY(8px);transition:all .3s}
+.summary-card.s{opacity:1;transform:translateY(0)}
+.s-row{display:flex;align-items:center;gap:8px;padding:6px 0}
+.s-row+.s-row{border-top:1px solid var(--bdr)}
+.s-icon{font-size:15px}.s-info{font-size:12px;flex:1;color:var(--t1)}
+.s-val{font-size:11px;font-weight:600;font-family:var(--fm)}
+
+.seg-group{margin-bottom:4px;opacity:0;transform:translateY(6px);transition:all .3s}
+.seg-group.s{opacity:1;transform:translateY(0)}
+.seg-hdr{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--card);border-radius:10px;border:1px solid var(--bdr)}
+.seg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.seg-name{font-size:13px;font-weight:500;flex:1;color:var(--t1)}
+.seg-range{font-size:9px;color:var(--t2);font-family:var(--fm)}
+.seg-count{font-size:11px;font-family:var(--fm);font-weight:600;margin-left:4px}
+.seg-items{max-height:0;overflow:hidden;transition:max-height .5s ease}
+.seg-items.open{max-height:500px}
+.cust-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.02);border-radius:6px;margin-bottom:2px}
+.cust-av{width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.cust-info{flex:1}.cust-name{font-size:12px;font-weight:500;color:var(--t1)}.cust-meta{font-size:8px;color:var(--t2);font-family:var(--fm);margin-top:1px;display:flex;gap:6px}
+.cust-days{font-size:10px;font-family:var(--fm);font-weight:600;flex-shrink:0}
+.cust-tag{font-size:7px;padding:2px 5px;border-radius:4px;background:var(--inp);color:var(--t2);margin-left:4px}
+
+.detail-header{text-align:center;padding:8px 0 16px}
+.detail-av{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin:0 auto 8px}
+.detail-name{font-size:17px;font-weight:700;color:var(--t1)}
+.detail-seg{font-size:9px;font-family:var(--fm);font-weight:700;margin-top:4px;display:inline-block;padding:3px 10px;border-radius:6px}
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:14px}
+.detail-stat{text-align:center;padding:10px 4px;background:var(--card);border-radius:10px;border:1px solid var(--bdr);opacity:0;transform:scale(.9);transition:all .3s}
+.detail-stat.s{opacity:1;transform:scale(1)}
+.detail-stat-val{font-size:15px;font-weight:700;font-family:var(--fm)}
+.detail-stat-label{font-size:8px;color:var(--t2);font-family:var(--fm);margin-top:2px}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;background:var(--card);border-radius:6px;margin-bottom:2px;opacity:0;transition:opacity .3s}
+.detail-row.s{opacity:1}
+.detail-row-l{font-size:12px;color:var(--t2)}
+.detail-row-v{font-size:12px;font-weight:500;color:var(--t1)}
+.donut-wrap{display:flex;align-items:center;gap:14px;padding:12px;background:var(--card);border-radius:10px;border:1px solid var(--bdr);margin-bottom:8px;opacity:0;transition:opacity .4s}
+.donut-wrap.s{opacity:1}
+.donut-chart{width:80px;height:80px;flex-shrink:0;position:relative}
+.donut-chart svg{width:80px;height:80px}
+.donut-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.donut-center-val{font-size:14px;font-weight:700;font-family:var(--fm);color:var(--t1)}
+.donut-center-label{font-size:6px;color:var(--t2);font-family:var(--fm)}
+.donut-legend{flex:1;display:flex;flex-direction:column;gap:4px}
+.donut-legend-item{display:flex;align-items:center;gap:6px}
+.donut-legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.donut-legend-text{font-size:10px;flex:1;color:var(--t1)}
+.donut-legend-val{font-size:10px;font-weight:600;font-family:var(--fm);color:var(--t1)}
+
+.msg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:6px}
+.msg-grid-r2{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
+.mg-btn{padding:10px 4px;border-radius:10px;text-align:center;opacity:0;transform:translateY(6px);transition:all .3s;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.mg-btn.s{opacity:1;transform:translateY(0)}
+.mg-icon{font-size:16px;margin-bottom:2px}
+.mg-label{font-size:8px;font-weight:600;line-height:1.2}
+.mg-sub{font-size:6px;color:var(--t2);margin-top:1px}
+.mq-item{background:var(--card);border-radius:10px;padding:12px 14px;margin-bottom:6px;border:1px solid var(--bdr);opacity:0;transform:translateY(6px);transition:all .3s}
+.mq-item.s{opacity:1;transform:translateY(0)}
+.mq-hdr{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.mq-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s}
+.mq-check.on{border-color:#25D366;background:rgba(37,211,102,.13);color:#25D366}
+.mq-name{font-size:13px;font-weight:500;flex:1;color:var(--t1)}
+.mq-tag{font-size:9px;font-family:var(--fm);font-weight:700;padding:2px 8px;border-radius:6px}
+.mq-body{font-size:12px;color:var(--t2);line-height:1.5;padding:8px 10px;background:var(--sf);border-radius:6px;margin-bottom:8px}
+.mq-actions{display:flex;gap:6px}
+.mq-btn{flex:1;padding:8px;border-radius:6px;font-size:10px;font-weight:600;text-align:center;display:flex;align-items:center;justify-content:center;gap:4px}
+.mq-btn.wa{background:rgba(37,211,102,.08);color:#25D366;border:1px solid rgba(37,211,102,.2)}
+.mq-btn.edit{background:rgba(255,255,255,.04);color:var(--t1);border:1px solid var(--bdr)}
+.mq-btn.skip{background:rgba(216,90,48,.08);color:var(--red);border:1px solid rgba(216,90,48,.12)}
+.builder-card{background:var(--card);border-radius:10px;padding:14px;border:1px solid var(--abrd);margin-bottom:10px}
+.form-label{font-size:9px;font-weight:700;color:var(--t2);font-family:var(--fm);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.form-select{background:var(--inp);border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;color:var(--t1);font-size:13px;width:100%;margin-bottom:10px}
+.form-textarea{background:var(--inp);border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;color:var(--t1);font-size:13px;width:100%;line-height:1.5;min-height:55px;margin-bottom:6px}
+.seg-pick{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.seg-pick:last-child{border-bottom:none}
+.sp-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s}
+.sp-check.on{border-color:var(--accent);background:var(--adim);color:var(--accent)}
+.sp-name{font-size:12px;font-weight:500;flex:1;color:var(--t1)}
+.sp-count{font-size:9px;font-family:var(--fm);color:var(--accent);font-weight:700}
+.btn-primary-d{padding:12px;border-radius:10px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;text-align:center;width:100%;margin-top:10px}
+.sub-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.back-btn{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:var(--t1);font-size:16px}
+.sub-title{font-size:15px;font-weight:700;color:var(--t1)}
+.search-bar-d{padding:8px 12px;background:var(--inp);border:1px solid var(--bdr);border-radius:10px;font-size:13px;color:var(--t2);margin-bottom:10px}
+.share-sheet{position:absolute;bottom:0;left:0;right:0;background:#1e1e1e;border-radius:12px 12px 0 0;z-index:70;padding:14px;transform:translateY(100%);transition:transform .3s}
+.share-sheet.show{transform:translateY(0)}
+.share-row{display:flex;justify-content:space-around;margin-top:8px}
+.share-app{display:flex;flex-direction:column;align-items:center;gap:3px}
+.share-app-ic{width:36px;height:36px;border-radius:8px;display:grid;place-items:center}
+.share-app-lb{font-size:8px;color:var(--t2)}
+.share-title{font-family:var(--fm);font-size:9px;color:var(--t2);text-align:center}
+.tap-hl{animation:tapPulse .5s ease}
+@keyframes tapPulse{0%{background:rgba(207,91,160,.25)}100%{background:transparent}}
+.queue-bar{display:flex;gap:6px;margin-bottom:10px}
+.q-btn{flex:1;padding:10px;border-radius:10px;font-size:10px;font-weight:600;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px}
+
+/* ═══ HERO + CTA + CONTENT SECTIONS ═══ */
+.hero{text-align:center;padding:40px 20px 20px;max-width:430px;margin:0 auto}
+.hero-icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--g1),var(--g2));display:grid;place-items:center;margin:0 auto 24px;box-shadow:0 8px 32px rgba(207,91,160,.3)}
+.hero-icon svg{width:30px;height:30px}
+.hero h1{font-size:30px;font-weight:700;color:#e8e7e0;line-height:1.2;letter-spacing:-.5px;margin-bottom:12px}
+.hero h1 .hl{color:var(--accent)}
+.hero p{font-size:14px;color:#e8e7e0;margin-bottom:40px}
+.content-wrap{max-width:430px;margin:0 auto;padding:0 20px 40px}
+.section{padding:72px 0 0}
+.sec-head{text-align:center;margin-bottom:48px}
+.sec-tag{font-family:var(--fm);font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.15em;margin-bottom:12px}
+.sec-title{font-size:24px;font-weight:700;color:var(--t1);line-height:1.25;letter-spacing:-.5px;margin-bottom:10px}
+.sec-desc{font-size:13px;color:var(--t2);max-width:520px;margin:0 auto;line-height:1.6}
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.step{background:var(--sf);border:1px solid var(--bdr);border-radius:14px;padding:24px 20px;position:relative;transition:border-color .2s}
+.step:hover{border-color:rgba(207,91,160,.15)}
+.step-num{font-family:var(--fm);font-size:40px;font-weight:700;color:rgba(207,91,160,.12);position:absolute;top:16px;right:18px;line-height:1}
+.step-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px}
+.step-icon svg{width:22px;height:22px}
+.step-name{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:6px}
+.step-desc{font-size:12px;color:var(--t2);line-height:1.5}
+.features{display:flex;flex-direction:column;gap:20px}
+.feat{background:var(--sf);border:1px solid var(--bdr);border-radius:14px;padding:20px 18px;display:flex;flex-direction:column;gap:14px;transition:border-color .2s}
+.feat:hover{border-color:rgba(207,91,160,.15)}
+.feat-visual{width:100%;min-height:140px;flex-shrink:0;background:var(--el);border-radius:10px;overflow:hidden;display:grid;place-items:center;border:1px solid var(--bdr);padding:10px}
+.feat-content{flex:1}
+.feat-badge{font-family:var(--fm);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:10px}
+.feat-title{font-size:20px;font-weight:700;color:var(--t1);margin-bottom:8px;letter-spacing:-.3px}
+.feat-desc{font-size:13px;color:var(--t2);line-height:1.65}
+.feed-list{display:flex;flex-direction:column;gap:12px}
+.feed-card{background:var(--sf);border:1px solid var(--bdr);border-radius:14px;padding:18px 16px;transition:border-color .2s}
+.feed-card:hover{border-color:rgba(255,255,255,.1)}
+.feed-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.feed-icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+.feed-icon svg{width:20px;height:20px}
+.feed-info{flex:1}
+.feed-name{font-size:15px;font-weight:700;color:var(--t1)}
+.feed-desc{font-size:11px;color:var(--t2);margin-top:2px}
+.feed-flow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.feed-side-label{font-family:var(--fm);font-size:8px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.feed-file-chip{display:inline-flex;align-items:center;gap:6px;background:var(--el);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px}
+.feed-file-icon{font-size:14px}
+.feed-file-name{font-family:var(--fm);font-size:10px;color:var(--t1)}
+.feed-result-line{font-family:var(--fm);font-size:10px;font-weight:500;margin-bottom:2px}
+.feed-result-line.ok{color:var(--grn)}
+.feed-result-meta{font-family:var(--fm);font-size:9px;color:var(--t3)}
+.cta{text-align:center;padding:60px 20px 80px;max-width:430px;margin:0 auto}
+.cta-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:380px;padding:16px 24px;border-radius:14px;background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;font-family:var(--ff);font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 8px 32px rgba(207,91,160,.3);transition:transform .15s,box-shadow .15s;letter-spacing:-.2px}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(207,91,160,.4)}
+.cta-btn:active{transform:scale(.98)}
+.cta-sub{font-family:var(--fm);font-size:11px;color:#e8e7e0;margin-top:12px}
+
+/* ═══ CONTENT MINI VISUALS ═══ */
+.mini-recency{display:flex;flex-direction:column;gap:8px;width:90%;padding:12px 0}
+.mini-r-row{display:flex;align-items:center;gap:8px}
+.mini-r-label{font-family:var(--fm);font-size:10px;color:var(--t1);width:40px;text-align:right;flex-shrink:0;font-weight:600}
+.mini-r-track{flex:1;height:18px;background:var(--inp);border-radius:5px;overflow:hidden}
+.mini-r-fill{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:8px}
+.mini-r-val{font-family:var(--fm);font-size:9px;font-weight:700;color:#fff}
+
+.mini-msgs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:14px 8px}
+.mini-msg-pill{font-family:var(--fm);font-size:11px;font-weight:700;padding:7px 14px;border-radius:10px;display:flex;align-items:center;gap:5px}
+.mini-msg-icon{font-size:14px}
+
+.mini-queue{width:92%;display:flex;flex-direction:column;gap:5px;padding:8px 0}
+.mini-q-row{display:flex;align-items:center;gap:8px;background:var(--inp);border-radius:8px;padding:8px 10px}
+.mini-q-check{width:16px;height:16px;border-radius:50%;border:2px solid rgba(37,211,102,.5);display:flex;align-items:center;justify-content:center;font-size:8px;color:#25D366;flex-shrink:0;font-weight:700}
+.mini-q-name{font-family:var(--fm);font-size:11px;color:var(--t1);flex:1;font-weight:500}
+.mini-q-tag{font-family:var(--fm);font-size:8px;font-weight:700;padding:3px 7px;border-radius:5px}
+.mini-q-wa{font-size:10px;color:#25D366;font-weight:700;font-family:var(--fm)}
+
+.mini-donut-wrap{display:flex;align-items:center;gap:16px;padding:14px 10px;width:100%}
+.mini-donut{width:70px;height:70px;position:relative;flex-shrink:0}
+.mini-donut svg{width:70px;height:70px}
+.mini-donut-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:12px;font-weight:700;color:var(--t1)}
+.mini-donut-legend{display:flex;flex-direction:column;gap:5px}
+.mini-dl-row{display:flex;align-items:center;gap:6px}
+.mini-dl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.mini-dl-text{font-family:var(--fm);font-size:10px;color:var(--t1);font-weight:500}
+
+.mini-ref{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px}
+.mini-ref-code{font-family:var(--fm);font-size:22px;font-weight:700;color:var(--accent);letter-spacing:3px}
+.mini-ref-sub{font-family:var(--fm);font-size:10px;color:var(--t2);font-weight:500}
+.mini-ref-flow{display:flex;align-items:center;gap:10px;margin-top:6px}
+.mini-ref-step{display:flex;flex-direction:column;align-items:center;gap:3px}
+.mini-ref-icon{font-size:20px}
+.mini-ref-label{font-family:var(--fm);font-size:8px;color:var(--t2);font-weight:500}
+.mini-ref-arrow{font-size:14px;color:var(--t2);font-weight:700}
+/* === PURIFYE NAV === */
+.purifye-nav{display:flex;justify-content:space-between;align-items:center;padding:21px 20px 0;max-width:420px;margin:0 auto}
+.purifye-logo{font-weight:700;font-size:18px;letter-spacing:-.4px}.purifye-logo a{color:#e8e7e0;text-decoration:none}.purifye-logo span{color:#5DCAA5}
+.purifye-ham{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:10px;-webkit-tap-highlight-color:transparent}
+.slide-menu{position:fixed;top:0;right:0;width:280px;height:100vh;background:#131311;border-left:1px solid rgba(255,255,255,.06);z-index:200;transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;padding:0 24px}.slide-menu.open{transform:translateX(0)}
+.slide-menu-hdr{display:flex;justify-content:space-between;align-items:center;padding:21px 0 0}
+.slide-menu-x{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:10px}
+.slide-menu-links{display:flex;flex-direction:column;gap:0;margin-top:40px}
+.slide-link{font-size:16px;font-weight:600;color:#9c9b95;text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04);display:block}
+.slide-link:first-child{border-top:1px solid rgba(255,255,255,.04)}
+.slide-link.active{color:#5DCAA5}.slide-link:active{color:#e8e7e0}
+.slide-link-group{border-bottom:1px solid rgba(255,255,255,.04)}
+.slide-link-parent{font-size:16px;font-weight:600;color:#9c9b95;padding:14px 0 8px}
+.slide-sub{display:block;font-size:13px;font-weight:500;color:#6a6a64;text-decoration:none;padding:6px 0 6px 16px;position:relative}
+.slide-sub::before{content:'';position:absolute;left:0;top:50%;width:8px;height:1px;background:rgba(255,255,255,.08)}
+.slide-sub:last-child{padding-bottom:14px}.slide-sub:active{color:#e8e7e0}
+.slide-signin{display:block;text-align:center;margin-top:20px;padding:12px;border-radius:10px;background:rgba(93,202,165,.08);border:1px solid rgba(93,202,165,.15);color:#5DCAA5;font-size:14px;font-weight:600;text-decoration:none;transition:all .15s}
+.slide-signin:active{background:rgba(93,202,165,.15)}
+.slide-menu-ftr{margin-top:auto;padding:20px 0;text-align:center}
+.slide-menu-ftr span{font-size:9px;color:#3a3a36;font-family:'DM Mono',monospace}
+.slide-menu-backdrop{position:fixed;inset:0;background:rgba(8,8,6,.7);z-index:199;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.slide-menu-backdrop.show{opacity:1;pointer-events:auto}
+.demo-section{height:100vh;overflow:hidden;padding:0;justify-content:center}
+@media(max-width:500px){
+  .demo-section{overflow:hidden;padding:20px 0 0;height:calc(20px + (100vw - 40px) * 2.133)}
+  .demo-wrap{padding:0;gap:0;width:375px;transform-origin:top center;transform:scale(calc((100vw - 40px) / 375))}
+}
+body.demo-away .cap,body.demo-away .caption{opacity:0!important;transform:translateY(-100%)!important;pointer-events:none!important}
+</style>
+</head>
+<body>
+<div class="purifye-nav">
+  <div class="purifye-logo"><a href="/">purifye<span>AI.com</span></a></div>
+  <div class="purifye-ham" onclick="toggleMenu()"><svg width="18" height="14" viewBox="0 0 18 14" fill="none"><line x1="0" y1="1" x2="18" y2="1" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="7" x2="18" y2="7" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/><line x1="5" y1="13" x2="18" y2="13" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+</div>
+<div class="slide-menu" id="slideMenu">
+  <div class="slide-menu-hdr">
+    <div class="purifye-logo"><a href="/">purifye<span>AI.com</span></a></div>
+    <div class="slide-menu-x" onclick="toggleMenu()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+  </div>
+  <div class="slide-menu-links">
+    <a href="/" class="slide-link">Home</a>
+    <div class="slide-link-group">
+      <div class="slide-link-parent">Automation</div>
+      <a href="/bots/accounting/" class="slide-sub">Accounts Bot</a>
+      <a href="/bots/inventory/" class="slide-sub">Inventory Bot</a>
+      <a href="/bots/social/" class="slide-sub">Social Bot</a>
+      <a href="/bots/planner/" class="slide-sub">Planner Bot</a>
+      <a href="/bots/customers/" class="slide-sub">Customer Bot</a>
+    </div>
+    <a href="/pricing/" class="slide-link">Pricing</a>
+    <a href="/contact/" class="slide-link">Contact</a>
+    <a href="/contact/" class="slide-signin">Sign in</a>
+  </div>
+  <div class="slide-menu-ftr"><span>Purifye Solutions (Pvt) Ltd</span></div>
+</div>
+<div class="slide-menu-backdrop" id="menuBackdrop" onclick="toggleMenu()"></div>
+
+<!-- ═══ DEMO WALKTHROUGH ═══ -->
+<div class="demo-section">
+<div class="demo-wrap">
+
+<div class="caption" id="caption"></div>
+<div class="phone">
+<div class="notch"><div class="notch-bar"></div></div>
+<div class="nav" id="nav">
+  <div class="nav-row">
+    <div class="nav-left"><div class="nav-ic">👥</div><span class="nav-h">Customers</span></div>
+    <div class="nav-actions"><div class="nav-btn">📥</div><div class="nav-btn">⚙️</div></div>
+  </div>
+  <div class="pills" id="pills">
+    <span class="pill on" id="pill-dash">Dashboard</span>
+    <span class="pill" id="pill-list">Customers</span>
+    <span class="pill" id="pill-msgs">Messages</span>
+  </div>
+</div>
+<div class="scroll" id="scroll">
+
+<!-- ═══ SCENE 1: DASHBOARD ═══ -->
+<div class="scene in" id="sc-dash">
+  <div class="metrics">
+    <div class="met" id="m1"><div class="met-v" style="color:#CF5BA0" id="mv1">0</div><div class="met-l">Total</div></div>
+    <div class="met" id="m2"><div class="met-v" style="color:#CF5BA0" id="mv2">0%</div><div class="met-l">Repeat</div></div>
+    <div class="met" id="m3"><div class="met-v" style="color:#D85A30" id="mv3">0</div><div class="met-l">At Risk</div></div>
+    <div class="met" id="m4"><div class="met-v" style="color:#5DCAA5" id="mv4">0</div><div class="met-l">Active</div></div>
+  </div>
+
+  <div class="card" id="chart-card" style="border-left:3px solid rgba(93,202,165,.4)">
+    <div class="card-title">Daily Customers</div>
+    <div class="card-sub">last 30 days · tap a day</div>
+    <div class="daily-bars" id="daily-bars"></div>
+    <div class="chart-legend"><div class="chart-legend-item"><div class="chart-legend-dot" style="background:#5DCAA5"></div><div class="chart-legend-text">Returning</div></div><div class="chart-legend-item"><div class="chart-legend-dot" style="background:#CF5BA0"></div><div class="chart-legend-text">New</div></div></div>
+  </div>
+
+  <div class="card" id="recency-card" style="border-left:3px solid rgba(207,91,160,.4)">
+    <div class="card-title">Days Since Last Visit</div>
+    <div class="card-sub">tap a bar to see customers</div>
+    <div class="r-row"><div class="r-period">0-14d</div><div class="r-track"><div class="r-fill" id="rf1" style="background:#5DCAA5"><span class="r-val" id="rv1">0</span></div></div></div>
+    <div class="r-row"><div class="r-period">15-21d</div><div class="r-track"><div class="r-fill" id="rf2" style="background:#B08D30"><span class="r-val" id="rv2">0</span></div></div></div>
+    <div class="r-row"><div class="r-period">22-30d</div><div class="r-track"><div class="r-fill" id="rf3" style="background:#E8894F"><span class="r-val" id="rv3">0</span></div></div></div>
+    <div class="r-row"><div class="r-period">31-60d</div><div class="r-track"><div class="r-fill" id="rf4" style="background:rgba(216,90,48,.7)"><span class="r-val" id="rv4">0</span></div></div></div>
+    <div class="r-row"><div class="r-period">61+d</div><div class="r-track"><div class="r-fill" id="rf5" style="background:#D85A30"><span class="r-val" id="rv5">0</span></div></div></div>
+  </div>
+
+  <div class="action-card" id="action-card">
+    <div class="action-title">⚡ Needs your action</div>
+    <div class="action-row" id="ar1"><div class="action-ic" style="background:rgba(216,90,48,.1)">⚠️</div><div class="action-info"><div class="action-info-t">12 customers at risk</div><div class="action-info-s">Tap to send "we miss you"</div></div><div class="action-arrow">›</div></div>
+    <div class="action-row" id="ar2"><div class="action-ic" style="background:rgba(176,141,48,.1)">🎁</div><div class="action-info"><div class="action-info-t">3 exclusive days this week</div><div class="action-info-s">Birthdays, anniversaries</div></div><div class="action-arrow">›</div></div>
+    <div class="action-row" id="ar3"><div class="action-ic" style="background:rgba(93,202,165,.1)">⭐</div><div class="action-info"><div class="action-info-t">5 loyal customers</div><div class="action-info-s">Good candidates for reviews</div></div><div class="action-arrow">›</div></div>
+  </div>
+
+  <div class="sec-label" style="color:#CF5BA0">Bot Activity</div>
+  <div class="summary-card" id="activity-card">
+    <div class="s-row"><div class="s-icon">📝</div><div class="s-info">Messages drafted</div><div class="s-val" style="color:#CF5BA0">8 pending</div></div>
+    <div class="s-row"><div class="s-icon">✅</div><div class="s-info">Messages sent</div><div class="s-val" style="color:#5DCAA5">24</div></div>
+  </div>
+</div>
+
+<!-- ═══ SCENE 2: CUSTOMER LIST ═══ -->
+<div class="scene" id="sc-list">
+  <div class="search-bar">Search customers...</div>
+
+  <div class="seg-group" id="sg1">
+    <div class="seg-hdr"><div class="seg-dot" style="background:#5DCAA5"></div><div class="seg-name">Active <span class="seg-range">(0-14d)</span></div><div class="seg-count" style="color:#5DCAA5">89</div></div>
+    <div class="seg-items" id="si1">
+      <div class="cust-item"><div class="cust-av" style="background:rgba(93,202,165,.1);color:#5DCAA5">AP</div><div class="cust-info"><div class="cust-name">Amara Perera <span class="cust-tag">VIP</span></div><div class="cust-meta"><span>12 visits</span><span>45,600</span></div></div><div class="cust-days" style="color:#5DCAA5">3d</div></div>
+      <div class="cust-item"><div class="cust-av" style="background:rgba(93,202,165,.1);color:#5DCAA5">NF</div><div class="cust-info"><div class="cust-name">Nimesha Fernando</div><div class="cust-meta"><span>18 visits</span><span>72,000</span></div></div><div class="cust-days" style="color:#5DCAA5">1d</div></div>
+      <div class="cust-item"><div class="cust-av" style="background:rgba(93,202,165,.1);color:#5DCAA5">IW</div><div class="cust-info"><div class="cust-name">Iresha Wickramasinghe</div><div class="cust-meta"><span>22 visits</span><span>89,000</span></div></div><div class="cust-days" style="color:#5DCAA5">5d</div></div>
+      <div class="cust-item"><div class="cust-av" style="background:rgba(93,202,165,.1);color:#5DCAA5">RP</div><div class="cust-info"><div class="cust-name">Rashmi Pathirana</div><div class="cust-meta"><span>4 visits</span><span>16,000</span></div></div><div class="cust-days" style="color:#5DCAA5">2d</div></div>
+    </div>
+  </div>
+
+  <div class="seg-group" id="sg2">
+    <div class="seg-hdr"><div class="seg-dot" style="background:#B08D30"></div><div class="seg-name">Warm <span class="seg-range">(15-21d)</span></div><div class="seg-count" style="color:#B08D30">31</div></div>
+    <div class="seg-items" id="si2">
+      <div class="cust-item"><div class="cust-av" style="background:rgba(176,141,48,.1);color:#B08D30">RJ</div><div class="cust-info"><div class="cust-name">Ruwan Jayawardena</div><div class="cust-meta"><span>5 visits</span><span>18,500</span></div></div><div class="cust-days" style="color:#B08D30">15d</div></div>
+      <div class="cust-item"><div class="cust-av" style="background:rgba(176,141,48,.1);color:#B08D30">DB</div><div class="cust-info"><div class="cust-name">Dilini Bandara</div><div class="cust-meta"><span>4 visits</span><span>14,200</span></div></div><div class="cust-days" style="color:#B08D30">18d</div></div>
+      <div class="cust-item"><div class="cust-av" style="background:rgba(176,141,48,.1);color:#B08D30">NW</div><div class="cust-info"><div class="cust-name">Nimali Weerakoon</div><div class="cust-meta"><span>9 visits</span><span>36,000</span></div></div><div class="cust-days" style="color:#B08D30">20d</div></div>
+    </div>
+  </div>
+
+  <div class="seg-group" id="sg3">
+    <div class="seg-hdr"><div class="seg-dot" style="background:#E8894F"></div><div class="seg-name">Cooling <span class="seg-range">(22-30d)</span></div><div class="seg-count" style="color:#E8894F">16</div></div>
+  </div>
+  <div class="seg-group" id="sg4">
+    <div class="seg-hdr"><div class="seg-dot" style="background:#D85A30"></div><div class="seg-name">Cold <span class="seg-range">(31-60d)</span></div><div class="seg-count" style="color:#D85A30">8</div></div>
+  </div>
+  <div class="seg-group" id="sg5">
+    <div class="seg-hdr"><div class="seg-dot" style="background:#D85A30"></div><div class="seg-name">Inactive <span class="seg-range">(61+d)</span></div><div class="seg-count" style="color:#D85A30">4</div></div>
+  </div>
+  <div style="text-align:center;font-size:8px;color:#c4c3bc;font-family:'DM Mono',monospace;padding:8px">148 total</div>
+</div>
+
+<!-- ═══ SCENE 3: CUSTOMER DETAIL ═══ -->
+<div class="scene" id="sc-detail">
+  <div class="sub-header"><div class="back-btn">←</div><div class="sub-title">Customer</div></div>
+  <div class="detail-header">
+    <div class="detail-av" style="background:rgba(93,202,165,.1);color:#5DCAA5">AP</div>
+    <div class="detail-name">Amara Perera</div>
+    <div class="detail-seg" style="background:rgba(93,202,165,.1);color:#5DCAA5">Active · 3d ago</div>
+  </div>
+  <div class="detail-grid">
+    <div class="detail-stat" id="ds1"><div class="detail-stat-val" style="color:#CF5BA0" id="dsv1">0</div><div class="detail-stat-label">VISITS</div></div>
+    <div class="detail-stat" id="ds2"><div class="detail-stat-val" style="color:#5DCAA5" id="dsv2">0</div><div class="detail-stat-label">SPENT</div></div>
+    <div class="detail-stat" id="ds3"><div class="detail-stat-val" style="color:#e8e7e0" id="dsv3">0</div><div class="detail-stat-label">AVG/VISIT</div></div>
+  </div>
+  <div class="sec-label" style="color:#CF5BA0">Spend Breakdown</div>
+  <div class="donut-wrap" id="donut-wrap">
+    <div class="donut-chart"><svg viewBox="0 0 80 80" id="donut-svg"></svg><div class="donut-center"><div class="donut-center-val">45,600</div><div class="donut-center-label">TOTAL</div></div></div>
+    <div class="donut-legend">
+      <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#CF5BA0"></div><div class="donut-legend-text">Hair treatments</div><div class="donut-legend-val">23,712</div></div>
+      <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#5DCAA5"></div><div class="donut-legend-text">Skin care</div><div class="donut-legend-val">12,768</div></div>
+      <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#B08D30"></div><div class="donut-legend-text">Nail services</div><div class="donut-legend-val">5,472</div></div>
+      <div class="donut-legend-item"><div class="donut-legend-dot" style="background:#E8894F"></div><div class="donut-legend-text">Consultation</div><div class="donut-legend-val">3,648</div></div>
+    </div>
+  </div>
+  <div class="sec-label" style="color:#e8e7e0">Details</div>
+  <div class="detail-row" id="dr1"><div class="detail-row-l">Phone</div><div class="detail-row-v">+94 77 123 4567</div></div>
+  <div class="detail-row" id="dr2"><div class="detail-row-l">Email</div><div class="detail-row-v">amara@mail.com</div></div>
+  <div class="detail-row" id="dr3"><div class="detail-row-l">Referral code</div><div class="detail-row-v" style="color:#CF5BA0;font-weight:600">REF-4821</div></div>
+  <div class="detail-row" id="dr4"><div class="detail-row-l">Last visit</div><div class="detail-row-v">6 May 2026</div></div>
+</div>
+
+<!-- ═══ SCENE 4: MESSAGES TAB ═══ -->
+<div class="scene" id="sc-msgs">
+  <div class="sec-label" style="color:#CF5BA0">New Message</div>
+  <div class="msg-grid">
+    <div class="mg-btn" id="mg1" style="background:rgba(216,90,48,.06);border:1px solid rgba(216,90,48,.12)"><div class="mg-icon">💌</div><div class="mg-label" style="color:#D85A30">We miss you</div><div class="mg-sub">Re-engage cold customers</div></div>
+    <div class="mg-btn" id="mg2" style="background:rgba(207,91,160,.06);border:1px solid rgba(207,91,160,.12)"><div class="mg-icon">📢</div><div class="mg-label" style="color:#CF5BA0">Promo</div><div class="mg-sub">Send a special offer</div></div>
+    <div class="mg-btn" id="mg3" style="background:rgba(176,141,48,.06);border:1px solid rgba(176,141,48,.12)"><div class="mg-icon">🎁</div><div class="mg-label" style="color:#B08D30">Exclusive Days</div><div class="mg-sub">Birthday & anniversaries</div></div>
+  </div>
+  <div class="msg-grid-r2">
+    <div class="mg-btn" id="mg4" style="background:rgba(93,202,165,.06);border:1px solid rgba(93,202,165,.12)"><div class="mg-icon">⭐</div><div class="mg-label" style="color:#5DCAA5">Review Request</div><div class="mg-sub">Ask for a review</div></div>
+    <div class="mg-btn" id="mg5" style="background:rgba(156,155,149,.06);border:1px solid rgba(156,155,149,.12)"><div class="mg-icon">👥</div><div class="mg-label" style="color:#e8e7e0">Referral</div><div class="mg-sub">Grow your customer base</div></div>
+  </div>
+
+  <div class="sec-label" style="color:#CF5BA0">Queue · 3</div>
+  <div class="queue-bar">
+    <div class="q-btn" style="background:rgba(37,211,102,.06);color:#25D366;border:1px solid rgba(37,211,102,.15)"><svg viewBox="0 0 24 24" width="14" height="14" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg> Send all via WhatsApp</div>
+    <div class="q-btn" style="background:rgba(216,90,48,.06);color:#D85A30;border:1px solid rgba(216,90,48,.12);max-width:90px">Clear all</div>
+  </div>
+
+  <div class="mq-item" id="mq1" style="border-left:3px solid rgba(216,90,48,.5)">
+    <div class="mq-hdr"><div class="mq-check" id="mqc1"></div><div class="mq-name">Pradeep Gunasekara</div><div class="mq-tag" style="background:rgba(216,90,48,.1);color:#D85A30;border:1px solid rgba(216,90,48,.2)">We miss you</div></div>
+    <div class="mq-body">Hi Pradeep! We miss you! Here's 20% off your next visit — valid this week only.</div>
+    <div class="mq-actions"><div class="mq-btn wa"><svg viewBox="0 0 24 24" width="12" height="12" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg> Send</div><div class="mq-btn edit">Edit</div><div class="mq-btn skip">Skip</div></div>
+  </div>
+  <div class="mq-item" id="mq2" style="border-left:3px solid rgba(207,91,160,.5)">
+    <div class="mq-hdr"><div class="mq-check" id="mqc2"></div><div class="mq-name">Kumari Abeywickrama</div><div class="mq-tag" style="background:rgba(207,91,160,.1);color:#CF5BA0;border:1px solid rgba(207,91,160,.2)">Promo</div></div>
+    <div class="mq-body">Hi Kumari! Weekend special — 15% off all services. Don't miss out!</div>
+    <div class="mq-actions"><div class="mq-btn wa"><svg viewBox="0 0 24 24" width="12" height="12" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg> Send</div><div class="mq-btn edit">Edit</div><div class="mq-btn skip">Skip</div></div>
+  </div>
+  <div class="mq-item" id="mq3" style="border-left:3px solid rgba(93,202,165,.5)">
+    <div class="mq-hdr"><div class="mq-check" id="mqc3"></div><div class="mq-name">Amara Perera</div><div class="mq-tag" style="background:rgba(93,202,165,.1);color:#5DCAA5;border:1px solid rgba(93,202,165,.2)">Review</div></div>
+    <div class="mq-body">Hi Amara! Thanks for choosing us. A quick review would mean a lot: g.page/ourbusiness</div>
+    <div class="mq-actions"><div class="mq-btn wa"><svg viewBox="0 0 24 24" width="12" height="12" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg> Send</div><div class="mq-btn edit">Edit</div><div class="mq-btn skip">Skip</div></div>
+  </div>
+</div>
+
+<!-- ═══ SCENE 5: BUILDER ═══ -->
+<div class="scene" id="sc-builder">
+  <div class="sub-header"><div class="back-btn">←</div><div class="sub-title">We miss you</div></div>
+  <div class="builder-card">
+    <div class="form-label">Discount %</div>
+    <div class="form-select">20</div>
+    <div class="form-label">Template</div>
+    <div class="form-select">Offer-based</div>
+    <div class="form-label">Message preview</div>
+    <div class="form-textarea" id="b-body"></div>
+    <div class="form-label" style="margin-top:10px">Select by segment</div>
+    <div class="seg-pick"><div class="sp-check" id="spc1"></div><div class="sp-name">Cold</div><div class="sp-count">8</div></div>
+    <div class="seg-pick"><div class="sp-check" id="spc2"></div><div class="sp-name">Inactive</div><div class="sp-count">4</div></div>
+  </div>
+  <div class="btn-primary" id="queue-btn">📢 Queue 12 messages</div>
+</div>
+
+</div><!-- /scroll -->
+
+<!-- Share sheet -->
+<div class="share-sheet" id="shareSheet">
+  <div class="share-title">Share via</div>
+  <div class="share-row">
+    <div class="share-app"><div class="share-app-ic" style="background:#25D366"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div><div class="share-app-lb">WhatsApp</div></div>
+    <div class="share-app"><div class="share-app-ic" style="background:#2AABEE"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012.056 0h-.112zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div><div class="share-app-lb">Telegram</div></div>
+    <div class="share-app"><div class="share-app-ic" style="background:#fff"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M22 6.25V18c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6.25l10 6.5 10-6.5z"/><path fill="#EA4335" d="M22 4H2l10 7 10-7z"/></svg></div><div class="share-app-lb">Gmail</div></div>
+    <div class="share-app"><div class="share-app-ic" style="background:#212120"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#e8e7e0" stroke-width="2"><rect x="8" y="2" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10"/></svg></div><div class="share-app-lb">Copy</div></div>
+  </div>
+</div>
+
+<!-- Bot tab bar -->
+<div class="bot-bar">
+  <div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#28997A,#13654C)">📊</div><div class="bt-lb">Accounting</div></div>
+  <div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#EE7844,#B84D22)">📦</div><div class="bt-lb">Inventory</div></div>
+  <div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#7068D9,#4840A3)">📣</div><div class="bt-lb">Social</div></div>
+  <div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#D4A843,#9E7B28)">📅</div><div class="bt-lb">Planner</div></div>
+  <div class="bt on"><div class="bt-ic" style="background:linear-gradient(135deg,#CF5BA0,#8A3063)">👥</div><div class="bt-lb">Customers</div></div>
+</div>
+</div><!-- /phone -->
+</div><!-- /demo-wrap -->
+</div>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+  <h1>Customers<br><span class="hl">come back.</span></h1>
+  <p>Bot tracks who's active, who's fading, and sends the right message to keep them coming back.</p>
+</div>
+
+<!-- ═══ CONTENT SECTIONS ═══ -->
+<div class="content-wrap">
+
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">How It Works</div>
+      <div class="sec-title">Six steps. Customers retained.</div>
+      <div class="sec-desc">From importing your customer list to sending personalized messages — here's the daily flow.</div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">01</span>
+        <div class="step-icon" style="background:rgba(93,202,165,0.1);color:var(--grn)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
+        <div class="step-name">Import Your Customers</div>
+        <div class="step-desc">Upload a CSV, POS export, or Excel file. Smart column mapping auto-detects names, phones, emails, and visit history.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <div class="step-icon" style="background:rgba(91,141,239,0.1);color:var(--blu)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <div class="step-name">Auto-Segmentation</div>
+        <div class="step-desc">Customers grouped by recency — Active, Warm, Cooling, Cold, Inactive. You see who's drifting before they're gone.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <div class="step-icon" style="background:rgba(207,91,160,0.1);color:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="step-name">Bot Watches for Risks</div>
+        <div class="step-desc">Customers going cold? Birthdays coming up? Loyal customers who haven't reviewed? The dashboard tells you what to act on.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">04</span>
+        <div class="step-icon" style="background:rgba(216,90,48,0.1);color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg></div>
+        <div class="step-name">Pick a Message Type</div>
+        <div class="step-desc">We miss you, promo, exclusive days, review request, or referral. Pick the right message for the right moment.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">05</span>
+        <div class="step-icon" style="background:rgba(212,168,67,0.1);color:var(--amb)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="step-name">Personalize & Queue</div>
+        <div class="step-desc">Choose a template, tweak the wording, pick recipients by segment. Messages queue up with each customer's name filled in.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">06</span>
+        <div class="step-icon" style="background:rgba(37,211,102,0.1);color:#25D366"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>
+        <div class="step-name">Send via WhatsApp</div>
+        <div class="step-desc">One tap opens WhatsApp with the message pre-filled. Or copy and send through any channel you prefer.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FEATURE HIGHLIGHTS ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">Features</div>
+      <div class="sec-title">Know every customer. Lose none.</div>
+      <div class="sec-desc">Track visits, spot who's fading, and send the right message at the right time.</div>
+    </div>
+    <div class="features">
+      <div class="feat">
+        <div class="feat-visual">
+          <div class="mini-recency">
+            <div class="mini-r-row"><div class="mini-r-label">0-14d</div><div class="mini-r-track"><div class="mini-r-fill" style="width:62%;background:#5DCAA5"><span class="mini-r-val">89</span></div></div></div>
+            <div class="mini-r-row"><div class="mini-r-label">15-21d</div><div class="mini-r-track"><div class="mini-r-fill" style="width:22%;background:#B08D30"><span class="mini-r-val">31</span></div></div></div>
+            <div class="mini-r-row"><div class="mini-r-label">22-30d</div><div class="mini-r-track"><div class="mini-r-fill" style="width:12%;background:#E8894F"><span class="mini-r-val">16</span></div></div></div>
+            <div class="mini-r-row"><div class="mini-r-label">31-60d</div><div class="mini-r-track"><div class="mini-r-fill" style="width:6%;background:rgba(216,90,48,.7)"><span class="mini-r-val">8</span></div></div></div>
+            <div class="mini-r-row"><div class="mini-r-label">61+d</div><div class="mini-r-track"><div class="mini-r-fill" style="width:4%;background:#D85A30"><span class="mini-r-val">4</span></div></div></div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(207,91,160,0.1);color:var(--accent)">Segmentation</span>
+          <div class="feat-title">See Who's Fading — Before They're Gone</div>
+          <div class="feat-desc">Every customer is grouped by how long since their last visit. Active, Warm, Cooling, Cold, Inactive — color-coded so you spot trouble in one second. Thresholds are fully customizable to your business.</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-visual">
+          <div class="mini-msgs">
+            <div class="mini-msg-pill" style="background:rgba(216,90,48,.1);color:#D85A30;border:1px solid rgba(216,90,48,.2)"><span class="mini-msg-icon">💌</span> We miss you</div>
+            <div class="mini-msg-pill" style="background:rgba(207,91,160,.1);color:#CF5BA0;border:1px solid rgba(207,91,160,.2)"><span class="mini-msg-icon">📢</span> Promo</div>
+            <div class="mini-msg-pill" style="background:rgba(176,141,48,.1);color:#B08D30;border:1px solid rgba(176,141,48,.2)"><span class="mini-msg-icon">🎁</span> Exclusive Days</div>
+            <div class="mini-msg-pill" style="background:rgba(93,202,165,.1);color:#5DCAA5;border:1px solid rgba(93,202,165,.2)"><span class="mini-msg-icon">⭐</span> Review</div>
+            <div class="mini-msg-pill" style="background:rgba(156,155,149,.1);color:#e8e7e0;border:1px solid rgba(156,155,149,.2)"><span class="mini-msg-icon">👥</span> Referral</div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(216,90,48,0.1);color:var(--red)">Messages</span>
+          <div class="feat-title">Five Messages. Every Situation Covered.</div>
+          <div class="feat-desc">Win back inactive customers, blast a promo to warm leads, send exclusive offers on birthdays, request reviews from loyalists, or launch a referral program. Each type has ready-made templates you can tweak and send.</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-visual">
+          <div class="mini-queue">
+            <div class="mini-q-row"><div class="mini-q-check">✓</div><div class="mini-q-name">Pradeep Gunasekara</div><div class="mini-q-tag" style="background:rgba(216,90,48,.1);color:#D85A30">We miss you</div><div class="mini-q-wa">Send</div></div>
+            <div class="mini-q-row"><div class="mini-q-check">✓</div><div class="mini-q-name">Kumari Abeywickrama</div><div class="mini-q-tag" style="background:rgba(207,91,160,.1);color:#CF5BA0">Promo</div><div class="mini-q-wa">Send</div></div>
+            <div class="mini-q-row"><div class="mini-q-check">✓</div><div class="mini-q-name">Amara Perera</div><div class="mini-q-tag" style="background:rgba(93,202,165,.1);color:#5DCAA5">Review</div><div class="mini-q-wa">Send</div></div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(37,211,102,0.1);color:#25D366">WhatsApp</span>
+          <div class="feat-title">Queue, Review, Send — One Tap</div>
+          <div class="feat-desc">Messages queue up with each customer's name filled in. Select one or all, hit send, and WhatsApp opens with the message ready. Edit, skip, or copy to send via any channel. Dedup prevents double-messaging.</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-visual">
+          <div class="mini-donut-wrap">
+            <div class="mini-donut">
+              <svg viewBox="0 0 70 70">
+                <circle cx="35" cy="35" r="27" fill="none" stroke="#CF5BA0" stroke-width="9" stroke-dasharray="88.2 81.6" stroke-dashoffset="0" transform="rotate(-90 35 35)"/>
+                <circle cx="35" cy="35" r="27" fill="none" stroke="#5DCAA5" stroke-width="9" stroke-dasharray="47.5 122.3" stroke-dashoffset="-88.2" transform="rotate(-90 35 35)"/>
+                <circle cx="35" cy="35" r="27" fill="none" stroke="#B08D30" stroke-width="9" stroke-dasharray="20.4 149.4" stroke-dashoffset="-135.7" transform="rotate(-90 35 35)"/>
+                <circle cx="35" cy="35" r="27" fill="none" stroke="#E8894F" stroke-width="9" stroke-dasharray="13.6 156.2" stroke-dashoffset="-156.1" transform="rotate(-90 35 35)"/>
+              </svg>
+              <div class="mini-donut-center">45.6k</div>
+            </div>
+            <div class="mini-donut-legend">
+              <div class="mini-dl-row"><div class="mini-dl-dot" style="background:#CF5BA0"></div><div class="mini-dl-text">Hair treatments · 52%</div></div>
+              <div class="mini-dl-row"><div class="mini-dl-dot" style="background:#5DCAA5"></div><div class="mini-dl-text">Skin care · 28%</div></div>
+              <div class="mini-dl-row"><div class="mini-dl-dot" style="background:#B08D30"></div><div class="mini-dl-text">Nail services · 12%</div></div>
+              <div class="mini-dl-row"><div class="mini-dl-dot" style="background:#E8894F"></div><div class="mini-dl-text">Consultation · 8%</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(93,202,165,0.1);color:var(--grn)">Insights</span>
+          <div class="feat-title">Know What Each Customer Spends On</div>
+          <div class="feat-desc">Import purchase history and see exactly where money goes — by category, by customer. The spend donut chart tells you who's buying what, so you can craft offers that actually land.</div>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-visual">
+          <div class="mini-ref">
+            <div class="mini-ref-code">REF-4821</div>
+            <div class="mini-ref-sub">Amara Perera's unique code</div>
+            <div class="mini-ref-flow">
+              <div class="mini-ref-step"><div class="mini-ref-icon">💬</div><div class="mini-ref-label">Share code</div></div>
+              <div class="mini-ref-arrow">→</div>
+              <div class="mini-ref-step"><div class="mini-ref-icon">🏪</div><div class="mini-ref-label">Friend visits</div></div>
+              <div class="mini-ref-arrow">→</div>
+              <div class="mini-ref-step"><div class="mini-ref-icon">🎁</div><div class="mini-ref-label">Both save</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(207,91,160,0.1);color:var(--accent)">Referrals</span>
+          <div class="feat-title">Turn Customers Into Your Sales Team</div>
+          <div class="feat-desc">Every customer gets a unique referral code. They share it with friends, the friend mentions it when visiting, and you search the code in the app to credit both. No landing page needed — it works with word of mouth.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ WAYS TO FEED DATA ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">Import Methods</div>
+      <div class="sec-title">Ways to add customers</div>
+      <div class="sec-desc">Upload once, re-upload anytime. Smart dedup means no duplicates, ever.</div>
+    </div>
+    <div class="feed-list">
+      <div class="feed-card">
+        <div class="feed-top">
+          <div class="feed-icon" style="background:rgba(93,202,165,0.1);color:var(--grn)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="feed-info">
+            <div class="feed-name">CSV / Excel Upload</div>
+            <div class="feed-desc">POS export, manual spreadsheet, or any customer list</div>
+          </div>
+        </div>
+        <div class="feed-flow">
+          <div class="feed-side"><div class="feed-side-label">You Upload</div><div class="feed-file-chip"><span class="feed-file-icon">📊</span><span class="feed-file-name">customers.xlsx</span></div></div>
+          <div class="feed-side"><div class="feed-side-label">Bot Maps</div><div class="feed-result"><div class="feed-result-line ok">✓ 148 customers imported</div><div class="feed-result-meta">Name, phone, visits auto-detected</div></div></div>
+        </div>
+      </div>
+      <div class="feed-card">
+        <div class="feed-top">
+          <div class="feed-icon" style="background:rgba(91,141,239,0.1);color:var(--blu)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>
+          <div class="feed-info">
+            <div class="feed-name">Re-upload Same File</div>
+            <div class="feed-desc">Updated customer list? Upload again — only new data is added</div>
+          </div>
+        </div>
+        <div class="feed-flow">
+          <div class="feed-side"><div class="feed-side-label">You Upload</div><div class="feed-file-chip"><span class="feed-file-icon">📊</span><span class="feed-file-name">customers_v2.xlsx</span></div></div>
+          <div class="feed-side"><div class="feed-side-label">Bot Deduplicates</div><div class="feed-result"><div class="feed-result-line ok">✓ 3 new, 12 updated</div><div class="feed-result-meta">Phone match → update existing</div></div></div>
+        </div>
+      </div>
+      <div class="feed-card">
+        <div class="feed-top">
+          <div class="feed-icon" style="background:rgba(212,168,67,0.1);color:var(--amb)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+          <div class="feed-info">
+            <div class="feed-name">POS Transaction Log</div>
+            <div class="feed-desc">One row per sale? Bot aggregates into customer profiles</div>
+          </div>
+        </div>
+        <div class="feed-flow">
+          <div class="feed-side"><div class="feed-side-label">You Upload</div><div class="feed-file-chip"><span class="feed-file-icon">🧾</span><span class="feed-file-name">daily_sales.csv</span></div></div>
+          <div class="feed-side"><div class="feed-side-label">Bot Aggregates</div><div class="feed-result"><div class="feed-result-line ok">✓ 412 rows → 89 customers</div><div class="feed-result-meta">Visits, spend, last visit computed</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CTA ═══ -->
+<div class="cta">
+  <a href="/pricing/" class="cta-btn">Start using your customer base →</a>
+  <div class="cta-sub">Be the first to elevate customer experience from your data</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const $$=sel=>document.querySelectorAll(sel);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function label(html,dur=2500){const c=$('caption');c.classList.remove('show');await wait(300);c.innerHTML=html;c.classList.add('show');await wait(dur);}
+async function hideLabel(){$('caption').classList.remove('show');await wait(300);}
+function showScene(id){$$('.scene').forEach(s=>{s.classList.remove('in');s.classList.add('out-l');});const sc=$(id);sc.classList.remove('out-l','out-r');sc.style.transform='translateX(30px)';void sc.offsetHeight;sc.classList.add('in');sc.scrollTop=0;}
+function setPill(name){$$('.pill').forEach(p=>p.classList.remove('on'));$('pill-'+name).classList.add('on');}
+async function highlight(el,dur=500){if(typeof el==='string')el=$(el);el.classList.remove('tap-hl');void el.offsetHeight;el.classList.add('tap-hl');await wait(dur);el.classList.remove('tap-hl');await wait(100);}
+async function countUp(el,target,dur=600,prefix='',suffix=''){const steps=20,inc=target/steps,interval=dur/steps;let val=0;for(let i=0;i<steps;i++){val+=inc;el.textContent=prefix+Math.round(val).toLocaleString()+suffix;await wait(interval);}el.textContent=prefix+target.toLocaleString()+suffix;}
+async function typeText(el,text,speed=35){el.textContent='';for(let i=0;i<text.length;i++){el.textContent=text.substring(0,i+1);await wait(speed);}}
+
+function buildDailyBars(){
+  const data=[3,5,2,8,4,6,3,7,5,9,4,6,2,8,5,3,7,4,6,8,5,3,9,6,4,7,5,8,3,6];
+  const el=$('daily-bars');let h='';
+  for(let i=0;i<30;i++){const t=data[i],ret=Math.round(t*0.65),nw=t-ret;h+='<div class="d-col"><div class="d-total">'+(t||'')+'</div><div class="d-stack"><div class="d-seg new" style="height:0" data-h="'+(nw/9*50)+'"></div><div class="d-seg ret" style="height:0" data-h="'+(ret/9*50)+'"></div></div></div>';}
+  el.innerHTML=h;
+}
+buildDailyBars();
+
+function drawDonut(){
+  const cats=[{pct:.52,color:'#CF5BA0'},{pct:.28,color:'#5DCAA5'},{pct:.12,color:'#B08D30'},{pct:.08,color:'#E8894F'}];
+  const R=35,CX=40,CY=40,SW=12,circ=2*Math.PI*R;let offset=0,svg='';
+  cats.forEach(c=>{const len=c.pct*circ;svg+='<circle cx="'+CX+'" cy="'+CY+'" r="'+R+'" fill="none" stroke="'+c.color+'" stroke-width="'+SW+'" stroke-dasharray="'+len+' '+(circ-len)+'" stroke-dashoffset="'+(-offset)+'" transform="rotate(-90 '+CX+' '+CY+')" opacity="0" class="donut-arc"/>';offset+=len;});
+  $('donut-svg').innerHTML=svg;
+}
+drawDonut();
+
+async function runDemo(){
+  // ─── RESET ───
+  hideLabel();
+  $$('.met').forEach(e=>e.classList.remove('s'));
+  $$('.card').forEach(e=>e.classList.remove('s'));
+  $$('.action-card').forEach(e=>e.classList.remove('s'));
+  $$('.summary-card').forEach(e=>e.classList.remove('s'));
+  $$('.seg-group').forEach(e=>e.classList.remove('s'));
+  $$('.seg-items').forEach(e=>e.classList.remove('open'));
+  $$('.detail-stat').forEach(e=>e.classList.remove('s'));
+  $$('.detail-row').forEach(e=>e.classList.remove('s'));
+  $$('.donut-wrap').forEach(e=>e.classList.remove('s'));
+  $$('.mg-btn').forEach(e=>e.classList.remove('s'));
+  $$('.mq-item').forEach(e=>e.classList.remove('s'));
+  $$('.mq-check').forEach(e=>{e.classList.remove('on');e.textContent='';});
+  $$('.sp-check').forEach(e=>{e.classList.remove('on');e.textContent='';});
+  $$('.donut-arc').forEach(e=>e.setAttribute('opacity','0'));
+  $('shareSheet').classList.remove('show');
+  $('mv1').textContent='0';$('mv2').textContent='0%';$('mv3').textContent='0';$('mv4').textContent='0';
+  ['rf1','rf2','rf3','rf4','rf5'].forEach(id=>$(id).style.width='0');
+  ['rv1','rv2','rv3','rv4','rv5'].forEach(id=>$(id).textContent='0');
+  $$('.d-seg').forEach(e=>e.style.height='0');
+  $('dsv1').textContent='0';$('dsv2').textContent='0';$('dsv3').textContent='0';
+  $('b-body').textContent='';
+  setPill('dash');showScene('sc-dash');
+  $('nav').style.display='';
+  await wait(400);
+
+  // ═══ SCENE 1: DASHBOARD — SLOW ═══
+  label('<span class="hl">Customer Dashboard</span><span class="sub">Track visits, spot at-risk customers, and take action.</span>',2000);
+  await wait(400);
+
+  // Metrics count up with pauses
+  for(let i=1;i<=4;i++){$('m'+i).classList.add('s');await wait(150);}
+  await wait(300);
+  countUp($('mv1'),148,800);
+  countUp($('mv2'),67,800,'','%');
+  countUp($('mv3'),12,800);
+  countUp($('mv4'),89,800);
+  await wait(1200);
+
+  // Chart card
+  $('chart-card').classList.add('s');
+  await wait(500);
+  $$('.d-seg').forEach(e=>{e.style.height=e.dataset.h+'px';});
+  await wait(2000);
+
+  // Scroll to recency — slow
+  $('sc-dash').scrollTo({top:240,behavior:'smooth'});
+  await wait(800);
+  await label('<span class="hl">Recency Segments</span><span class="sub">See how long since each customer\'s last visit.</span>',1500);
+
+  $('recency-card').classList.add('s');
+  await wait(500);
+  const rData=[{id:'rf1',w:60,v:89},{id:'rf2',w:22,v:31},{id:'rf3',w:12,v:16},{id:'rf4',w:6,v:8},{id:'rf5',w:4,v:4}];
+  for(const r of rData){$(r.id).style.width=r.w+'%';$(r.id.replace('f','v')).textContent=r.v;await wait(300);}
+  await wait(1500);
+
+  // Scroll to action card — slow
+  $('sc-dash').scrollTo({top:540,behavior:'smooth'});
+  await wait(800);
+  await label('<span class="hl">Smart Action Card</span><span class="sub">Tells you exactly what needs attention — one tap to act.</span>',1500);
+  $('action-card').classList.add('s');
+  await wait(800);
+  await highlight('ar1');
+  await wait(500);
+  await highlight('ar2');
+  await wait(500);
+  await highlight('ar3');
+  await wait(1200);
+
+  // Bot activity
+  $('sc-dash').scrollTo({top:750,behavior:'smooth'});
+  await wait(500);
+  $('activity-card').classList.add('s');
+  await wait(2000);
+
+  // ═══ SCENE 2: CUSTOMER LIST — SLOW ═══
+  await label('<span class="hl">Customer Segments</span><span class="sub">Grouped by recency — Active, Warm, Cooling, Cold, Inactive.</span>',1500);
+  setPill('list');showScene('sc-list');
+  await wait(600);
+
+  // Reveal segments with stagger — slower
+  const sgs=['sg1','sg2','sg3','sg4','sg5'];
+  for(const id of sgs){$(id).classList.add('s');await wait(250);}
+  await wait(1000);
+
+  // Tap and expand Active group
+  await highlight('sg1');
+  await wait(300);
+  $('si1').classList.add('open');
+  await wait(2000);
+
+  // Tap and expand Warm group
+  $('sc-list').scrollTo({top:200,behavior:'smooth'});
+  await wait(500);
+  await highlight('sg2');
+  await wait(300);
+  $('si2').classList.add('open');
+  await wait(2000);
+
+  // ═══ SCENE 3: CUSTOMER DETAIL ═══
+  await label('<span class="hl">Customer Profile</span><span class="sub">Full history, spend breakdown, and referral code.</span>',1500);
+  showScene('sc-detail');
+  await wait(600);
+
+  // Stats animate — slower
+  for(let i=1;i<=3;i++){$('ds'+i).classList.add('s');await wait(200);}
+  await wait(300);
+  countUp($('dsv1'),12,700);
+  countUp($('dsv2'),45600,800);
+  countUp($('dsv3'),3800,700);
+  await wait(1200);
+
+  // Donut with real spend data
+  $('donut-wrap').classList.add('s');
+  await wait(400);
+  const arcs=$$('.donut-arc');
+  for(let i=0;i<arcs.length;i++){arcs[i].setAttribute('opacity','1');await wait(250);}
+  await wait(1500);
+
+  // Scroll to details
+  $('sc-detail').scrollTo({top:220,behavior:'smooth'});
+  await wait(500);
+  for(let i=1;i<=4;i++){$('dr'+i).classList.add('s');await wait(200);}
+  await wait(600);
+
+  // Highlight referral code
+  await highlight('dr3');
+  await label('<span class="hl">REF-4821</span><span class="sub">Unique referral code — share it, track referrals.</span>',2500);
+
+  // ═══ SCENE 4: MESSAGES TAB ═══
+  await label('<span class="hl">Message Center</span><span class="sub">5 message types. Draft, review, send via WhatsApp.</span>',1500);
+  setPill('msgs');showScene('sc-msgs');
+  await wait(600);
+
+  // Reveal grid buttons — slower
+  const mgs=['mg1','mg2','mg3','mg4','mg5'];
+  for(const id of mgs){$(id).classList.add('s');await wait(150);}
+  await wait(1200);
+
+  // Highlight the "We miss you" button
+  await highlight('mg1');
+  await wait(800);
+
+  // Scroll to queue
+  $('sc-msgs').scrollTo({top:220,behavior:'smooth'});
+  await wait(600);
+  const mqs=['mq1','mq2','mq3'];
+  for(const id of mqs){$(id).classList.add('s');await wait(300);}
+  await wait(800);
+
+  // Check all — slower
+  await label('<span class="hl">Bulk WhatsApp Send</span><span class="sub">Select messages and send them all via WhatsApp.</span>',1200);
+  for(let i=1;i<=3;i++){$('mqc'+i).classList.add('on');$('mqc'+i).textContent='✓';await wait(400);}
+  await wait(1500);
+
+  // ═══ SCENE 5: BUILDER ═══
+  await label('<span class="hl">Message Builder</span><span class="sub">Pick a template, choose customers, queue messages.</span>',1500);
+  showScene('sc-builder');
+  await wait(600);
+
+  // Check segments — slower
+  $('spc1').classList.add('on');$('spc1').textContent='✓';
+  await wait(500);
+  $('spc2').classList.add('on');$('spc2').textContent='✓';
+  await wait(500);
+
+  // Type message — slower
+  await typeText($('b-body'),"Hi {name}! We miss you! Here's 20% off your next visit — valid this week only.",35);
+  await wait(1200);
+
+  // Highlight queue button
+  await highlight('queue-btn');
+  await label('<span class="hl">12 Messages Queued</span><span class="sub">Ready to review and send via WhatsApp.</span>',2000);
+
+  // Back to messages — show share sheet
+  setPill('msgs');showScene('sc-msgs');
+  await wait(800);
+  $('sc-msgs').scrollTo({top:220,behavior:'smooth'});
+  await wait(600);
+
+  await label('<span class="hl">Send via WhatsApp</span><span class="sub">Opens WhatsApp with the message pre-filled.</span>',1200);
+  $('shareSheet').classList.add('show');
+  await wait(3000);
+  $('shareSheet').classList.remove('show');
+  await wait(1000);
+
+  // ─── LOOP ───
+  await hideLabel();
+  await wait(1200);
+  runDemo();
+}
+
+runDemo();
+</script>
+<script>
+var menuOpen=false;
+function toggleMenu(){
+  menuOpen=!menuOpen;
+  document.getElementById('slideMenu').classList.toggle('open',menuOpen);
+  document.getElementById('menuBackdrop').classList.toggle('show',menuOpen);
+  document.body.style.overflow=menuOpen?'hidden':'';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&menuOpen)toggleMenu()});
+</script>
+<script>
+(function(){
+  var demoEl = document.querySelector('.demo-section');
+  var heroEl = document.querySelector('.hero') || (demoEl && demoEl.nextElementSibling);
+  var capEl  = document.getElementById('caption');
+  if (!demoEl) return;
+
+  var locked = false;
+
+  function snapDown() {
+    if (locked) return;
+    locked = true;
+    if (capEl) capEl.classList.remove('show');
+    if (heroEl) heroEl.scrollIntoView({behavior:'smooth'});
+    setTimeout(function(){locked=false;}, 800);
+  }
+
+  function snapUp() {
+    if (locked) return;
+    locked = true;
+    demoEl.scrollIntoView({behavior:'smooth'});
+    setTimeout(function(){locked=false;}, 800);
+  }
+
+  // Desktop wheel
+  window.addEventListener('wheel', function(e) {
+    var sY = window.scrollY;
+    var dT = demoEl.offsetTop;
+    var dB = dT + demoEl.offsetHeight;
+    if (e.deltaY > 0 && sY < dB - 80) {
+      e.preventDefault(); snapDown();
+    } else if (e.deltaY < 0 && sY > dT && sY <= dB + 100) {
+      e.preventDefault(); snapUp();
+    }
+  }, {passive:false});
+
+  // Mobile touch
+  var ty0 = 0;
+  window.addEventListener('touchstart', function(e) {
+    ty0 = e.touches[0].clientY;
+  }, {passive:true});
+  window.addEventListener('touchmove', function(e) {
+    if (locked) { e.preventDefault(); return; }
+    var sY = window.scrollY;
+    var dT = demoEl.offsetTop;
+    var dB = dT + demoEl.offsetHeight;
+    var dy = ty0 - e.touches[0].clientY;
+    if (dy > 40 && sY < dB - 80) {
+      e.preventDefault(); snapDown();
+    } else if (dy < -40 && sY > dT && sY <= dB + 100) {
+      e.preventDefault(); snapUp();
+    }
+  }, {passive:false});
+})();
+</script>
+
+<script>
+(function(){
+  var demoEl = document.querySelector('.demo-section');
+  if (!demoEl) return;
+  function checkScroll() {
+    var demoBottom = demoEl.offsetTop + demoEl.offsetHeight;
+    if (window.scrollY > demoBottom * 0.5) {
+      document.body.classList.add('demo-away');
+    } else {
+      document.body.classList.remove('demo-away');
+    }
+  }
+  window.addEventListener('scroll', checkScroll, {passive:true});
+  checkScroll();
+})();
+</script>
+</body></html>

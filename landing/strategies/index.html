@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Strategy Library — Free Business Strategies for Sri Lankan SMBs</title>
+<meta name="description" content="Free, step-by-step business strategies for Sri Lankan SMB owners. Education &amp; Tuition, Food &amp; Beverage, Online Selling, Retail, and Beauty &amp; Wellness industries available now.">
+<link rel="canonical" href="https://purifye.org/strategies/">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/strategies/strategy_styles.css">
+<link rel="stylesheet" href="/strategies/site_styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="header-brand-group">
+      <a class="header-logo" href="/">purifye.org</a>
+      <span class="header-sep">|</span>
+      <a class="header-section active" href="/strategies/">Strategies</a>
+    </div>
+    <a class="header-analyst" href="/">The Analyst AI →</a>
+  </div>
+</header>
+
+<div class="breadcrumb"><span class="bc-current">Strategies</span></div>
+<div class="shell"><div class="l1-hero"><h1>Free strategies for <em>Sri Lankan</em> business owners</h1><p>Pick your industry. Get step-by-step plans built for this market — real numbers, real platforms, real situations.</p><div class="l1-tags"><span class="l1-tag">Education &amp; Tuition</span><span class="l1-tag">Food &amp; Beverage</span><span class="l1-tag">Beauty &amp; Wellness</span><span class="l1-tag">100% free</span></div></div><div class="industry-grid"><a class="industry-card active" href="/strategies/online-selling/"><span class="ic-name">Online Selling</span><span class="ic-badge">Available</span></a><a class="industry-card active" href="/strategies/tuition/"><span class="ic-name">Education &amp; Tuition</span><span class="ic-badge">Available</span></a><a class="industry-card active" href="/strategies/food-beverage/"><span class="ic-name">Food &amp; Beverage</span><span class="ic-badge">Available</span></a><a class="industry-card active" href="/strategies/retail/"><span class="ic-name">Retail Shop</span><span class="ic-badge">Available</span></a><a class="industry-card coming-soon"><span class="ic-name">Freelancer / Sole Trader</span><span class="ic-badge">Coming soon</span></a><a class="industry-card active" href="/strategies/beauty-wellness/"><span class="ic-name">Beauty &amp; Wellness</span><span class="ic-badge">Available</span></a></div></div>
+
+<footer class="site-footer">
+  <p>Free strategies by <a href="/">purifye.org</a> · Built for Sri Lankan business owners</p>
+</footer>
+
+<script>
+(function(){
+  var els=document.querySelectorAll('[data-reveal]');
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(e){e.classList.add('visible')});return;
+  }
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}
+    });
+  },{threshold:0.1});
+  els.forEach(function(e){obs.observe(e);});
+})();
+</script>
+</body>
+</html>

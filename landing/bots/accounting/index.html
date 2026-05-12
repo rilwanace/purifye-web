@@ -1,0 +1,1476 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accounting — Purifye</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#131311;--card:#1a1a18;--sf:#212120;--el:#2a2a28;--t1:#e8e7e0;--t2:#c4c3bc;--t3:#9c9b95;--accent:#5DCAA5;--adim:rgba(93,202,165,0.1);--abrd:rgba(93,202,165,0.2);--g1:#28997A;--g2:#13654C;--grn:#5DCAA5;--red:#D85A30;--amb:#D4A843;--blu:#5B8DEF;--purp:#7068D9;--pink:#CF5BA0;--bdr:rgba(255,255,255,0.06);--ff:'DM Sans',sans-serif;--fm:'DM Mono',monospace}
+/* ═══ DEMO STYLES ═══ */
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a09;color:var(--t1);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.demo-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;padding:10px 20px}
+
+/* Caption */
+.cap{position:fixed;top:0;left:0;right:0;z-index:200;padding:20px 24px 14px;background:rgba(15,15,13,0.97);border-bottom:2px solid rgba(93,202,165,0.5);font-size:20px;font-weight:700;color:#e8e7e0;text-align:center;line-height:1.3;opacity:0;transform:translateY(-100%);transition:opacity .35s,transform .35s;pointer-events:none;letter-spacing:-.3px;word-break:break-word}
+.cap.on{opacity:1;transform:translateY(0)}
+.cap .hl{color:#5DCAA5;font-weight:700}
+.cap .sub{display:block;font-size:15px;font-weight:400;color:#e8e7e0;margin-top:5px;letter-spacing:0;word-wrap:break-word;white-space:normal}
+
+/* Phone */
+.phone{width:375px;height:800px;background:#131311;border-radius:44px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 2px #3a3a38,0 0 0 5px #1a1a18,0 0 0 7px #0a0a09,0 30px 60px rgba(0,0,0,.6),0 0 120px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.04)}
+.notch{height:50px;background:#131311;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notch-bar{width:120px;height:28px;background:#0a0a09;border-radius:0 0 18px 18px}
+
+/* Nav */
+.nav{background:#131311;padding:0 18px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.06)}
+.nav-top{display:flex;justify-content:space-between;align-items:center;height:44px}
+.nav-brand{font-size:18px;font-weight:700;color:#e8e7e0;letter-spacing:-.4px}
+.nav-brand b{color:#5DCAA5;font-weight:700}
+.nav-biz{font-size:13px;color:#9c9b95}
+.nav-av{width:28px;height:28px;border-radius:10px;background:#212120;border:1px solid rgba(255,255,255,.06);display:grid;place-items:center;font-size:11px;font-weight:700;color:#5DCAA5}
+.tabs{display:flex;padding:8px 0;gap:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.t{padding:6px 14px;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#6a6a64;border-radius:20px;white-space:nowrap;cursor:default;transition:all .3s;border:1px solid transparent}
+.t.on{background:rgba(93,202,165,.1);border-color:rgba(93,202,165,.2);color:#5DCAA5}
+
+/* Scroll */
+.scroll{flex:1;overflow:hidden;position:relative}
+.sc{position:absolute;inset:0;padding:10px 18px 20px;overflow-y:auto;scrollbar-width:none;opacity:0;pointer-events:none;transition:opacity .35s,transform .35s;transform:translateX(30px)}
+.sc::-webkit-scrollbar{display:none}
+.sc.in{opacity:1;transform:translateX(0)!important;pointer-events:auto}
+
+/* Bot bar */
+.bb{height:64px;background:#1a1a18;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding:0 6px}
+.bi{display:flex;flex-direction:column;align-items:center;gap:2px}
+.bi-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.bi-lb{font-size:10px;color:#9c9b95}
+.bi.on .bi-lb{color:#e8e7e0}
+.bi.on .bi-ic{box-shadow:0 0 12px rgba(93,202,165,.3)}
+
+/* Shared styles */
+.card{background:#1a1a18;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;margin-bottom:8px}
+.card2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.card2 .card{margin-bottom:0}
+.sh{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#9c9b95;margin-bottom:6px}
+.v{font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:#e8e7e0}
+.vs{font-family:'DM Mono',monospace;font-size:14px;font-weight:600}
+.vm{font-family:'DM Mono',monospace;font-size:9px;color:#9c9b95}
+.g{color:#5DCAA5}.r{color:#D85A30}
+.pills{display:flex;gap:6px;margin:12px 0 8px}
+.p{padding:5px 12px;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:#9c9b95;border-radius:14px;background:#212120;border:1px solid rgba(255,255,255,.06)}
+.p.on{background:rgba(93,202,165,.1);border-color:rgba(93,202,165,.2);color:#5DCAA5}
+
+/* Bars */
+.bars{display:flex;align-items:flex-end;gap:4px;height:50px;margin:8px 0}
+.bar{width:100%;border-radius:3px 3px 0 0;transition:height .6s ease;background:#5DCAA5}
+.blabels{display:flex;justify-content:space-between}
+.blabels span{font-family:'DM Mono',monospace;font-size:7px;color:#6a6a64}
+
+/* Horizontal bar */
+.hb{margin:6px 0}
+.hb-l{font-size:12px;color:#e8e7e0;font-weight:500;display:flex;justify-content:space-between;margin-bottom:3px}
+.hb-l span:last-child{font-family:'DM Mono',monospace;font-size:11px;color:#9c9b95}
+.hb-t{height:6px;background:#2a2a28;border-radius:3px;overflow:hidden}
+.hb-f{height:100%;border-radius:3px;transition:width .8s ease;width:0}
+
+/* Aging */
+.ab{display:flex;gap:3px;align-items:flex-end;height:40px;margin:6px 0}
+.ab div{flex:1;border-radius:2px 2px 0 0;transition:height .6s ease}
+.al{display:flex;gap:3px}
+.al span{flex:1;text-align:center;font-family:'DM Mono',monospace;font-size:7px}
+
+/* Donuts */
+.dw{display:flex;justify-content:center;margin:8px 0}
+.dn{position:relative;width:100px;height:100px}
+.dn svg{width:100%;height:100%;transform:rotate(-90deg)}
+.dn-c{position:absolute;inset:0;display:grid;place-items:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#5DCAA5}
+.dl{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;justify-content:center}
+.dl span{font-family:'DM Mono',monospace;font-size:8px;display:flex;align-items:center;gap:3px;color:#c4c3bc}
+.dl .dot{width:6px;height:6px;border-radius:50%}
+
+/* Drill-down */
+.drill-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.drill-name{font-size:12px;font-weight:500;color:#e8e7e0}
+.drill-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:600}
+.drill-sub{font-family:'DM Mono',monospace;font-size:9px;color:#9c9b95;margin-top:2px}
+.drill-av{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;font-size:11px;font-weight:700;margin-right:10px;flex-shrink:0}
+.drill-back{display:flex;align-items:center;gap:6px;font-size:12px;color:#6a6a64;margin-bottom:10px;cursor:default}
+.drill-back svg{width:16px;height:16px}
+/* Drill tabs */
+.dtabs{display:flex;gap:6px;margin:10px 0 14px}
+.dtab{padding:5px 12px;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:#9c9b95;border-radius:14px;background:#212120;border:1px solid rgba(255,255,255,.06)}
+.dtab.on{background:rgba(93,202,165,.1);border-color:rgba(93,202,165,.2);color:#5DCAA5}
+/* Drill hbar with percent */
+.dhb{margin:8px 0}
+.dhb-l{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.dhb-name{font-size:13px;font-weight:500;color:#e8e7e0}
+.dhb-val{font-family:'DM Mono',monospace;font-size:11px;color:#9c9b95}
+.dhb-pct{font-family:'DM Mono',monospace;font-size:9px;color:#9c9b95;margin-left:4px}
+/* Ledger txn card */
+.txn-card{background:#1a1a18;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 14px;margin-bottom:6px}
+.txn-top{display:flex;justify-content:space-between;align-items:center}
+.txn-name{font-size:12px;font-weight:500;color:#e8e7e0}
+.txn-amt{font-family:'DM Mono',monospace;font-size:12px;font-weight:600}
+.txn-bot{display:flex;justify-content:space-between;margin-top:3px}
+.txn-date{font-family:'DM Mono',monospace;font-size:9px;color:#9c9b95}
+.txn-bal{font-family:'DM Mono',monospace;font-size:9px;color:#9c9b95}
+/* Outstanding box */
+.os-box{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.os-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:#5DCAA5}
+.os-label{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#9c9b95}
+.os-chart{width:80px;height:50px;display:flex;align-items:flex-end;gap:2px}
+.os-bar{width:100%;border-radius:2px 2px 0 0;background:#5DCAA5}
+/* Donut transition */
+.dn svg circle{transition:stroke-dasharray .8s ease,stroke-dashoffset .8s ease}
+
+/* WhatsApp button */
+.wa-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.15);font-family:'DM Mono',monospace;font-size:8px;color:#25D366;font-weight:600;margin-top:4px}
+/* Card tap highlight */
+.card-tap{box-shadow:0 0 0 2px rgba(93,202,165,.4);transition:box-shadow .3s}
+
+/* Entry */
+.fi{width:100%;background:#2a2a28;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px;font-size:13px;color:#e8e7e0;font-family:'DM Sans',sans-serif}
+.fl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#6a6a64;margin-bottom:6px}
+.fs{width:100%;background:#2a2a28;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px;font-size:13px;color:#e8e7e0;display:flex;justify-content:space-between;align-items:center}
+.chev{color:#6a6a64;font-size:10px}
+.cap-btn{width:44px;height:44px;border-radius:22px;display:grid;place-items:center;font-size:20px;background:rgba(93,202,165,.08);border:1px solid rgba(93,202,165,.15);position:relative}
+.save-btn{width:100%;padding:14px;background:#5DCAA5;color:#131311;font-size:14px;font-weight:600;border:none;border-radius:10px;margin-top:12px;text-align:center}
+.entry-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.ei-ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:14px;flex-shrink:0}
+.ei-name{font-size:13px;font-weight:500;color:#e8e7e0}
+.ei-meta{font-family:'DM Mono',monospace;font-size:9px;color:#6a6a64;margin-top:2px}
+.ei-amt{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;text-align:right}
+.ei-btns{display:flex;gap:6px;margin-top:4px;justify-content:flex-end}
+.ei-btn{font-family:'DM Mono',monospace;font-size:9px;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.08);color:#9c9b95}
+.ei-btn.u{border-color:rgba(93,202,165,.2);color:#5DCAA5}
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0 10px}
+.divider span{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#6a6a64;white-space:nowrap}
+.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+
+/* Report */
+.rr{display:flex;justify-content:space-between;padding:6px 0}
+.rr.ind{padding-left:16px}
+.rr-l{font-size:12px;color:#e8e7e0;font-weight:500}
+.rr-l.sub{color:#9c9b95;font-weight:400}
+.rr-v{font-family:'DM Mono',monospace;font-size:12px;color:#9c9b95}
+.rr-v.g{color:#5DCAA5}.rr-v.r{color:#D85A30}
+.rt{border-top:1px solid rgba(255,255,255,.06);margin-top:4px;padding-top:6px}
+.rt .rr-l{font-weight:700;color:#5DCAA5}
+.rt .rr-v{font-weight:700;color:#5DCAA5}
+.rt.red .rr-l{color:#D85A30}.rt.red .rr-v{color:#D85A30}
+.np{background:rgba(93,202,165,.08);border:1px solid rgba(93,202,165,.15);border-radius:10px;padding:12px 14px;margin-top:8px;display:flex;justify-content:space-between;align-items:center}
+.np-l{font-size:14px;font-weight:700;color:#e8e7e0}
+.np-v{font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:#5DCAA5}
+
+/* Recipe */
+.rc{background:#1a1a18;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;margin-bottom:8px}
+.rc-n{font-size:14px;font-weight:600;color:#e8e7e0}
+.rc-b{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;background:rgba(93,202,165,.1);color:#5DCAA5;padding:2px 8px;border-radius:6px}
+.rc-i{font-family:'DM Mono',monospace;font-size:10px;color:#6a6a64;margin-top:4px}
+
+/* Reveal */
+.rv{opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s}
+.rv.s{opacity:1;transform:translateY(0)}
+
+/* Tap */
+.tap-hl{animation:tapP .5s ease}
+@keyframes tapP{0%{background:rgba(93,202,165,.25)}100%{background:transparent}}
+
+/* Voice */
+@keyframes vPulse{0%,100%{box-shadow:0 0 0 0 rgba(216,90,48,.3)}50%{box-shadow:0 0 0 8px rgba(216,90,48,0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Toast */
+.toast{position:absolute;top:60px;left:50%;transform:translateX(-50%) translateY(-20px);background:#212120;border:1px solid rgba(93,202,165,.2);border-radius:10px;padding:10px 16px;font-size:12px;color:#5DCAA5;font-weight:500;opacity:0;transition:opacity .3s,transform .3s;z-index:80;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Action buttons */
+.act{display:flex;gap:8px;margin-left:auto}
+.act-b{padding:5px 10px;border-radius:8px;font-family:'DM Mono',monospace;font-size:9px;font-weight:600;background:rgba(93,202,165,.08);color:#5DCAA5;border:1px solid rgba(93,202,165,.15)}
+
+/* ═══ CONTENT PAGE STYLES ═══ */
+/* Demo section wrapper */
+.demo-section{padding:10px 0 20px;display:flex;flex-direction:column;align-items:center}
+.demo-section .demo-wrap{gap:20px;align-items:center}
+
+/* Hero */
+.hero{text-align:center;padding:40px 20px 20px;max-width:430px;margin:0 auto}
+.hero-icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#28997A,#13654C);display:grid;place-items:center;margin:0 auto 24px;box-shadow:0 8px 32px rgba(93,202,165,0.3)}
+.hero-icon svg{width:30px;height:30px}
+.hero h1{font-size:30px;font-weight:700;color:#e8e7e0;line-height:1.2;letter-spacing:-0.5px;margin-bottom:12px}
+.hero h1 .hl{color:#5DCAA5}
+.hero p{font-size:14px;color:#e8e7e0;margin-bottom:40px}
+
+/* Content wrapper */
+.content-wrap{max-width:430px;margin:0 auto;padding:0 20px 40px}
+
+/* Sections */
+.section{padding:72px 0 0}
+.sec-head{text-align:center;margin-bottom:48px}
+.sec-tag{font-family:var(--fm);font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:12px}
+.sec-title{font-size:24px;font-weight:700;color:var(--t1);line-height:1.25;letter-spacing:-0.5px;margin-bottom:10px}
+.sec-desc{font-size:13px;color:var(--t2);max-width:520px;margin:0 auto;line-height:1.6}
+
+/* Steps */
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.step{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:20px 16px;position:relative;overflow:hidden}
+.step-num{font-family:var(--fm);font-size:40px;font-weight:700;color:rgba(93,202,165,0.12);position:absolute;top:16px;right:18px;line-height:1}
+.step-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px}
+.step-icon svg{width:22px;height:22px}
+.step-name{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:6px}
+.step-desc{font-size:12px;color:var(--t2);line-height:1.5}
+
+/* Features */
+.features{display:flex;flex-direction:column;gap:24px}
+.feat{background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden}
+.fv{width:100%;background:var(--bg);overflow:hidden;border-bottom:1px solid var(--bdr)}
+.feat-visual{width:100%;background:var(--el);overflow:hidden;border-bottom:1px solid var(--bdr)}
+.fc,.feat-content{padding:20px 18px 22px}
+.fb,.feat-badge{font-family:var(--fm);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:10px}
+.ft,.feat-title{font-size:20px;font-weight:700;color:var(--t1);margin-bottom:8px;letter-spacing:-0.3px}
+.fd,.feat-desc{font-size:13px;color:var(--t2);line-height:1.65}
+
+/* Feed / Input Methods */
+.feed-list{display:flex;flex-direction:column;gap:12px}
+.feed-card{background:var(--sf);border:1px solid var(--bdr);border-radius:14px;padding:18px 16px}
+.feed-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.feed-icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+.feed-icon svg{width:20px;height:20px}
+.feed-info{flex:1}
+.feed-name{font-size:15px;font-weight:700;color:var(--t1)}
+.feed-desc{font-size:11px;color:var(--t2);margin-top:2px}
+.feed-flow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.feed-side-label{font-family:var(--fm);font-size:8px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
+.feed-file-chip{display:inline-flex;align-items:center;gap:6px;background:var(--el);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px}
+.feed-file-icon{font-size:14px}
+.feed-file-name{font-family:var(--fm);font-size:10px;color:var(--t1)}
+.feed-result-line{font-family:var(--fm);font-size:10px;font-weight:500;margin-bottom:2px}
+.feed-result-line.ok{color:var(--grn)}
+.feed-result-meta{font-family:var(--fm);font-size:9px;color:var(--t3)}
+.feed-voice{display:flex;align-items:center;gap:8px;background:var(--el);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;margin-bottom:4px}
+.feed-wave{font-family:var(--fm);font-size:10px;color:var(--amb);letter-spacing:1px}
+.feed-voice-time{font-family:var(--fm);font-size:9px;color:var(--t3)}
+.feed-voice-text{font-family:var(--fm);font-size:9px;color:var(--t3);font-style:italic}
+
+/* Mini visual helpers */
+.mdc-label{font-family:var(--fm);font-size:7px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.mini-tabs{display:flex;gap:4px;margin-bottom:6px}
+.mini-tab{font-family:var(--fm);font-size:8px;font-weight:600;padding:3px 8px;border-radius:10px;color:var(--t3)}
+.mini-tab.on{background:var(--adim);border:1px solid var(--abrd);color:var(--accent)}
+.mini-drill-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.mini-drill-name{font-size:10px;font-weight:500;color:var(--t1)}
+.mini-drill-val{font-family:var(--fm);font-size:10px;font-weight:600}
+.mini-drill-bar{height:4px;background:var(--el);border-radius:2px;margin-top:3px;overflow:hidden}
+.mini-drill-fill{height:100%;border-radius:2px;background:var(--grn)}
+.mini-voice{display:flex;align-items:flex-end;gap:2px;height:30px}
+.mini-voice div{width:3px;border-radius:2px;background:var(--grn)}
+.mini-pnl{padding:12px 16px;width:100%;font-family:var(--fm);font-size:10px}
+.mini-pnl-row{display:flex;justify-content:space-between;padding:3px 0}
+.mini-pnl-row.total{border-top:1px solid var(--bdr);margin-top:4px;padding-top:6px;font-weight:700}
+
+/* CTA */
+.cta{text-align:center;padding:60px 20px 80px;max-width:430px;margin:0 auto}
+.cta-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:380px;padding:16px 24px;border-radius:14px;background:linear-gradient(135deg,#28997A,#13654C);color:#fff;font-family:var(--ff);font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 8px 32px rgba(93,202,165,0.3);transition:transform 0.15s,box-shadow 0.15s;letter-spacing:-0.2px}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(93,202,165,0.4)}
+.cta-btn:active{transform:scale(0.98)}
+.cta-sub{font-family:var(--fm);font-size:11px;color:#e8e7e0;margin-top:12px}
+/* === PURIFYE NAV === */
+.purifye-nav{display:flex;justify-content:space-between;align-items:center;padding:21px 20px 0;max-width:420px;margin:0 auto}
+.purifye-logo{font-weight:700;font-size:18px;letter-spacing:-.4px}.purifye-logo a{color:#e8e7e0;text-decoration:none}.purifye-logo span{color:#5DCAA5}
+.purifye-ham{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:10px;-webkit-tap-highlight-color:transparent}
+.slide-menu{position:fixed;top:0;right:0;width:280px;height:100vh;background:#131311;border-left:1px solid rgba(255,255,255,.06);z-index:200;transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;padding:0 24px}.slide-menu.open{transform:translateX(0)}
+.slide-menu-hdr{display:flex;justify-content:space-between;align-items:center;padding:21px 0 0}
+.slide-menu-x{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:10px}
+.slide-menu-links{display:flex;flex-direction:column;gap:0;margin-top:40px}
+.slide-link{font-size:16px;font-weight:600;color:#9c9b95;text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04);display:block}
+.slide-link:first-child{border-top:1px solid rgba(255,255,255,.04)}
+.slide-link.active{color:#5DCAA5}.slide-link:active{color:#e8e7e0}
+.slide-link-group{border-bottom:1px solid rgba(255,255,255,.04)}
+.slide-link-parent{font-size:16px;font-weight:600;color:#9c9b95;padding:14px 0 8px}
+.slide-sub{display:block;font-size:13px;font-weight:500;color:#6a6a64;text-decoration:none;padding:6px 0 6px 16px;position:relative}
+.slide-sub::before{content:'';position:absolute;left:0;top:50%;width:8px;height:1px;background:rgba(255,255,255,.08)}
+.slide-sub:last-child{padding-bottom:14px}.slide-sub:active{color:#e8e7e0}
+.slide-signin{display:block;text-align:center;margin-top:20px;padding:12px;border-radius:10px;background:rgba(93,202,165,.08);border:1px solid rgba(93,202,165,.15);color:#5DCAA5;font-size:14px;font-weight:600;text-decoration:none;transition:all .15s}
+.slide-signin:active{background:rgba(93,202,165,.15)}
+.slide-menu-ftr{margin-top:auto;padding:20px 0;text-align:center}
+.slide-menu-ftr span{font-size:9px;color:#3a3a36;font-family:'DM Mono',monospace}
+.slide-menu-backdrop{position:fixed;inset:0;background:rgba(8,8,6,.7);z-index:199;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.slide-menu-backdrop.show{opacity:1;pointer-events:auto}
+.demo-section{height:100vh;overflow:hidden;padding:0;justify-content:center}
+@media(max-width:500px){
+  .demo-section{overflow:hidden;padding:20px 0 0;height:calc(20px + (100vw - 40px) * 2.133)}
+  .demo-wrap{padding:0;gap:0;width:375px;transform-origin:top center;transform:scale(calc((100vw - 40px) / 375))}
+}
+body.demo-away .cap,body.demo-away .caption{opacity:0!important;transform:translateY(-100%)!important;pointer-events:none!important}
+</style>
+</head>
+<body>
+<div class="purifye-nav">
+  <div class="purifye-logo"><a href="/">purifye<span>AI.com</span></a></div>
+  <div class="purifye-ham" onclick="toggleMenu()"><svg width="18" height="14" viewBox="0 0 18 14" fill="none"><line x1="0" y1="1" x2="18" y2="1" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="7" x2="18" y2="7" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/><line x1="5" y1="13" x2="18" y2="13" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+</div>
+<div class="slide-menu" id="slideMenu">
+  <div class="slide-menu-hdr">
+    <div class="purifye-logo"><a href="/">purifye<span>AI.com</span></a></div>
+    <div class="slide-menu-x" onclick="toggleMenu()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+  </div>
+  <div class="slide-menu-links">
+    <a href="/" class="slide-link">Home</a>
+    <div class="slide-link-group">
+      <div class="slide-link-parent">Automation</div>
+      <a href="/bots/accounting/" class="slide-sub">Accounts Bot</a>
+      <a href="/bots/inventory/" class="slide-sub">Inventory Bot</a>
+      <a href="/bots/social/" class="slide-sub">Social Bot</a>
+      <a href="/bots/planner/" class="slide-sub">Planner Bot</a>
+      <a href="/bots/customers/" class="slide-sub">Customer Bot</a>
+    </div>
+    <a href="/pricing/" class="slide-link">Pricing</a>
+    <a href="/contact/" class="slide-link">Contact</a>
+    <a href="/contact/" class="slide-signin">Sign in</a>
+  </div>
+  <div class="slide-menu-ftr"><span>Purifye Solutions (Pvt) Ltd</span></div>
+</div>
+<div class="slide-menu-backdrop" id="menuBackdrop" onclick="toggleMenu()"></div>
+
+<div class="demo-section">
+<div class="demo-wrap">
+
+<div class="cap" id="cap"></div>
+<div class="phone">
+<div class="notch"><div class="notch-bar"></div></div>
+<div class="nav">
+<div class="nav-top"><span class="nav-brand"><b>P</b>urifye</span><span class="nav-biz">Spice Kitchen LK</span><div class="nav-av">R</div></div>
+<div class="tabs" id="tabs">
+<div class="t on" data-t="dash">Dashboard</div>
+<div class="t" data-t="entry">Entry</div>
+<div class="t" data-t="recipes">Recipes</div>
+<div class="t" data-t="reports">Reports</div>
+<div class="t" data-t="settings">Settings</div>
+</div>
+</div>
+
+<div class="scroll" id="scroll">
+
+<!-- ═══ SCENE: DASHBOARD ═══ -->
+<div class="sc in" id="sc-dash">
+<div class="pills"><div class="p on">This Month</div><div class="p">3M</div><div class="p">6M</div><div class="p">YTD</div><div class="p">All</div></div>
+<div class="vm" style="margin:4px 0 10px">Spice Kitchen LK · 9 May 2026</div>
+
+<div class="card rv" id="d1"><div class="sh">REVENUE — DAILY</div><div class="v" id="v-rev">Rs. 0</div>
+<div class="bars" id="rev-bars"><div class="bar" style="height:0"></div><div class="bar" style="height:0"></div><div class="bar" style="height:0"></div><div class="bar" style="height:0"></div><div class="bar" style="height:0"></div><div class="bar" style="height:0"></div><div class="bar" style="height:0"></div><div class="bar" style="height:0;opacity:.3"></div><div class="bar" style="height:0;opacity:.3"></div></div>
+<div class="blabels"><span>1 May</span><span>3 May</span><span>5 May</span><span>7 May</span><span>9 May</span></div></div>
+
+<div class="card2"><div class="card rv" id="d2"><div class="sh">NET MARGIN</div><div class="vs g" id="v-mg">0%</div>
+<div class="dw"><div class="dn"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="#2a2a28" stroke-width="4"/><circle id="dn-cogs" cx="18" cy="18" r="14" fill="none" stroke="#D85A30" stroke-width="4" stroke-dasharray="0 88"/><circle id="dn-opex" cx="18" cy="18" r="14" fill="none" stroke="#D4A843" stroke-width="4" stroke-dasharray="0 88"/><circle id="dn-profit" cx="18" cy="18" r="14" fill="none" stroke="#5DCAA5" stroke-width="4" stroke-dasharray="0 88"/></svg><div class="dn-c" id="v-mgc">0%</div></div></div>
+<div class="dl"><span style="color:#D85A30"><span class="dot" style="background:#D85A30"></span>COGS</span><span style="color:#D4A843"><span class="dot" style="background:#D4A843"></span>Opex</span><span style="color:#5DCAA5"><span class="dot" style="background:#5DCAA5"></span>Profit</span></div></div>
+<div class="card rv" id="d3"><div class="sh">EXPENSES</div><div class="vs" id="v-exp">Rs. 0</div>
+<div class="dw"><div class="dn"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="#2a2a28" stroke-width="4"/><circle id="dn-comm" cx="18" cy="18" r="14" fill="none" stroke="#5DCAA5" stroke-width="4" stroke-dasharray="0 88"/><circle id="dn-fin" cx="18" cy="18" r="14" fill="none" stroke="#D4A843" stroke-width="4" stroke-dasharray="0 88"/><circle id="dn-rent" cx="18" cy="18" r="14" fill="none" stroke="#D85A30" stroke-width="4" stroke-dasharray="0 88"/></svg></div></div>
+<div class="dl"><span style="color:#5DCAA5"><span class="dot" style="background:#5DCAA5"></span>Comms</span><span style="color:#D4A843"><span class="dot" style="background:#D4A843"></span>Finance</span><span style="color:#D85A30"><span class="dot" style="background:#D85A30"></span>Rent</span></div></div></div>
+
+<div class="card rv" id="d4"><div class="sh">CASH NOW</div><div class="v" id="v-cash">Rs. 0</div>
+<div id="cash-bars"><div class="hb"><div class="hb-l"><span>Sampath Savings</span><span id="v-c1">Rs. 0</span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-c1"></div></div></div><div class="hb"><div class="hb-l"><span>BOC Current</span><span id="v-c2">Rs. 0</span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-c2"></div></div></div><div class="hb"><div class="hb-l"><span>Cash Drawer</span><span id="v-c3">Rs. 0</span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-c3"></div></div></div><div class="hb"><div class="hb-l"><span>Petty Cash</span><span id="v-c4">Rs. 0</span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-c4"></div></div></div></div></div>
+
+<div class="card2"><div class="card rv" id="d5"><div class="sh">A/R AGING</div><div class="vs g" id="v-ar">Rs. 0</div><div class="vm" id="v-arc">0 customers</div>
+<div class="ab" id="ar-bars"><div style="height:0;background:#5DCAA5"></div><div style="height:0;background:#D4A843"></div><div style="height:0;background:#E86B3A"></div><div style="height:0;background:#D85A30"></div></div>
+<div class="al"><span style="color:#5DCAA5">0-30</span><span style="color:#D4A843">31-60</span><span style="color:#E86B3A">61-90</span><span style="color:#D85A30">90+</span></div></div>
+<div class="card rv" id="d6"><div class="sh">A/P AGING</div><div class="vs r" id="v-ap">Rs. 0</div><div class="vm" id="v-apc">0 suppliers</div>
+<div class="ab" id="ap-bars"><div style="height:0;background:#5DCAA5"></div><div style="height:0;background:#D4A843"></div><div style="height:0;background:#E86B3A"></div><div style="height:0;background:#D85A30"></div></div>
+<div class="al"><span style="color:#5DCAA5">0-30</span><span style="color:#D4A843">31-60</span><span style="color:#E86B3A">61-90</span><span style="color:#D85A30">90+</span></div></div></div>
+
+<div class="card rv" id="d7"><div class="sh">PURCHASES BY SUPPLIER</div><div class="v" id="v-pu">Rs. 0</div><div class="vm" id="v-puc">0 suppliers</div>
+<div><div class="hb"><div class="hb-l"><span>Ceylon Spice Traders</span><span>Rs. 185,000</span></div><div class="hb-t"><div class="hb-f" style="background:#E86B3A" id="hb-p1"></div></div></div><div class="hb"><div class="hb-l"><span>Hambantota Sugar Co</span><span>Rs. 142,000</span></div><div class="hb-t"><div class="hb-f" style="background:#E86B3A" id="hb-p2"></div></div></div><div class="hb"><div class="hb-l"><span>Premium Coconut Ltd</span><span>Rs. 98,500</span></div><div class="hb-t"><div class="hb-f" style="background:#E86B3A" id="hb-p3"></div></div></div></div></div>
+
+<div class="card rv" id="d8"><div class="sh">INVENTORY BY SKU</div><div class="v" id="v-inv">Rs. 0</div><div class="vm" id="v-invc">0 SKUs</div>
+<div><div class="hb"><div class="hb-l"><span>Chili Powder bulk</span><span>Rs. 48,200</span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-i1"></div></div></div><div class="hb"><div class="hb-l"><span>Turmeric Powder</span><span>Rs. 35,800</span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-i2"></div></div></div><div class="hb"><div class="hb-l"><span>Coriander bulk</span><span>Rs. 28,400</span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-i3"></div></div></div><div class="hb"><div class="hb-l"><span>Coconut Oil 20L</span><span>Rs. 22,100</span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-i4"></div></div></div><div class="hb"><div class="hb-l"><span style="color:#6a6a64">+ 4 more</span><span>Rs. 31,500</span></div><div class="hb-t"><div class="hb-f" style="background:#6a6a64" id="hb-i5"></div></div></div></div></div>
+</div>
+
+<!-- ═══ SCENE: DRILL-DOWN REVENUE ═══ -->
+<div class="sc" id="sc-drill-rev">
+<div class="drill-back"><svg viewBox="0 0 24 24" fill="none" stroke="#6a6a64" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg><span>Dashboard</span></div>
+<div style="font-size:16px;font-weight:700;color:#e8e7e0;margin-bottom:2px">Revenue</div>
+<div class="vm" style="margin-bottom:6px" id="v-drev-total">Rs. 0 total</div>
+<div class="dtabs"><div class="dtab" id="dt-cust">By Customer</div><div class="dtab on" id="dt-prod">By Product</div><div class="dtab" id="dt-month">By Month</div><div class="dtab" id="dt-chan">By Channel</div></div>
+<div class="dhb rv" id="dr1"><div class="dhb-l"><span class="dhb-name">Special Curry Mix 100g</span><span><span class="dhb-val">Rs. 340,550</span><span class="dhb-pct">(70.0%)</span></span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-dr1"></div></div></div>
+<div class="dhb rv" id="dr2"><div class="dhb-l"><span class="dhb-name">Premium Curry Mix 250g</span><span><span class="dhb-val">Rs. 145,950</span><span class="dhb-pct">(30.0%)</span></span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-dr2"></div></div></div>
+<div class="dhb rv" id="dr3"><div class="dhb-l"><span class="dhb-name">Beef Patty</span><span><span class="dhb-val">Rs. 1</span><span class="dhb-pct">(0.0%)</span></span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-dr3"></div></div></div>
+</div>
+
+<!-- ═══ SCENE: DRILL-DOWN AR ═══ -->
+<div class="sc" id="sc-drill-ar">
+<div class="drill-back"><svg viewBox="0 0 24 24" fill="none" stroke="#6a6a64" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg><span>Dashboard</span></div>
+<div style="font-size:16px;font-weight:700;color:#e8e7e0;margin-bottom:8px">Accounts Receivable Aging</div>
+<div class="ab rv" id="ar-drill-bars" style="height:50px;margin-bottom:2px"><div style="height:0;background:#5DCAA5"></div><div style="height:0;background:#D4A843"></div><div style="height:0;background:#E86B3A"></div><div style="height:0;background:#D85A30"></div></div>
+<div class="al" style="margin-bottom:16px"><span style="color:#5DCAA5">0-30 days</span><span style="color:#D4A843">31-60</span><span style="color:#E86B3A">61-90</span><span style="color:#D85A30">90+</span></div>
+<div class="sh rv" id="ar-hdr">CUSTOMERS (4)</div>
+<div class="card rv" id="ar1" style="display:flex;justify-content:space-between;align-items:center;cursor:default">
+<div><div class="drill-name" style="font-size:13px">Cinnamon Grand Hotel</div><div class="vm">47,500 outstanding</div></div>
+<div style="display:flex;align-items:center;gap:6px"><span class="drill-val g">Rs. 47,500</span><span style="color:#9c9b95;font-size:10px">›</span></div>
+</div>
+<div class="card rv" id="ar2" style="display:flex;justify-content:space-between;align-items:center;cursor:default">
+<div><div class="drill-name" style="font-size:13px">Galle Face Hotel</div><div class="vm">32,000 outstanding</div></div>
+<div style="display:flex;align-items:center;gap:6px"><span class="drill-val g">Rs. 32,000</span><span style="color:#9c9b95;font-size:10px">›</span></div>
+</div>
+<div class="card rv" id="ar3" style="display:flex;justify-content:space-between;align-items:center;cursor:default">
+<div><div class="drill-name" style="font-size:13px">Royal Restaurant</div><div class="vm">38,000 outstanding</div></div>
+<div style="display:flex;align-items:center;gap:6px"><span class="drill-val r">Rs. 38,000</span><span style="color:#9c9b95;font-size:10px">›</span></div>
+</div>
+<div class="card rv" id="ar4" style="display:flex;justify-content:space-between;align-items:center;cursor:default">
+<div><div class="drill-name" style="font-size:13px">Hilton Colombo</div><div class="vm">30,000 outstanding</div></div>
+<div style="display:flex;align-items:center;gap:6px"><span class="drill-val g">Rs. 30,000</span><span style="color:#9c9b95;font-size:10px">›</span></div>
+</div>
+</div>
+
+<!-- ═══ SCENE: DRILL-DOWN CUSTOMER LEDGER ═══ -->
+<div class="sc" id="sc-drill-ledger">
+<div class="drill-back"><svg viewBox="0 0 24 24" fill="none" stroke="#6a6a64" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg><span>A/R Aging</span></div>
+<div style="font-size:16px;font-weight:700;color:#e8e7e0;margin-bottom:12px">Cinnamon Grand Hotel</div>
+<div class="os-box rv" id="ld-os">
+<div><div class="os-label">OUTSTANDING</div><div class="os-val" id="v-os">Rs. 0</div></div>
+<div class="os-chart"><div class="os-bar rv" id="os-b1" style="height:0"></div><div class="os-bar rv" id="os-b2" style="height:0"></div><div class="os-bar rv" id="os-b3" style="height:0"></div><div class="os-bar rv" id="os-b4" style="height:0"></div><div class="os-bar rv" id="os-b5" style="height:0;opacity:.3"></div><div class="os-bar rv" id="os-b6" style="height:0;opacity:.3"></div></div>
+<div class="vm" style="align-self:flex-end">12-month balance</div>
+</div>
+<div class="sh rv" id="ld-txhdr">TRANSACTIONS</div>
+<div class="txn-card rv" id="ld1"><div class="txn-top"><span class="txn-name">Payment Received</span><span class="txn-amt g">+Rs. 5,000</span></div><div class="txn-bot"><span class="txn-date">01 May 26</span><span class="txn-bal">Bal: Rs. 47,500</span></div></div>
+<div class="txn-card rv" id="ld2"><div class="txn-top"><span class="txn-name">Invoice INV-0004</span><span class="txn-amt r">-Rs. 22,500</span></div><div class="txn-bot"><span class="txn-date">01 May 26</span><span class="txn-bal">Bal: Rs. 52,500</span></div></div>
+<div class="txn-card rv" id="ld3"><div class="txn-top"><span class="txn-name">Invoice INV-0002</span><span class="txn-amt r">-Rs. 7,500</span></div><div class="txn-bot"><span class="txn-date">01 May 26</span><span class="txn-bal">Bal: Rs. 30,000</span></div></div>
+<div class="txn-card rv" id="ld4"><div class="txn-top"><span class="txn-name">Invoice</span><span class="txn-amt r">-Rs. 22,500</span></div><div class="txn-bot"><span class="txn-date">01 May 26</span><span class="txn-bal">Bal: Rs. 22,500</span></div></div>
+</div>
+
+<!-- ═══ SCENE: DRILL-DOWN EXPENSES ═══ -->
+<div class="sc" id="sc-drill-exp">
+<div class="drill-back"><svg viewBox="0 0 24 24" fill="none" stroke="#6a6a64" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg><span>Dashboard</span></div>
+<div style="font-size:16px;font-weight:700;color:#e8e7e0;margin-bottom:2px">Expenses</div>
+<div class="vm" style="margin-bottom:14px">Rs. 76,220 this month · 3 categories</div>
+<div class="dhb rv" id="ex1"><div class="dhb-l"><span class="dhb-name">Communications</span><span><span class="dhb-val r">Rs. 34,500</span><span class="dhb-pct">(45%)</span></span></div><div class="hb-t"><div class="hb-f" style="background:#5DCAA5" id="hb-ex1"></div></div></div>
+<div class="dhb rv" id="ex2"><div class="dhb-l"><span class="dhb-name">Finance</span><span><span class="dhb-val r">Rs. 26,720</span><span class="dhb-pct">(35%)</span></span></div><div class="hb-t"><div class="hb-f" style="background:#D4A843" id="hb-ex2"></div></div></div>
+<div class="dhb rv" id="ex3"><div class="dhb-l"><span class="dhb-name">Rent</span><span><span class="dhb-val r">Rs. 15,000</span><span class="dhb-pct">(20%)</span></span></div><div class="hb-t"><div class="hb-f" style="background:#D85A30" id="hb-ex3"></div></div></div>
+</div>
+
+<!-- ═══ SCENE: ENTRY ═══ -->
+<div class="sc" id="sc-entry">
+<div style="font-size:18px;font-weight:700;color:#e8e7e0">New Entry</div>
+<div style="font-size:12px;color:#9c9b95;margin-top:2px">Record manually, by voice, or from a photo</div>
+<div style="display:flex;align-items:center;margin:12px 0"><div class="fl" style="margin:0">AUTO-FILL VIA</div><div style="margin-left:auto;display:flex;gap:10px"><div class="cap-btn" id="mic">🎤</div><div class="cap-btn">📷</div></div></div>
+<div class="card" style="padding:16px" id="eForm">
+<div class="fl">ENTRY TYPE</div><div class="fs"><span>Sale</span><span class="chev">▼</span></div>
+<div style="margin-top:12px"><div class="fl">DATE</div><div class="fi">09/05/2026</div></div>
+<div style="margin-top:12px"><div class="fl">CUSTOMER</div><div class="fi" id="eCust" style="color:#6a6a64">Select customer</div></div>
+<div style="margin-top:12px"><div class="fl">ITEMS</div><div style="background:#212120;border:1px solid rgba(255,255,255,.04);border-radius:8px;padding:10px"><div class="vm" style="margin-bottom:4px">ITEM 1</div><div class="fs" id="eProd" style="margin-bottom:6px"><span style="color:#6a6a64">Product / Service</span><span class="chev">▼</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div class="fi" id="eQty" style="text-align:center;color:#6a6a64">Qty</div><div class="fi" id="ePrice" style="text-align:center;color:#6a6a64">Price</div></div></div></div>
+<div style="margin-top:12px"><div class="fl">PAYMENT TERMS</div><div class="pills" style="margin:4px 0"><div class="p on">Cash</div><div class="p">7d credit</div><div class="p">14d credit</div><div class="p">30d credit</div></div></div>
+<div style="margin-top:12px"><div class="fl">CASH ACCOUNT</div><div class="fs" id="eAcct"><span style="color:#6a6a64">Select account</span><span class="chev">▼</span></div></div>
+<div class="save-btn" id="saveBtn">Save Entry</div>
+</div>
+<div class="divider" style="margin-top:20px"><span>RECENT ENTRIES</span></div>
+<div class="entry-item rv" id="re1"><div class="ei-ic" style="background:rgba(93,202,165,.1)">🛒</div><div style="flex:1"><div class="ei-name">Cinnamon Grand Hotel</div><div class="ei-meta">Sale · 08 May</div></div><div><div class="ei-amt g">Rs. 45,000</div><div class="ei-btns"><span class="ei-btn">Edit</span><span class="ei-btn u">Undo</span></div></div></div>
+<div class="entry-item rv" id="re2"><div class="ei-ic" style="background:rgba(232,107,58,.1)">📦</div><div style="flex:1"><div class="ei-name">Ceylon Spice Traders</div><div class="ei-meta">Purchase · 08 May</div></div><div><div class="ei-amt r">Rs. 28,500</div><div class="ei-btns"><span class="ei-btn">Edit</span><span class="ei-btn u">Undo</span></div></div></div>
+<div class="entry-item rv" id="re3"><div class="ei-ic" style="background:rgba(212,168,67,.1)">💸</div><div style="flex:1"><div class="ei-name">SLT Mobitel</div><div class="ei-meta">Expense · 07 May</div></div><div><div class="ei-amt r">Rs. 8,500</div><div class="ei-btns"><span class="ei-btn">Edit</span><span class="ei-btn u">Undo</span></div></div></div>
+</div>
+
+<!-- ═══ SCENE: REPORTS ═══ -->
+<div class="sc" id="sc-reports">
+<div style="display:flex;gap:0;margin:8px 0 12px"><div class="p on" style="font-size:10px">P&L</div><div class="p" style="font-size:10px;background:transparent;border-color:transparent">B/S</div><div class="p" style="font-size:10px;background:transparent;border-color:transparent">C/F</div><div class="p" style="font-size:10px;background:transparent;border-color:transparent">T/B</div><div class="p" style="font-size:10px;background:transparent;border-color:transparent">Ledger</div></div>
+<div style="display:flex;align-items:center;margin-bottom:12px"><div class="pills" style="margin:0"><div class="p on">This Month</div><div class="p">3M</div><div class="p">YTD</div></div><div class="act"><div class="act-b">💬 Share</div><div class="act-b">↓ PDF</div></div></div>
+<div class="sh rv" id="p1">REVENUE</div>
+<div class="rr ind rv" id="p2"><span class="rr-l sub">Sales / Revenue</span><span class="rr-v" id="pv-s">Rs. 0</span></div>
+<div class="rr rt rv" id="p3"><span class="rr-l">Total Revenue</span><span class="rr-v g" id="pv-tr">Rs. 0</span></div>
+<div class="sh rv" id="p4" style="margin-top:12px">COST OF SALES</div>
+<div class="rr ind rv" id="p5"><span class="rr-l sub">Cost of Goods Sold</span><span class="rr-v r" id="pv-cogs">Rs. 0</span></div>
+<div class="rr rt red rv" id="p6"><span class="rr-l">Total COS</span><span class="rr-v" id="pv-tcos">Rs. 0</span></div>
+<div class="rr rt rv" id="p7" style="margin-top:8px"><span class="rr-l">Gross Profit</span><span class="rr-v g" id="pv-gp">Rs. 0</span></div>
+<div class="rv" id="p7b" style="text-align:right;padding:4px 0"><span class="vm" id="pv-gm">Gross Margin: 0%</span></div>
+<div class="sh rv" id="p8" style="margin-top:12px">OPERATING EXPENSES</div>
+<div class="rr ind rv" id="p9"><span class="rr-l sub">Communications</span><span class="rr-v r" id="pv-comm">Rs. 0</span></div>
+<div class="rr ind rv" id="p10"><span class="rr-l sub">Rent</span><span class="rr-v r" id="pv-rent">Rs. 0</span></div>
+<div class="rr ind rv" id="p11"><span class="rr-l sub">Finance</span><span class="rr-v r" id="pv-fin">Rs. 0</span></div>
+<div class="rr rt red rv" id="p12"><span class="rr-l">Total Opex</span><span class="rr-v" id="pv-topex">Rs. 0</span></div>
+<div class="np rv" id="p13"><span class="np-l" id="pv-npl">Net Profit (0%)</span><span class="np-v" id="pv-np">Rs. 0</span></div>
+</div>
+
+<!-- ═══ SCENE: RECIPES ═══ -->
+<div class="sc" id="sc-recipes">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:18px;font-weight:700;color:#e8e7e0">Recipes</div><div class="vm">4 recipes</div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="save-btn" style="margin:0;font-size:12px;padding:10px">+ Add recipe</div><div style="padding:10px;font-size:12px;font-weight:600;text-align:center;border-radius:10px;border:1px solid rgba(93,202,165,.2);color:#5DCAA5">📷 Bulk add</div></div>
+<div class="fi" style="margin-bottom:12px;color:#6a6a64">Search recipes</div>
+<div class="rc rv" id="rc1"><div style="display:flex;justify-content:space-between;align-items:center"><div class="rc-n">Premium Curry Mix 250g</div><div class="rc-b">4 inputs</div></div><div class="rc-i">Chili Powder, Coriander, Cumin, Turmeric</div></div>
+<div class="rc rv" id="rc2"><div style="display:flex;justify-content:space-between;align-items:center"><div class="rc-n">Special Curry Mix 100g</div><div class="rc-b">4 inputs</div></div><div class="rc-i">Chili Powder, Coriander, Cumin +1 more</div></div>
+<div class="rc rv" id="rc3"><div style="display:flex;justify-content:space-between;align-items:center"><div class="rc-n">Chicken Burger</div><div class="rc-b">3 inputs</div></div><div class="rc-i">Chicken Patty, Buns, Lettuce</div></div>
+<div class="rc rv" id="rc4"><div style="display:flex;justify-content:space-between;align-items:center"><div class="rc-n">Beef Burger</div><div class="rc-b">3 inputs</div></div><div class="rc-i">Beef Patty, Buns, Cheese</div></div>
+</div>
+
+</div><!-- /scroll -->
+
+<div class="toast" id="toast"></div>
+<div class="bb">
+<div class="bi on"><div class="bi-ic" style="background:linear-gradient(135deg,#28997A,#13654C)">📊</div><div class="bi-lb">Accounting</div></div>
+<div class="bi"><div class="bi-ic" style="background:linear-gradient(135deg,#EE7844,#B84D22)">📦</div><div class="bi-lb">Inventory</div></div>
+<div class="bi"><div class="bi-ic" style="background:linear-gradient(135deg,#7068D9,#4840A3)">📣</div><div class="bi-lb">Social</div></div>
+<div class="bi"><div class="bi-ic" style="background:linear-gradient(135deg,#D4A843,#9E7B28)">📅</div><div class="bi-lb">Planner</div></div>
+<div class="bi"><div class="bi-ic" style="background:linear-gradient(135deg,#CF5BA0,#8A3063)">👥</div><div class="bi-lb">Customers</div></div>
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="hero">
+  <div class="hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
+  <h1>Accounts like you've<br><span class="hl">never</span> seen before.</h1>
+  <p>Digest your numbers better visually.</p>
+</div>
+
+<div class="content-wrap">
+
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">How It Works</div>
+      <div class="sec-title">Books that keep themselves.</div>
+      <div class="sec-desc">Record a transaction in 5 seconds. Your P&L updates before you put your phone down.</div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">01</span>
+        <div class="step-icon" style="background:rgba(93,202,165,0.1);color:var(--grn)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></div>
+        <div class="step-name">Speak or Snap</div>
+        <div class="step-desc">Voice note, photo, or type it in. AI extracts the transaction — amount, who, what, how paid.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <div class="step-icon" style="background:rgba(91,141,239,0.1);color:var(--blu)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="step-name">Journal Auto-Posts</div>
+        <div class="step-desc">Double-entry journal updated instantly. Debits match credits. Every single time. No manual ledger work.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <div class="step-icon" style="background:rgba(232,107,58,0.1);color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
+        <div class="step-name">Dashboard Updates</div>
+        <div class="step-desc">Revenue, margins, cash, receivables, payables — all live. No waiting for month-end.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">04</span>
+        <div class="step-icon" style="background:rgba(212,168,67,0.1);color:var(--amb)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></div>
+        <div class="step-name">Drill Into Anything</div>
+        <div class="step-desc">Tap revenue → see it by customer, product, month. Tap a customer → see every transaction. Three levels deep.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">05</span>
+        <div class="step-icon" style="background:rgba(112,104,217,0.1);color:var(--purp)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div class="step-name">Reports on Demand</div>
+        <div class="step-desc">P&L, Balance Sheet, Cash Flow, Trial Balance, Account Ledger. Download PDF or share via WhatsApp.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">06</span>
+        <div class="step-icon" style="background:rgba(207,91,160,0.1);color:var(--pink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <div class="step-name">Follow Up Instantly</div>
+        <div class="step-desc">Overdue customer? One tap opens WhatsApp with a pre-filled reminder. Payment chasing on autopilot.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">Features</div>
+      <div class="sec-title">See everything. Miss nothing.</div>
+      <div class="sec-desc">Your financial data — organized, visual, and three taps deep.</div>
+    </div>
+    <div class="features">
+<!-- ═══ 1. DASHBOARD ═══ -->
+<div class="feat">
+<div class="fv" style="padding:16px 14px;background:var(--bg)">
+<!-- Period pills -->
+<div style="display:flex;gap:5px;margin-bottom:14px">
+<div style="padding:4px 12px;font-family:var(--fm);font-size:9px;font-weight:600;border-radius:12px;background:var(--adim);border:1px solid var(--abrd);color:var(--grn)">This Month</div>
+<div style="padding:4px 10px;font-family:var(--fm);font-size:9px;font-weight:600;border-radius:12px;color:var(--t3)">3M</div>
+<div style="padding:4px 10px;font-family:var(--fm);font-size:9px;font-weight:600;border-radius:12px;color:var(--t3)">6M</div>
+<div style="padding:4px 10px;font-family:var(--fm);font-size:9px;font-weight:600;border-radius:12px;color:var(--t3)">YTD</div>
+<div style="padding:4px 10px;font-family:var(--fm);font-size:9px;font-weight:600;border-radius:12px;color:var(--t3)">All</div>
+</div>
+
+<!-- REVENUE card -->
+<div style="background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;margin-bottom:8px">
+<div style="font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">REVENUE — DAILY</div>
+<div style="font-family:var(--fm);font-size:22px;font-weight:700;color:var(--t1);margin-bottom:8px">2,418,500</div>
+<div style="display:flex;align-items:flex-end;gap:1px;height:55px">
+<div style="width:100%;height:65%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:82%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:48%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:92%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:72%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:58%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:100%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:42%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:78%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:62%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:88%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:52%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:74%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:96%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:64%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:84%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:46%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:72%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:58%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:92%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="width:100%;height:38%;background:var(--grn);border-radius:2px 2px 0 0;opacity:.35"></div>
+<div style="width:100%;height:28%;background:var(--grn);border-radius:2px 2px 0 0;opacity:.35"></div>
+</div>
+<div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-family:var(--fm);font-size:7px;color:var(--t3)">1</span><span style="font-family:var(--fm);font-size:7px;color:var(--t3)">5</span><span style="font-family:var(--fm);font-size:7px;color:var(--t3)">10</span><span style="font-family:var(--fm);font-size:7px;color:var(--t3)">15</span><span style="font-family:var(--fm);font-size:7px;color:var(--t3)">20</span><span style="font-family:var(--fm);font-size:7px;color:var(--t3)">25</span><span style="font-family:var(--fm);font-size:7px;color:var(--t3)">30</span></div>
+</div>
+
+<!-- NET MARGIN + EXPENSES -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+<!-- Net Margin -->
+<div style="background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px">
+<div style="font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">NET MARGIN</div>
+<div style="font-family:var(--fm);font-size:20px;font-weight:700;color:var(--grn)">59%</div>
+<div style="display:flex;justify-content:center;margin:10px 0 6px">
+<div style="position:relative;width:80px;height:80px">
+<svg viewBox="0 0 36 36" style="width:100%;height:100%;transform:rotate(-90deg)">
+<circle cx="18" cy="18" r="14" fill="none" stroke="var(--el)" stroke-width="3.5"/>
+<circle cx="18" cy="18" r="14" fill="none" stroke="var(--red)" stroke-width="3.5" stroke-dasharray="22 88"/>
+<circle cx="18" cy="18" r="14" fill="none" stroke="var(--amb)" stroke-width="3.5" stroke-dasharray="14 88" stroke-dashoffset="-22"/>
+<circle cx="18" cy="18" r="14" fill="none" stroke="var(--grn)" stroke-width="3.5" stroke-dasharray="52 88" stroke-dashoffset="-36"/>
+</svg>
+<div style="position:absolute;inset:0;display:grid;place-items:center;font-family:var(--fm);font-size:12px;font-weight:700;color:var(--grn)">59%</div>
+</div>
+</div>
+<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+<span style="font-family:var(--fm);font-size:7px;display:flex;align-items:center;gap:2px;color:var(--red)"><span style="width:5px;height:5px;border-radius:50%;background:var(--red)"></span>COGS</span>
+<span style="font-family:var(--fm);font-size:7px;display:flex;align-items:center;gap:2px;color:var(--amb)"><span style="width:5px;height:5px;border-radius:50%;background:var(--amb)"></span>Opex</span>
+<span style="font-family:var(--fm);font-size:7px;display:flex;align-items:center;gap:2px;color:var(--grn)"><span style="width:5px;height:5px;border-radius:50%;background:var(--grn)"></span>Profit</span>
+</div>
+</div>
+<!-- Expenses -->
+<div style="background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px">
+<div style="font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">EXPENSES</div>
+<div style="font-family:var(--fm);font-size:20px;font-weight:700;color:var(--t1)">986K</div>
+<div style="display:flex;justify-content:center;margin:10px 0 6px">
+<div style="width:80px;height:80px">
+<svg viewBox="0 0 36 36" style="width:100%;height:100%;transform:rotate(-90deg)">
+<circle cx="18" cy="18" r="14" fill="none" stroke="var(--el)" stroke-width="3.5"/>
+<circle cx="18" cy="18" r="14" fill="none" stroke="var(--red)" stroke-width="3.5" stroke-dasharray="30 88"/>
+<circle cx="18" cy="18" r="14" fill="none" stroke="var(--amb)" stroke-width="3.5" stroke-dasharray="18 88" stroke-dashoffset="-30"/>
+<circle cx="18" cy="18" r="14" fill="none" stroke="var(--grn)" stroke-width="3.5" stroke-dasharray="16 88" stroke-dashoffset="-48"/>
+<circle cx="18" cy="18" r="14" fill="none" stroke="var(--blu)" stroke-width="3.5" stroke-dasharray="12 88" stroke-dashoffset="-64"/>
+<circle cx="18" cy="18" r="14" fill="none" stroke="var(--purp)" stroke-width="3.5" stroke-dasharray="12 88" stroke-dashoffset="-76"/>
+</svg>
+</div>
+</div>
+<div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap">
+<span style="font-family:var(--fm);font-size:6px;display:flex;align-items:center;gap:2px;color:var(--red)"><span style="width:4px;height:4px;border-radius:50%;background:var(--red)"></span>Purchases</span>
+<span style="font-family:var(--fm);font-size:6px;display:flex;align-items:center;gap:2px;color:var(--amb)"><span style="width:4px;height:4px;border-radius:50%;background:var(--amb)"></span>Payroll</span>
+<span style="font-family:var(--fm);font-size:6px;display:flex;align-items:center;gap:2px;color:var(--grn)"><span style="width:4px;height:4px;border-radius:50%;background:var(--grn)"></span>Rent</span>
+<span style="font-family:var(--fm);font-size:6px;display:flex;align-items:center;gap:2px;color:var(--blu)"><span style="width:4px;height:4px;border-radius:50%;background:var(--blu)"></span>Utilities</span>
+<span style="font-family:var(--fm);font-size:6px;display:flex;align-items:center;gap:2px;color:var(--purp)"><span style="width:4px;height:4px;border-radius:50%;background:var(--purp)"></span>Finance</span>
+</div>
+</div>
+</div>
+
+<!-- CASH NOW -->
+<div style="background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;margin-bottom:8px">
+<div style="font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">CASH NOW</div>
+<div style="font-family:var(--fm);font-size:22px;font-weight:700;color:var(--t1);margin-bottom:10px">453,481</div>
+<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:var(--t1)">Sampath Current</span><span style="font-family:var(--fm);font-size:10px;color:var(--grn)">300,000</span></div><div style="height:5px;background:var(--el);border-radius:3px;overflow:hidden"><div style="height:100%;width:66%;background:var(--grn);border-radius:3px"></div></div></div>
+<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:var(--t1)">HNB Current</span><span style="font-family:var(--fm);font-size:10px;color:var(--grn)">136,700</span></div><div style="height:5px;background:var(--el);border-radius:3px;overflow:hidden"><div style="height:100%;width:30%;background:var(--grn);border-radius:3px"></div></div></div>
+<div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:var(--t1)">Petty Cash</span><span style="font-family:var(--fm);font-size:10px;color:var(--grn)">16,781</span></div><div style="height:5px;background:var(--el);border-radius:3px;overflow:hidden"><div style="height:100%;width:4%;background:var(--grn);border-radius:3px"></div></div></div>
+</div>
+
+<!-- A/R + A/P AGING -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<div style="background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px">
+<div style="font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">A/R AGING</div>
+<div style="font-family:var(--fm);font-size:18px;font-weight:700;color:var(--grn)">5,524,000</div>
+<div style="font-family:var(--fm);font-size:8px;color:var(--t3);margin-bottom:6px">25 customers</div>
+<div style="display:flex;gap:3px;align-items:flex-end;height:32px;margin-bottom:3px">
+<div style="flex:1;height:80%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="flex:1;height:30%;background:var(--amb);border-radius:2px 2px 0 0"></div>
+<div style="flex:1;height:18%;background:#E86B3A;border-radius:2px 2px 0 0"></div>
+<div style="flex:1;height:42%;background:var(--red);border-radius:2px 2px 0 0"></div>
+</div>
+<div style="display:flex;gap:3px"><span style="flex:1;text-align:center;font-family:var(--fm);font-size:6px;color:var(--grn)">0-30</span><span style="flex:1;text-align:center;font-family:var(--fm);font-size:6px;color:var(--amb)">31-60</span><span style="flex:1;text-align:center;font-family:var(--fm);font-size:6px;color:#E86B3A">61-90</span><span style="flex:1;text-align:center;font-family:var(--fm);font-size:6px;color:var(--red)">90+</span></div>
+</div>
+<div style="background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:12px 14px">
+<div style="font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">A/P AGING</div>
+<div style="font-family:var(--fm);font-size:18px;font-weight:700;color:var(--red)">4,872,500</div>
+<div style="font-family:var(--fm);font-size:8px;color:var(--t3);margin-bottom:6px">7 suppliers</div>
+<div style="display:flex;gap:3px;align-items:flex-end;height:32px;margin-bottom:3px">
+<div style="flex:1;height:70%;background:var(--grn);border-radius:2px 2px 0 0"></div>
+<div style="flex:1;height:45%;background:var(--amb);border-radius:2px 2px 0 0"></div>
+<div style="flex:1;height:22%;background:#E86B3A;border-radius:2px 2px 0 0"></div>
+<div style="flex:1;height:35%;background:var(--red);border-radius:2px 2px 0 0"></div>
+</div>
+<div style="display:flex;gap:3px"><span style="flex:1;text-align:center;font-family:var(--fm);font-size:6px;color:var(--grn)">0-30</span><span style="flex:1;text-align:center;font-family:var(--fm);font-size:6px;color:var(--amb)">31-60</span><span style="flex:1;text-align:center;font-family:var(--fm);font-size:6px;color:#E86B3A">61-90</span><span style="flex:1;text-align:center;font-family:var(--fm);font-size:6px;color:var(--red)">90+</span></div>
+</div>
+</div>
+</div><!-- /fv dashboard -->
+<div class="fc">
+<span class="fb" style="background:var(--adim);color:var(--accent)">Dashboard</span>
+<div class="ft">Your Whole Business in One Screen</div>
+<div class="fd">Revenue, net margin, cash across every account, receivables, payables, purchases by supplier, inventory by product. Eight live cards — each one tappable for deeper detail. No spreadsheet comes close.</div>
+</div>
+</div>
+
+<!-- ═══ 2. EVENING FOCUS ═══ -->
+<div class="feat">
+<div class="fv" style="padding:20px 18px;background:var(--bg)">
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+<div style="font-family:var(--fm);font-size:10px;font-weight:600;color:var(--grn);text-transform:uppercase;letter-spacing:0.12em">EVENING FOCUS</div>
+<div style="font-family:var(--fm);font-size:9px;color:var(--t3)">WED · 22 APR</div>
+</div>
+<div style="font-size:20px;font-weight:700;color:var(--t1);margin-bottom:3px">Sithara Pharmacy</div>
+<div style="font-size:11px;color:var(--t3);margin-bottom:16px">Margin squeeze incoming</div>
+<!-- Headline card with left accent -->
+<div style="border-left:3px solid var(--red);background:var(--card);border-radius:0 10px 10px 0;padding:14px 16px;margin-bottom:12px">
+<div style="font-family:var(--fm);font-size:9px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">HEADLINE</div>
+<div style="font-size:12px;color:var(--t1);line-height:1.5">NMRA gazetted new maximum retail prices on 48 essential drugs today. Effective May 15.</div>
+</div>
+<!-- Metric tiles -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+<div style="background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px">
+<div style="font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">AFFECTED SKU REVENUE</div>
+<div style="font-family:var(--fm);font-size:20px;font-weight:700;color:var(--t1)">Rs. 1.2M</div>
+<div style="font-family:var(--fm);font-size:9px;color:var(--grn);margin-top:2px">38% of April revenue</div>
+</div>
+<div style="background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px">
+<div style="font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">CURRENT BLENDED MARGIN</div>
+<div style="font-family:var(--fm);font-size:20px;font-weight:700;color:var(--t1)">22%</div>
+<div style="font-family:var(--fm);font-size:9px;color:var(--red);margin-top:2px">Likely to 15-17% post-cap</div>
+</div>
+</div>
+<!-- Chart card -->
+<div style="background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;margin-bottom:12px">
+<div style="font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">GROSS MARGIN % · LAST 4 MONTHS</div>
+<div style="display:flex;align-items:flex-end;gap:12px;justify-content:center;height:60px">
+<div style="text-align:center"><div style="font-family:var(--fm);font-size:8px;color:var(--t3);margin-bottom:3px">23%</div><div style="width:40px;height:42px;background:var(--blu);border-radius:4px"></div><div style="font-family:var(--fm);font-size:8px;color:var(--t3);margin-top:3px">Jan</div></div>
+<div style="text-align:center"><div style="font-family:var(--fm);font-size:8px;color:var(--t3);margin-bottom:3px">21%</div><div style="width:40px;height:38px;background:var(--blu);border-radius:4px"></div><div style="font-family:var(--fm);font-size:8px;color:var(--t3);margin-top:3px">Feb</div></div>
+<div style="text-align:center"><div style="font-family:var(--fm);font-size:8px;color:var(--t3);margin-bottom:3px">24%</div><div style="width:40px;height:45px;background:var(--blu);border-radius:4px"></div><div style="font-family:var(--fm);font-size:8px;color:var(--t3);margin-top:3px">Mar</div></div>
+<div style="text-align:center"><div style="font-family:var(--fm);font-size:8px;color:var(--t3);margin-bottom:3px">22%</div><div style="width:40px;height:40px;background:var(--blu);border-radius:4px"></div><div style="font-family:var(--fm);font-size:8px;color:var(--t3);margin-top:3px">Apr</div></div>
+</div>
+</div>
+<!-- Action card with left accent -->
+<div style="border-left:3px solid var(--grn);background:var(--card);border-radius:0 10px 10px 0;padding:14px 16px;margin-bottom:8px">
+<div style="font-family:var(--fm);font-size:9px;font-weight:600;color:var(--grn);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">THIS WEEK</div>
+<div style="font-size:12px;color:var(--t1);line-height:1.5">Lock current pricing with distributors before May 15. A 60-day buffer stock on the 48 affected SKUs is worth pricing now.</div>
+</div>
+<div style="text-align:right;font-family:var(--fm);font-size:8px;color:var(--grn);letter-spacing:0.1em">THE ANALYST AI</div>
+</div>
+<div class="fc">
+<span class="fb" style="background:var(--adim);color:var(--grn)">Evening Focus</span>
+<div class="ft">News That Affects Your Business</div>
+<div class="fd">Not generic headlines. AI reads the day's news and connects it to your actual numbers — your loan balance, your suppliers, your industry. Gives you a concrete action for tomorrow. Only news that matters to your specific business.</div>
+</div>
+</div>
+
+<!-- ═══ 3. INVOICING ═══ -->
+<div class="feat">
+<div class="fv" style="padding:24px 16px;background:var(--bg);position:relative;height:280px;overflow:hidden">
+<!-- Stacked invoices effect -->
+<!-- Back invoice (gold/classic) -->
+<div style="position:absolute;right:-30px;top:40px;width:240px;background:#1e1d1a;border:1px solid rgba(212,168,67,0.2);border-radius:6px;padding:12px 14px;transform:rotate(4deg);box-shadow:0 8px 24px rgba(0,0,0,0.4)">
+<div style="display:flex;justify-content:flex-end"><div style="font-family:var(--fm);font-size:7px;color:var(--amb);text-transform:uppercase;letter-spacing:0.08em">INVOICE</div></div>
+<div style="margin-top:30px">
+<div style="display:flex;justify-content:space-between;font-family:var(--fm);font-size:7px;color:var(--t3);border-bottom:1px solid rgba(212,168,67,0.15);padding:4px 0"><span>QTY</span><span>UNIT PRICE</span></div>
+<div style="display:flex;justify-content:space-between;font-family:var(--fm);font-size:8px;color:var(--t2);padding:3px 0"><span>10</span><span>850</span></div>
+<div style="display:flex;justify-content:space-between;font-family:var(--fm);font-size:8px;color:var(--t2);padding:3px 0"><span>5</span><span>250</span></div>
+<div style="display:flex;justify-content:space-between;font-family:var(--fm);font-size:8px;color:var(--t2);padding:3px 0"><span>3</span><span>420</span></div>
+</div>
+<div style="margin-top:16px;text-align:right">
+<div style="font-family:var(--fm);font-size:7px;color:var(--t3)">Subtotal</div>
+<div style="font-family:var(--fm);font-size:7px;color:var(--t3)">Discount</div>
+<div style="display:inline-block;background:rgba(212,168,67,0.15);border-radius:4px;padding:3px 8px;margin-top:4px"><span style="font-family:var(--fm);font-size:7px;color:var(--amb)">Total Due</span></div>
+</div>
+</div>
+<!-- Middle invoice (mono) - slightly visible -->
+<div style="position:absolute;left:-20px;top:60px;width:240px;background:#1a1a1a;border:1px solid var(--bdr);border-radius:6px;padding:12px 14px;transform:rotate(-3deg);box-shadow:0 8px 24px rgba(0,0,0,0.4)">
+<div style="font-family:var(--fm);font-size:7px;color:var(--t3);text-transform:uppercase">INVOICE</div>
+<div style="height:120px"></div>
+<div style="text-align:center;border-top:1px solid var(--bdr);padding-top:6px"><span style="font-family:var(--fm);font-size:7px;color:var(--t3)">Thank you for your purchase</span></div>
+</div>
+<!-- Front invoice (green) -->
+<div style="position:relative;width:260px;margin:0 auto;background:#fff;border-radius:6px;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,0.5);z-index:2">
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+<div style="display:flex;align-items:center;gap:6px">
+<div style="width:24px;height:24px;border-radius:6px;background:var(--grn);display:grid;place-items:center;font-family:var(--fm);font-size:8px;font-weight:700;color:#fff">FH</div>
+<div><div style="font-size:9px;font-weight:700;color:#1a1a1a">Fast Food Hideout</div><div style="font-family:var(--fm);font-size:6px;color:#888">77 Galle Rd, Mount Lavinia</div></div>
+</div>
+<div style="text-align:right">
+<div style="font-family:var(--fm);font-size:10px;font-weight:700;color:var(--grn)">INVOICE</div>
+<div style="display:flex;gap:8px;margin-top:2px"><div><div style="font-family:var(--fm);font-size:5px;color:#888;text-transform:uppercase">INV NO</div><div style="font-family:var(--fm);font-size:7px;font-weight:600;color:var(--grn)">INV-0024</div></div><div><div style="font-family:var(--fm);font-size:5px;color:#888;text-transform:uppercase">DATE</div><div style="font-family:var(--fm);font-size:7px;font-weight:600;color:var(--grn)">23 Apr 2026</div></div></div>
+</div>
+</div>
+<!-- Billed To -->
+<div style="margin-bottom:10px"><div style="font-family:var(--fm);font-size:6px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">BILLED TO</div><div style="font-size:9px;font-weight:600;color:#1a1a1a">Hotel Lavinia</div><div style="font-size:7px;color:#888">123 Galle Road, Dehiwala</div></div>
+<!-- Table -->
+<table style="width:100%;border-collapse:collapse;margin-bottom:10px">
+<tr style="border-bottom:1px solid #e8e7e0"><td style="font-family:var(--fm);font-size:6px;color:#888;padding:3px 0;text-transform:uppercase">#</td><td style="font-family:var(--fm);font-size:6px;color:#888;padding:3px 0;text-transform:uppercase">Description</td><td style="font-family:var(--fm);font-size:6px;color:#888;padding:3px 0;text-align:right">QTY</td><td style="font-family:var(--fm);font-size:6px;color:#888;padding:3px 0;text-align:right">UNIT PRICE</td><td style="font-family:var(--fm);font-size:6px;color:#888;padding:3px 0;text-align:right">TOTAL</td></tr>
+<tr style="border-bottom:1px solid #f0f0f0"><td style="font-size:7px;color:#1a1a1a;padding:4px 0">1</td><td style="font-size:7px;color:#1a1a1a;padding:4px 0">Crispy Chicken Burger</td><td style="font-family:var(--fm);font-size:7px;color:#1a1a1a;padding:4px 0;text-align:right">8</td><td style="font-family:var(--fm);font-size:7px;color:#1a1a1a;padding:4px 0;text-align:right">950</td><td style="font-family:var(--fm);font-size:7px;color:#1a1a1a;padding:4px 0;text-align:right">7,600</td></tr>
+<tr style="border-bottom:1px solid #f0f0f0"><td style="font-size:7px;color:#1a1a1a;padding:4px 0">2</td><td style="font-size:7px;color:#1a1a1a;padding:4px 0">Devilled Chicken Kottu</td><td style="font-family:var(--fm);font-size:7px;color:#1a1a1a;padding:4px 0;text-align:right">4</td><td style="font-family:var(--fm);font-size:7px;color:#1a1a1a;padding:4px 0;text-align:right">1,200</td><td style="font-family:var(--fm);font-size:7px;color:#1a1a1a;padding:4px 0;text-align:right">4,800</td></tr>
+<tr><td style="font-size:7px;color:#1a1a1a;padding:4px 0">3</td><td style="font-size:7px;color:#1a1a1a;padding:4px 0">Fresh Lime Juice</td><td style="font-family:var(--fm);font-size:7px;color:#1a1a1a;padding:4px 0;text-align:right">6</td><td style="font-family:var(--fm);font-size:7px;color:#1a1a1a;padding:4px 0;text-align:right">350</td><td style="font-family:var(--fm);font-size:7px;color:#1a1a1a;padding:4px 0;text-align:right">2,100</td></tr>
+</table>
+<!-- Totals -->
+<div style="display:flex;justify-content:flex-end">
+<div>
+<div style="display:flex;justify-content:space-between;gap:20px"><span style="font-family:var(--fm);font-size:7px;color:#888">Subtotal</span><span style="font-family:var(--fm);font-size:7px;color:#1a1a1a">LKR 14,500</span></div>
+<div style="display:flex;justify-content:space-between;gap:20px"><span style="font-family:var(--fm);font-size:7px;color:#888">Discount</span><span style="font-family:var(--fm);font-size:7px;color:#1a1a1a">LKR 0</span></div>
+<div style="display:flex;justify-content:space-between;gap:20px;background:var(--grn);border-radius:4px;padding:4px 8px;margin-top:4px"><span style="font-family:var(--fm);font-size:7px;font-weight:600;color:#fff">Total Due</span><span style="font-family:var(--fm);font-size:8px;font-weight:700;color:#fff">LKR 14,500</span></div>
+</div>
+</div>
+</div>
+</div>
+<div class="fc">
+<span class="fb" style="background:rgba(207,91,160,0.1);color:var(--pink)">Invoicing</span>
+<div class="ft">Create. Send. Track.</div>
+<div class="fd">Professional invoices from your phone in 30 seconds. Three themes — Green, Mono, Classic. Auto-numbered, auto-saved to your books. Share the PDF via WhatsApp or download. Cash invoices auto-record the payment. Credit invoices show up in your aging.</div>
+</div>
+</div>
+
+<!-- ═══ 4. CHAT QUERIES ═══ -->
+<div class="feat">
+<div class="fv" style="padding:14px 16px;background:#0e1621">
+<!-- Bot header -->
+<div style="display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.04)">
+<div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--g1),var(--g2));display:grid;place-items:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
+<div><div style="font-size:12px;font-weight:600;color:var(--t1)">The Analyst AI</div><div style="font-family:var(--fm);font-size:8px;color:var(--t3)">Your accounting data · always on</div></div>
+</div>
+<!-- User -->
+<div style="display:flex;justify-content:flex-end;margin-top:10px">
+<div style="background:rgba(43,82,120,0.6);border-radius:12px 12px 2px 12px;padding:10px 14px;max-width:78%">
+<div style="font-size:12px;color:var(--t1);line-height:1.4">Who owes me the most right now?</div>
+<div style="font-family:var(--fm);font-size:7px;color:var(--t3);text-align:right;margin-top:4px">3:42 PM</div>
+</div>
+</div>
+<!-- Bot -->
+<div style="display:flex;margin-top:6px">
+<div style="background:var(--sf);border-radius:12px 12px 12px 2px;padding:10px 14px;max-width:82%">
+<div style="font-family:var(--fm);font-size:7px;color:var(--grn);margin-bottom:4px">BOT</div>
+<div style="font-size:11px;color:var(--t1);line-height:1.55">Cargills — 1.2M outstanding, 92 days overdue. Next is Keells at 850K (67 days). Want me to generate aging charts or draft a follow-up?</div>
+<div style="font-family:var(--fm);font-size:7px;color:var(--t3);text-align:right;margin-top:4px">3:42 PM</div>
+</div>
+</div>
+<!-- User 2 -->
+<div style="display:flex;justify-content:flex-end;margin-top:6px">
+<div style="background:rgba(43,82,120,0.6);border-radius:12px 12px 2px 12px;padding:10px 14px;max-width:78%">
+<div style="font-size:12px;color:var(--t1);line-height:1.4">Compare my gross margin this month vs last 3 months</div>
+<div style="font-family:var(--fm);font-size:7px;color:var(--t3);text-align:right;margin-top:4px">3:43 PM</div>
+</div>
+</div>
+<!-- Bot 2 -->
+<div style="display:flex;margin-top:6px">
+<div style="background:var(--sf);border-radius:12px 12px 12px 2px;padding:10px 14px;max-width:82%">
+<div style="font-family:var(--fm);font-size:7px;color:var(--grn);margin-bottom:4px">BOT</div>
+<div style="font-size:11px;color:var(--t1);line-height:1.55">Oct: 43.6% · Sep: 41.2% · Aug: 38.9% · Jul: 40.1%.<br>You've been trending up — stock purchase costs dropped 6% since switching suppliers in August. Chart attached 📊</div>
+<div style="font-family:var(--fm);font-size:7px;color:var(--t3);text-align:right;margin-top:4px">3:43 PM</div>
+</div>
+</div>
+</div>
+<div class="fc">
+<span class="fb" style="background:rgba(112,104,217,0.1);color:var(--purp)">Chat</span>
+<div class="ft">Ask Your Books Anything</div>
+<div class="fd">Type a question in plain language. "Who's my top customer this month?" "How much did I pay Lanka Spice Mills?" "Show my fuel expenses since January." The AI queries your books and answers with real numbers — not guesses.</div>
+</div>
+</div>
+
+      <!-- 3-Level Drill-Downs -->
+      <div class="feat">
+        <div class="feat-visual">
+          <div class="mini-drill">
+            <div class="mini-tabs"><div class="mini-tab on">By Customer</div><div class="mini-tab">By Product</div><div class="mini-tab">By Month</div></div>
+            <div class="mini-drill-row"><span class="mini-drill-name">Cinnamon Grand Hotel</span><span class="mini-drill-val" style="color:var(--grn)">168,000</span></div>
+            <div class="mini-drill-bar"><div class="mini-drill-fill" style="width:100%"></div></div>
+            <div class="mini-drill-row"><span class="mini-drill-name">Galle Face Hotel</span><span class="mini-drill-val" style="color:var(--grn)">124,500</span></div>
+            <div class="mini-drill-bar"><div class="mini-drill-fill" style="width:74%"></div></div>
+            <div class="mini-drill-row"><span class="mini-drill-name">Royal Restaurant</span><span class="mini-drill-val" style="color:var(--grn)">89,000</span></div>
+            <div class="mini-drill-bar"><div class="mini-drill-fill" style="width:53%"></div></div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(91,141,239,0.1);color:var(--blu)">Drill-Downs</span>
+          <div class="feat-title">Tap Any Number. Go Three Levels Deep.</div>
+          <div class="feat-desc">Revenue → by customer, product, month, or channel. Receivables → by customer → individual invoices and payments. Expenses → by category → by vendor → every transaction. Each level loads instantly.</div>
+        </div>
+      </div>
+
+      <!-- Voice & OCR Entry -->
+      <div class="feat">
+        <div class="feat-visual" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+          <div class="mini-voice">
+            <div style="height:8px"></div><div style="height:14px"></div><div style="height:22px"></div><div style="height:18px"></div><div style="height:28px"></div><div style="height:12px"></div><div style="height:20px"></div><div style="height:26px"></div><div style="height:16px"></div><div style="height:10px"></div><div style="height:24px"></div><div style="height:18px"></div><div style="height:14px"></div><div style="height:22px"></div><div style="height:8px"></div><div style="height:16px"></div>
+          </div>
+          <div style="font-family:var(--fm);font-size:9px;color:var(--t3);font-style:italic">"Sold 25 curry mix to Galle Face, 37,500 cash to BOC"</div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(212,168,67,0.1);color:var(--amb)">Voice + OCR</span>
+          <div class="feat-title">Talk to Your Books</div>
+          <div class="feat-desc">Record a voice note describing the transaction. Or snap a photo of a receipt. AI extracts customer, product, quantity, amount, payment method — fills the form, you hit save. Five seconds, not five minutes.</div>
+        </div>
+      </div>
+
+      <!-- 17 Entry Types -->
+      <div class="feat">
+        <div class="feat-visual" style="display:flex;flex-wrap:wrap;gap:4px;padding:12px 14px;align-content:center">
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(93,202,165,0.1);color:var(--grn)">Sale</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(232,107,58,0.1);color:var(--red)">Purchase</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(212,168,67,0.1);color:var(--amb)">Expense</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(91,141,239,0.1);color:var(--blu)">Payment In</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(112,104,217,0.1);color:var(--purp)">Payment Out</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(207,91,160,0.1);color:var(--pink)">Payroll</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(93,202,165,0.1);color:var(--grn)">Sales Return</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(232,107,58,0.1);color:var(--red)">Purchase Return</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(212,168,67,0.1);color:var(--amb)">Loan</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(91,141,239,0.1);color:var(--blu)">Asset</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(112,104,217,0.1);color:var(--purp)">Capital</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(207,91,160,0.1);color:var(--pink)">Transfer</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(93,202,165,0.1);color:var(--grn)">Conversion</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(232,107,58,0.1);color:var(--red)">Adjustment</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(212,168,67,0.1);color:var(--amb)">Drawing</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(91,141,239,0.1);color:var(--blu)">Salary Advance</span>
+          <span style="font-family:var(--fm);font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(112,104,217,0.1);color:var(--purp)">Loan Repay</span>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(232,107,58,0.1);color:var(--red)">Coverage</span>
+          <div class="feat-title">17 Transaction Types. One Form.</div>
+          <div class="feat-desc">Sales, purchases, expenses, payroll, loans, asset purchases, capital injections, inter-account transfers, inventory conversions, returns — every transaction a real business needs. Pick a type, fill the fields, save. Or let voice and OCR pick the type for you.</div>
+        </div>
+      </div>
+
+      <!-- Financial Reports -->
+      <div class="feat">
+        <div class="feat-visual">
+          <div class="mini-pnl">
+            <div class="mini-tabs"><div class="mini-tab on">P&L</div><div class="mini-tab">B/S</div><div class="mini-tab">C/F</div><div class="mini-tab">T/B</div><div class="mini-tab">Ledger</div></div>
+            <div class="mini-pnl-row"><span style="color:var(--t3)">Revenue</span><span style="color:var(--grn)">486,500</span></div>
+            <div class="mini-pnl-row"><span style="color:var(--t3)">Cost of Sales</span><span style="color:var(--red)">121,625</span></div>
+            <div class="mini-pnl-row total"><span style="color:var(--grn)">Gross Profit</span><span style="color:var(--grn)">364,875</span></div>
+            <div class="mini-pnl-row"><span style="color:var(--t3)">Operating Expenses</span><span style="color:var(--red)">76,220</span></div>
+            <div class="mini-pnl-row total" style="background:rgba(93,202,165,0.08);border-radius:6px;padding:5px 8px;margin-top:6px"><span style="color:var(--grn)">Net Profit (59%)</span><span style="color:var(--grn);font-size:12px">288,655</span></div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(112,104,217,0.1);color:var(--purp)">Reports</span>
+          <div class="feat-title">Five Reports. Zero Wait.</div>
+          <div class="feat-desc">Profit & Loss, Balance Sheet, Cash Flow, Trial Balance, Account Ledger — generated from your journal in real time. Download as PDF. Share a summary via WhatsApp. Your accountant gets clean books without chasing you.</div>
+        </div>
+      </div>
+
+      <!-- Recipes / BOM -->
+      <div class="feat">
+        <div class="feat-visual" style="padding:14px;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;font-weight:600;color:var(--t1)">Premium Curry Mix 250g</span>
+            <span style="font-family:var(--fm);font-size:8px;font-weight:700;background:var(--adim);color:var(--accent);padding:2px 8px;border-radius:6px">4 inputs</span>
+          </div>
+          <div style="font-family:var(--fm);font-size:9px;color:var(--t3)">Chili Powder 40g + Coriander 30g + Cumin 20g + Turmeric 10g</div>
+          <div style="border-top:1px solid var(--bdr);margin-top:4px;padding-top:6px;display:flex;justify-content:space-between">
+            <span style="font-family:var(--fm);font-size:9px;color:var(--t3)">Cost per unit</span>
+            <span style="font-family:var(--fm);font-size:10px;font-weight:600;color:var(--amb)">Rs. 412</span>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(207,91,160,0.1);color:var(--pink)">Manufacturing</span>
+          <div class="feat-title">Recipes with Auto-Conversion</div>
+          <div class="feat-desc">Define what goes into each finished product. When you sell, raw materials automatically convert to finished goods. Multi-stage supported — make a chicken patty, then use it in a burger. COGS calculated automatically per product.</div>
+        </div>
+      </div>
+
+      <!-- Morning Brief -->
+      <div class="feat">
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(212,168,67,0.1);color:var(--amb)">Daily Brief</span>
+          <div class="feat-title">Wake Up to Your Numbers</div>
+          <div class="feat-desc">Every morning at 7 AM — a rolling 7-day snapshot lands in your chat. Overdue receivables with names and days late. This week's revenue vs last week. Cash position across every account. Upcoming supplier payments due. All before your first coffee — no app to open, no report to run.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ INPUT METHODS ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">Input Methods</div>
+      <div class="sec-title">Your data, your way</div>
+      <div class="sec-desc">Four ways to record. Pick whatever's fastest in the moment.</div>
+    </div>
+
+    <div class="feed-list">
+
+      <!-- Voice -->
+      <div class="feed-card">
+        <div class="feed-top">
+          <div class="feed-icon" style="background:rgba(212,168,67,0.1);color:var(--amb)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></div>
+          <div class="feed-info">
+            <div class="feed-name">Voice</div>
+            <div class="feed-desc">Speak it like you'd tell an assistant</div>
+          </div>
+        </div>
+        <div class="feed-flow">
+          <div class="feed-side">
+            <div class="feed-side-label">You Say</div>
+            <div class="feed-voice">
+              <div class="feed-wave">▎▌▊▋▍▎▌▊▋▍▎▌</div>
+              <span class="feed-voice-time">0:04</span>
+            </div>
+            <div class="feed-voice-text">"Paid 8,500 to SLT for internet, cash from petty cash"</div>
+          </div>
+          <div class="feed-side">
+            <div class="feed-side-label">Bot Records</div>
+            <div class="feed-result">
+              <div class="feed-result-line ok">✓ Expense: Communications</div>
+              <div class="feed-result-meta">Rs. 8,500 · SLT · Petty Cash</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OCR -->
+      <div class="feed-card">
+        <div class="feed-top">
+          <div class="feed-icon" style="background:rgba(93,202,165,0.1);color:var(--grn)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <div class="feed-info">
+            <div class="feed-name">Photo (OCR)</div>
+            <div class="feed-desc">Snap a receipt, invoice, or bill</div>
+          </div>
+        </div>
+        <div class="feed-flow">
+          <div class="feed-side">
+            <div class="feed-side-label">You Send</div>
+            <div class="feed-file-chip">
+              <span class="feed-file-icon">🧾</span>
+              <span class="feed-file-name">invoice_keells.jpg</span>
+            </div>
+          </div>
+          <div class="feed-side">
+            <div class="feed-side-label">Bot Records</div>
+            <div class="feed-result">
+              <div class="feed-result-line ok">✓ Purchase: 3 items</div>
+              <div class="feed-result-meta">Rs. 28,500 · Keells · Credit</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Excel Upload -->
+      <div class="feed-card">
+        <div class="feed-top">
+          <div class="feed-icon" style="background:rgba(91,141,239,0.1);color:var(--blu)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="feed-info">
+            <div class="feed-name">Excel Import</div>
+            <div class="feed-desc">Bulk onboard your existing data</div>
+          </div>
+        </div>
+        <div class="feed-flow">
+          <div class="feed-side">
+            <div class="feed-side-label">You Upload</div>
+            <div class="feed-file-chip">
+              <span class="feed-file-icon">📊</span>
+              <span class="feed-file-name">my_business.xlsx</span>
+            </div>
+          </div>
+          <div class="feed-side">
+            <div class="feed-side-label">Bot Sets Up</div>
+            <div class="feed-result">
+              <div class="feed-result-line ok">✓ 12 products, 8 customers</div>
+              <div class="feed-result-meta">4 accounts · 6 suppliers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manual -->
+      <div class="feed-card">
+        <div class="feed-top">
+          <div class="feed-icon" style="background:rgba(232,107,58,0.1);color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+          <div class="feed-info">
+            <div class="feed-name">Manual Entry</div>
+            <div class="feed-desc">Full form with all 17 transaction types</div>
+          </div>
+        </div>
+        <div class="feed-flow">
+          <div class="feed-side">
+            <div class="feed-side-label">You Pick</div>
+            <div style="display:flex;flex-wrap:wrap;gap:3px">
+              <span style="font-family:var(--fm);font-size:7px;padding:2px 6px;border-radius:4px;background:var(--adim);color:var(--grn)">Sale</span>
+              <span style="font-family:var(--fm);font-size:7px;padding:2px 6px;border-radius:4px;background:var(--el);color:var(--t3)">Purchase</span>
+              <span style="font-family:var(--fm);font-size:7px;padding:2px 6px;border-radius:4px;background:var(--el);color:var(--t3)">Expense</span>
+              <span style="font-family:var(--fm);font-size:7px;padding:2px 6px;border-radius:4px;background:var(--el);color:var(--t3)">+14 more</span>
+            </div>
+          </div>
+          <div class="feed-side">
+            <div class="feed-side-label">You Fill</div>
+            <div class="feed-result">
+              <div class="feed-result-line ok">✓ Customer, items, payment</div>
+              <div class="feed-result-meta">Pickers + auto-complete</div>
+            </div>
+          </div>
+        </div>
+      </div>
+  <!-- ═══ BUILT FOR REAL BUSINESSES ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">Under the Hood</div>
+      <div class="sec-title">Proper accounting. Hidden complexity.</div>
+      <div class="sec-desc">You see simple cards. Underneath, it's a full double-entry system your accountant would approve of.</div>
+    </div>
+
+    <div class="features">
+      <div class="feat" style="background:transparent;border:none">
+        <div class="feat-content" style="padding:0">
+          <div style="display:flex;flex-direction:column;gap:14px">
+
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:36px;height:36px;border-radius:10px;background:rgba(93,202,165,0.1);display:grid;place-items:center;flex-shrink:0;color:var(--grn);font-size:16px">📒</div>
+              <div><div style="font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px">Double-Entry Journal</div><div style="font-size:12px;color:var(--t2);line-height:1.5">Every transaction creates balanced debit and credit entries. Trial balance is always zero. Your accountant gets clean books.</div></div>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:36px;height:36px;border-radius:10px;background:rgba(232,107,58,0.1);display:grid;place-items:center;flex-shrink:0;color:var(--red);font-size:16px">📦</div>
+              <div><div style="font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px">WAC Inventory Costing</div><div style="font-size:12px;color:var(--t2);line-height:1.5">Weighted Average Cost per product, recalculated on every purchase. COGS computed automatically per sale — no manual cost allocation.</div></div>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:36px;height:36px;border-radius:10px;background:rgba(212,168,67,0.1);display:grid;place-items:center;flex-shrink:0;color:var(--amb);font-size:16px">🔄</div>
+              <div><div style="font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px">Undo Any Transaction</div><div style="font-size:12px;color:var(--t2);line-height:1.5">Made a mistake? Hit undo — all journal entries reverse cleanly. No manual corrections, no dangling balances.</div></div>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:36px;height:36px;border-radius:10px;background:rgba(91,141,239,0.1);display:grid;place-items:center;flex-shrink:0;color:var(--blu);font-size:16px">🏗️</div>
+              <div><div style="font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px">Multi-Stage BOM</div><div style="font-size:12px;color:var(--t2);line-height:1.5">Make a chicken patty first, then use it in a burger. The system chains recipes — raw material costs flow through every stage to the final product.</div></div>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="width:36px;height:36px;border-radius:10px;background:rgba(112,104,217,0.1);display:grid;place-items:center;flex-shrink:0;color:var(--purp);font-size:16px">⚡</div>
+              <div><div style="font-size:14px;font-weight:600;color:var(--t1);margin-bottom:3px">Auto-Conversion at Sale</div><div style="font-size:12px;color:var(--t2);line-height:1.5">Selling a finished product with no stock? The system prompts to convert raw materials using your recipe. One tap — materials deducted, finished goods created, sale recorded.</div></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="cta">
+  <a href="/pricing/" class="cta-btn">Let your numbers work for you →</a>
+  <div class="cta-sub">Upload your first file today</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id),$$=s=>document.querySelectorAll(s),W=ms=>new Promise(r=>setTimeout(r,ms));
+const C=2*Math.PI*14; // donut circumference ~88
+
+async function lbl(h,d=2500){const c=$('cap');c.classList.remove('on');await W(300);c.innerHTML=h;c.classList.add('on');await W(d)}
+async function hideLbl(){$('cap').classList.remove('on');await W(300)}
+
+function show(id){$$('.sc').forEach(s=>{s.classList.remove('in')});$(id).classList.add('in');$(id).scrollTop=0}
+function tab(name){$$('.t').forEach(t=>t.classList.remove('on'));$$('.t').forEach(t=>{if(t.dataset.t===name)t.classList.add('on')})}
+
+function rv(id,d=0){setTimeout(()=>$(id).classList.add('s'),d)}
+function rvAll(ids,stag=80){ids.forEach((id,i)=>rv(id,i*stag))}
+
+async function countUp(id,target,dur=600,pre='Rs. '){const el=$(id);if(!el)return;const steps=20,inc=target/steps,int=dur/steps;let v=0;for(let i=0;i<steps;i++){v+=inc;el.textContent=pre+Math.round(v).toLocaleString();await W(int)}el.textContent=pre+target.toLocaleString()}
+
+async function typeIn(id,text,spd=40){const el=$(id);el.style.color='#e8e7e0';for(let i=1;i<=text.length;i++){el.textContent=text.substring(0,i);await W(spd)}}
+
+function setDonut(id,frac,off=0){$(id).setAttribute('stroke-dasharray',`${frac*C} ${C}`);if(off)$(id).setAttribute('stroke-dashoffset',`${-off*C}`)}
+
+function hbar(id,w){$(id).style.width=w+'%'}
+function abar(cid,heights){const bs=$(cid).children;heights.forEach((h,i)=>{if(bs[i])bs[i].style.height=h+'%'})}
+
+async function toast(txt,d=2000){const t=$('toast');t.textContent=txt;t.classList.add('on');await W(d);t.classList.remove('on');await W(300)}
+
+async function smoothScroll(el,to,dur=1200){const start=el.scrollTop,diff=to-start,steps=Math.ceil(dur/16);let i=0;return new Promise(res=>{function step(){i++;const t=Math.min(i/steps,1);const ease=t<.5?2*t*t:-1+(4-2*t)*t;el.scrollTop=start+diff*ease;if(i<steps)requestAnimationFrame(step);else res()}step()})}
+
+function resetAll(){
+$$('.rv').forEach(e=>e.classList.remove('s'));
+$$('.card-tap').forEach(e=>e.classList.remove('card-tap'));
+['v-rev','v-cash','v-ar','v-ap','v-pu','v-inv'].forEach(id=>$(id).textContent='Rs. 0');
+$('v-mg').textContent='0%';$('v-mgc').textContent='0%';$('v-exp').textContent='Rs. 0';
+['v-arc','v-apc','v-puc','v-invc'].forEach(id=>$(id).textContent='0');
+['v-c1','v-c2','v-c3','v-c4'].forEach(id=>$(id).textContent='Rs. 0');
+$$('.bar').forEach(b=>b.style.height='0');
+$$('.hb-f').forEach(b=>b.style.width='0');
+$$('.ab div').forEach(b=>b.style.height='0');
+$$('.os-bar').forEach(b=>b.style.height='0');
+['dn-cogs','dn-opex','dn-profit','dn-comm','dn-fin','dn-rent'].forEach(id=>{$(id).setAttribute('stroke-dasharray','0 88');$(id).setAttribute('stroke-dashoffset','0')});
+$('eCust').textContent='Select customer';$('eCust').style.color='#6a6a64';
+$('eProd').innerHTML='<span style="color:#6a6a64">Product / Service</span><span class="chev">▼</span>';
+$('eQty').textContent='Qty';$('eQty').style.color='#6a6a64';
+$('ePrice').textContent='Price';$('ePrice').style.color='#6a6a64';
+$('eAcct').innerHTML='<span style="color:#6a6a64">Select account</span><span class="chev">▼</span>';
+$('mic').style.background='';$('mic').style.borderColor='';$('mic').style.animation='';$('mic').innerHTML='🎤';
+['pv-s','pv-tr','pv-cogs','pv-tcos','pv-gp','pv-comm','pv-rent','pv-fin','pv-topex','pv-np'].forEach(id=>$(id).textContent='Rs. 0');
+$('pv-gm').textContent='Gross Margin: 0%';$('pv-npl').textContent='Net Profit (0%)';
+$('v-drev-total').textContent='Rs. 0 total';$('v-os').textContent='Rs. 0';
+show('sc-dash');tab('dash');
+}
+
+async function run(){
+resetAll();await W(200);
+const dash=$('sc-dash');
+
+// ═══ DASHBOARD — smooth continuous scroll ═══
+await lbl('<span class="hl">Your finances, at a glance</span><span class="sub">Revenue, margins, cash, and receivables — all live.</span>',600);
+
+// Revenue
+rv('d1');await W(200);
+countUp('v-rev',486500,800);
+const rb=$('rev-bars').children;
+[85,70,45,90,60,100,75,30,20].forEach((h,i)=>setTimeout(()=>rb[i].style.height=h+'%',i*60));
+await W(1000);
+
+// Start smooth scroll — margin + expenses appear as we glide SLOWLY
+rv('d2',0);rv('d3',100);
+smoothScroll(dash,200,2500);
+await W(600);
+$('v-mg').textContent='59%';$('v-mgc').textContent='59%';
+setDonut('dn-cogs',.25);setDonut('dn-opex',.16,.25);setDonut('dn-profit',.59,.41);
+$('v-exp').textContent='Rs. 76,220';
+setDonut('dn-comm',.45);setDonut('dn-fin',.35,.45);setDonut('dn-rent',.20,.80);
+await W(2200);
+
+// Cash — scroll to show CASH NOW header fully visible
+rv('d4');
+smoothScroll(dash,380,1500);
+await W(400);
+await lbl('<span class="hl">Cash across all accounts</span><span class="sub">See exactly where your money sits.</span>',400);
+countUp('v-cash',353481,600);
+countUp('v-c1',300000,400);countUp('v-c2',21500,400);countUp('v-c3',16781,400);countUp('v-c4',15200,400);
+hbar('hb-c1',85);hbar('hb-c2',6);hbar('hb-c3',5);hbar('hb-c4',4);
+await W(1800);
+
+// AR/AP — scroll to show headers fully, reveal cards, then caption
+rv('d5',0);rv('d6',80);
+smoothScroll(dash,680,1500);
+await W(600);
+await lbl('<span class="hl">Who owes you. Who you owe.</span><span class="sub">Aging buckets flag overdue amounts.</span>',400);
+countUp('v-ar',147500,500);$('v-arc').textContent='8 customers';
+abar('ar-bars',[80,40,15,5]);
+countUp('v-ap',82250,500);$('v-apc').textContent='6 suppliers';
+abar('ap-bars',[70,30,0,0]);
+await W(2000);
+
+// Purchases + Inventory
+smoothScroll(dash,1200,1500);
+await W(200);
+rv('d7',0);
+countUp('v-pu',425500,500);$('v-puc').textContent='7 suppliers';
+hbar('hb-p1',100);hbar('hb-p2',76);hbar('hb-p3',53);
+await W(600);
+rv('d8',0);
+countUp('v-inv',166000,500);$('v-invc').textContent='12 SKUs';
+hbar('hb-i1',100);hbar('hb-i2',74);hbar('hb-i3',59);hbar('hb-i4',46);hbar('hb-i5',32);
+await W(1800);
+
+// ═══ DRILL-DOWN: Revenue ═══
+await lbl('<span class="hl">Tap any card to drill down</span><span class="sub">Revenue breakdown by product, customer, month, or channel.</span>',400);
+// Highlight revenue card
+smoothScroll(dash,0,600);await W(600);
+$('d1').classList.add('card-tap');await W(500);$('d1').classList.remove('card-tap');
+show('sc-drill-rev');
+await W(300);
+$('v-drev-total').textContent='Rs. 486,500 total';
+rvAll(['dr1','dr2','dr3'],100);
+await W(200);
+hbar('hb-dr1',100);hbar('hb-dr2',43);hbar('hb-dr3',0);
+await W(2500);
+
+// ═══ BACK TO DASHBOARD → AR Aging ═══
+show('sc-dash');await W(400);
+smoothScroll(dash,680,600);await W(600);
+// Highlight AR card
+$('d5').classList.add('card-tap');await W(500);$('d5').classList.remove('card-tap');
+
+await lbl('<span class="hl">Receivables aging</span><span class="sub">See who owes you. Tap a customer for their full ledger.</span>',400);
+show('sc-drill-ar');
+await W(300);
+rv('ar-drill-bars');
+abar('ar-drill-bars',[90,20,10,5]);
+await W(400);
+rv('ar-hdr',100);
+rvAll(['ar1','ar2','ar3','ar4'],120);
+await W(2000);
+
+// Tap customer → Ledger
+$('ar1').classList.add('card-tap');await W(500);$('ar1').classList.remove('card-tap');
+show('sc-drill-ledger');
+await lbl('<span class="hl">Customer ledger</span><span class="sub">Outstanding balance, 12-month trend, every transaction.</span>',400);
+rv('ld-os');await W(200);
+countUp('v-os',47500,500);
+// Mini chart bars
+['os-b1','os-b2','os-b3','os-b4','os-b5','os-b6'].forEach((id,i)=>{
+  rv(id,i*60);
+  setTimeout(()=>$(id).style.height=[30,45,60,80,40,20][i]+'%',100+i*60);
+});
+await W(400);
+rv('ld-txhdr',0);
+rvAll(['ld1','ld2','ld3','ld4'],120);
+await W(3000);
+
+// ═══ BACK TO DASHBOARD → Expenses ═══
+show('sc-dash');await W(400);
+smoothScroll(dash,200,600);await W(600);
+// Highlight expenses card
+$('d3').classList.add('card-tap');await W(500);$('d3').classList.remove('card-tap');
+
+await lbl('<span class="hl">Expense breakdown</span><span class="sub">Every rupee categorized with percentage share.</span>',400);
+show('sc-drill-exp');
+await W(300);
+rvAll(['ex1','ex2','ex3'],150);
+await W(200);
+hbar('hb-ex1',100);hbar('hb-ex2',77);hbar('hb-ex3',43);
+await W(3000);
+
+// ═══ ENTRY — Voice ═══
+await hideLbl();tab('entry');show('sc-entry');await W(400);
+await lbl('<span class="hl">Record by voice</span><span class="sub">Just speak. The AI fills every field.</span>',600);
+rvAll(['re1','re2','re3'],100);await W(600);
+
+// Tap mic → recording
+$('mic').style.background='rgba(216,90,48,.2)';
+$('mic').style.borderColor='rgba(216,90,48,.4)';
+$('mic').style.animation='vPulse 1s ease infinite';
+await W(2000);
+
+// Parsing
+$('mic').style.animation='none';
+$('mic').style.background='rgba(93,202,165,.15)';
+$('mic').style.borderColor='rgba(93,202,165,.3)';
+$('mic').innerHTML='<div style="width:18px;height:18px;border:2px solid rgba(93,202,165,.3);border-top-color:#5DCAA5;border-radius:50%;animation:spin .8s linear infinite"></div>';
+
+await lbl('<span class="hl">AI parses your words</span><span class="sub">"Sold 25 Premium Curry Mix to Galle Face Hotel, 37,500 cash to BOC"</span>',1500);
+await W(800);
+
+// Fill form
+$('mic').style.background='';$('mic').style.borderColor='';$('mic').innerHTML='🎤';
+await lbl('<span class="hl">Form auto-fills</span><span class="sub">Customer, product, quantity, price, account — all populated.</span>',600);
+
+await typeIn('eCust','Galle Face Hotel');await W(200);
+$('eProd').innerHTML='<span style="color:#e8e7e0">Premium Curry Mix 250g</span><span class="chev">▼</span>';await W(150);
+$('eQty').textContent='25';$('eQty').style.color='#e8e7e0';await W(150);
+$('ePrice').textContent='1,500';$('ePrice').style.color='#e8e7e0';await W(150);
+$('eAcct').innerHTML='<span style="color:#e8e7e0">BOC Current</span><span class="chev">▼</span>';
+await W(800);
+
+$('saveBtn').style.background='#4ab893';await W(100);$('saveBtn').style.background='#5DCAA5';
+await toast('✅ Sale saved — Rs. 37,500',2000);
+await W(1000);
+
+// ═══ REPORTS — P&L ═══
+await hideLbl();tab('reports');show('sc-reports');await W(400);
+await lbl('<span class="hl">Instant Financials</span><span class="sub">Revenue, COGS, expenses, net profit — generated from your journal.</span>',600);
+
+rvAll(['p1','p2','p3','p4','p5','p6','p7','p7b','p8','p9','p10','p11','p12','p13'],60);
+await W(300);
+countUp('pv-s',486500,600);countUp('pv-tr',486500,600);await W(700);
+countUp('pv-cogs',121625,500);countUp('pv-tcos',121625,500);await W(600);
+countUp('pv-gp',364875,500);$('pv-gm').textContent='Gross Margin: 75.0%';await W(600);
+countUp('pv-comm',34500,400);await W(100);countUp('pv-rent',15000,400);await W(100);countUp('pv-fin',26720,400);await W(200);
+countUp('pv-topex',76220,400);await W(400);
+countUp('pv-np',288655,600);$('pv-npl').textContent='Net Profit (59.3%)';
+await W(2500);
+
+// ═══ RECIPES ═══
+await hideLbl();tab('recipes');show('sc-recipes');await W(400);
+await lbl('<span class="hl">Recipes & BOM</span><span class="sub">Define what goes into each product. Auto-convert at sale.</span>',600);
+rvAll(['rc1','rc2','rc3','rc4'],120);
+await W(3000);
+
+// Loop
+await hideLbl();await W(800);
+run();
+}
+
+run();
+</script>
+
+<script>
+var menuOpen=false;
+function toggleMenu(){
+  menuOpen=!menuOpen;
+  document.getElementById('slideMenu').classList.toggle('open',menuOpen);
+  document.getElementById('menuBackdrop').classList.toggle('show',menuOpen);
+  document.body.style.overflow=menuOpen?'hidden':'';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&menuOpen)toggleMenu()});
+</script>
+<script>
+(function(){
+  var demoEl = document.querySelector('.demo-section');
+  var heroEl = document.querySelector('.hero') || (demoEl && demoEl.nextElementSibling);
+  var capEl  = document.getElementById('cap');
+  if (!demoEl) return;
+
+  var locked = false;
+
+  function snapDown() {
+    if (locked) return;
+    locked = true;
+    if (capEl) capEl.classList.remove('on');
+    if (heroEl) heroEl.scrollIntoView({behavior:'smooth'});
+    setTimeout(function(){locked=false;}, 800);
+  }
+
+  function snapUp() {
+    if (locked) return;
+    locked = true;
+    demoEl.scrollIntoView({behavior:'smooth'});
+    setTimeout(function(){locked=false;}, 800);
+  }
+
+  // Desktop wheel
+  window.addEventListener('wheel', function(e) {
+    var sY = window.scrollY;
+    var dT = demoEl.offsetTop;
+    var dB = dT + demoEl.offsetHeight;
+    if (e.deltaY > 0 && sY < dB - 80) {
+      e.preventDefault(); snapDown();
+    } else if (e.deltaY < 0 && sY > dT && sY <= dB + 100) {
+      e.preventDefault(); snapUp();
+    }
+  }, {passive:false});
+
+  // Mobile touch
+  var ty0 = 0;
+  window.addEventListener('touchstart', function(e) {
+    ty0 = e.touches[0].clientY;
+  }, {passive:true});
+  window.addEventListener('touchmove', function(e) {
+    if (locked) { e.preventDefault(); return; }
+    var sY = window.scrollY;
+    var dT = demoEl.offsetTop;
+    var dB = dT + demoEl.offsetHeight;
+    var dy = ty0 - e.touches[0].clientY;
+    if (dy > 40 && sY < dB - 80) {
+      e.preventDefault(); snapDown();
+    } else if (dy < -40 && sY > dT && sY <= dB + 100) {
+      e.preventDefault(); snapUp();
+    }
+  }, {passive:false});
+})();
+</script>
+
+<script>
+(function(){
+  var demoEl = document.querySelector('.demo-section');
+  if (!demoEl) return;
+  function checkScroll() {
+    var demoBottom = demoEl.offsetTop + demoEl.offsetHeight;
+    if (window.scrollY > demoBottom * 0.5) {
+      document.body.classList.add('demo-away');
+    } else {
+      document.body.classList.remove('demo-away');
+    }
+  }
+  window.addEventListener('scroll', checkScroll, {passive:true});
+  checkScroll();
+})();
+</script>
+</body>
+</html>

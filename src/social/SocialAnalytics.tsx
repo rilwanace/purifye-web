@@ -109,7 +109,7 @@ export default function SocialAnalytics() {
       {/* Chart */}
       <div style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: '14px 10px', marginBottom: 8 }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6a6a64', marginBottom: 10 }}>
-          {metric.toUpperCase()} ??? BY DAY
+          {metric.toUpperCase()} BY DAY
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: 100, gap: 6, marginBottom: 8 }}>
           {chartDays.length === 0 ? (
@@ -135,7 +135,7 @@ export default function SocialAnalytics() {
         </div>
       </div>
 
-      <Sec label={metric.charAt(0).toUpperCase() + metric.slice(1) + ' ??? by platform'} />
+      <Sec label={'By Platform'} />
       <div style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: '4px 0', marginBottom: 8 }}>
         {[{ name: 'Instagram', val: platTotals.ig, color: IG }, { name: 'Facebook', val: platTotals.fb, color: FB }, { name: 'TikTok', val: platTotals.tk, color: TK }].map(({ name, val, color }) => (
           <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', cursor: 'pointer', minHeight: 44 }}>
@@ -145,7 +145,7 @@ export default function SocialAnalytics() {
               <div style={{ height: '100%', width: (val / maxPlat * 100) + '%', background: color, borderRadius: 3, transition: 'width 0.4s ease' }} />
             </div>
             <div style={{ fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-mono)', color, width: 30, textAlign: 'right' }}>{val}</div>
-            <span style={{ color: '#6a6a64', fontSize: 10 }}>???</span>
+            
           </div>
         ))}
       </div>
@@ -154,10 +154,10 @@ export default function SocialAnalytics() {
         <>
           <Sec label="Top performer" />
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: 'rgba(112,104,217,0.04)', border: '1px solid rgba(112,104,217,0.08)', borderRadius: 10, cursor: 'pointer', minHeight: 44, marginBottom: 8 }}>
-            <span style={{ fontSize: 18, flexShrink: 0 }}>????</span>
+            <span style={{ fontSize: 18, flexShrink: 0 }}>🏆</span>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 12, fontWeight: 500, color: '#e8e7e0' }}>{(top.caption || '').slice(0, 50)}...</div>
-              <div style={{ fontSize: 8, fontFamily: 'var(--font-mono)', color: '#6a6a64', marginTop: 2 }}>{top.platform} ?? {top.date}</div>
+              <div style={{ fontSize: 8, fontFamily: 'var(--font-mono)', color: '#6a6a64', marginTop: 2 }}>{top.platform} · {top.date}</div>
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-mono)', color: ACC, flexShrink: 0 }}>{top.total_reach} reach</div>
           </div>
@@ -165,7 +165,7 @@ export default function SocialAnalytics() {
       )}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: '#212120', borderRadius: 8, borderLeft: '3px solid rgba(93,202,165,0.4)' }}>
-        <span style={{ fontSize: 16 }}>????</span>
+        <span style={{ fontSize: 16 }}>🔥</span>
         <div style={{ flex: 1, fontSize: 11, fontWeight: 500, color: '#9c9b95' }}>Posting streak</div>
         <div style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-mono)', color: TK }}>{streak} days</div>
       </div>

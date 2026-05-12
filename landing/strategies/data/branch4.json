@@ -1,0 +1,493 @@
+{
+  "branch": {
+    "id": "reduce-costs",
+    "label": "Reduce Costs",
+    "path": [
+      "Reduce Costs",
+      "Services",
+      "Education & Tuition"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "reduce-costs-printing",
+      "branch": "reduce-costs",
+      "pain_point": "Printing is eating my budget",
+      "path": [
+        "Reduce Costs",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I spent LKR 8,000 on photocopying last month. For notes that half my students lost within a week.",
+        "The printing shop raised prices again. I'm printing less now, and my students are getting less.",
+        "I know I should switch to WhatsApp PDFs but I have a few students without smartphones. I don't know where that leaves me."
+      ],
+      "intro_body": "Printing is the most visible cost in a tuition teacher's budget — and the easiest to reduce significantly without changing how you teach.",
+      "strategies": [
+        {
+          "id": "strat-whatsapp-pdf-distribution",
+          "number": 1,
+          "color": "accent",
+          "title": "Switch to WhatsApp PDF distribution — not gradually",
+          "content_paragraphs": [
+            "Create a WhatsApp group for each batch. Every Sunday, send the week's materials as a single PDF. Students open the PDF on their phone during class, or screenshot the pages they need.",
+            "<strong>Most O/L and A/L students have smartphones.</strong> For the 1–2 students in a batch who don't, print only their copies. The rest is digital.",
+            "That's a 90% reduction in printing overnight — without removing any content."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "LKR 0",
+                "desc": "Cost of a WhatsApp PDF"
+              },
+              {
+                "num": "LKR 600–900/wk",
+                "desc": "Typical printing cost for 60 students"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-mcq-self-correcting",
+          "number": 2,
+          "color": "purple",
+          "title": "MCQ practice tests: less printing and less marking",
+          "content_paragraphs": [
+            "A 20-question MCQ practice test can be peer-corrected in class by exchanging papers and reading answers aloud. No collection, no marking pile to take home. 5 minutes.",
+            "<strong>Design your regular practice tests in MCQ format where the subject allows.</strong> O/L and A/L exam papers already include MCQ sections — your practice tests should match.",
+            "You're not compromising quality. You're reducing printing and marking simultaneously while aligning to actual exam format."
+          ]
+        },
+        {
+          "id": "strat-bulk-printing-negotiation",
+          "number": 3,
+          "color": "coral",
+          "title": "Negotiate bulk printing prices — most teachers don't bother",
+          "content_paragraphs": [
+            "If you're spending LKR 5,000–8,000/month at the same printing shop, ask for a bulk rate. Shops that handle regular high-volume customers will negotiate.",
+            "<strong>Alternatively, find the cheapest per-page rate in your area</strong> — not just the most convenient shop. Two minutes of research could save LKR 1,500–2,000 per month.",
+            "The shop nearest your hall is probably not the cheapest. It's just the easiest habit."
+          ]
+        },
+        {
+          "id": "strat-targeted-printing",
+          "number": 4,
+          "color": "amber",
+          "title": "Print only what students actually use",
+          "content_paragraphs": [
+            "Track which materials your students reference versus which ones end up in the bottom of a bag after class. In most classes: the model paper gets used, the notes get lost, the summary sheet stays at home.",
+            "<strong>Print model papers. Send notes digitally.</strong> Stop printing things students lose.",
+            "Targeted printing costs 30–40% of blanket printing — for materials that actually reach students."
+          ]
+        },
+        {
+          "id": "strat-reusable-past-paper-pack",
+          "number": 5,
+          "color": "blue",
+          "title": "Create a reusable past paper pack — print once, reuse for years",
+          "content_paragraphs": [
+            "The O/L mathematics syllabus doesn't change annually. Compile a comprehensive 5-year past paper booklet once. Print 30 copies. Collect them at the end of each term.",
+            "<strong>A reusable pack printed at the start of a 2-year O/L preparation run has a per-student, per-year cost that's a fraction of printing new materials monthly.</strong>",
+            "The student treats it differently too — a bound booklet with their name on it gets kept. A loose sheet gets lost."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "diy",
+        "headline": "You've got this — here's a checklist",
+        "description": null
+      },
+      "template_pack": {
+        "title": "Printing cost reduction pack",
+        "subtitle": "Switch to digital distribution and cut your printing budget by 80%+",
+        "items": [
+          {
+            "name": "PDF compilation guide for tuition materials",
+            "pages": 1
+          },
+          {
+            "name": "WhatsApp class group setup + PDF distribution workflow",
+            "pages": 1
+          },
+          {
+            "name": "MCQ format conversion guide (converting existing questions)",
+            "pages": 2
+          },
+          {
+            "name": "Reusable past paper pack compilation guide",
+            "pages": 1
+          },
+          {
+            "name": "Printing cost calculator (current vs. digital hybrid)",
+            "pages": 1
+          },
+          {
+            "name": "Bulk printing negotiation guide + sample conversation",
+            "pages": 1
+          },
+          {
+            "name": "Monthly printing cost tracker",
+            "pages": 1
+          },
+          {
+            "name": "Digital vs print decision matrix (by material type)",
+            "pages": 1
+          }
+        ],
+        "total_pages": 9,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee",
+        "free_sample": "WhatsApp class group setup guide"
+      },
+      "internal_notes": {
+        "competitor_intel": "No competitor specifically addresses printing cost reduction for tuition teachers. Smart Tuition (free app) allows digital material sharing — mention as 'there are platforms for this' without naming if relevant.",
+        "automation_scope": "Not directly automated by our dashboard. DIY node. However, the WhatsApp PDF distribution habit complements the dashboard's parent communication workflow.",
+        "research_sources": [
+          "A6",
+          "B2"
+        ],
+        "content_gaps": "Exact per-page printing cost for tuition teachers not sourced directly. LKR 600–900/week estimate derived from 240 pages × ~LKR 3–4/page (commercial photocopy rate). Validate locally.",
+        "cross_refs": "strat-mcq-self-correcting also used in 6.2. strat-whatsapp-pdf-distribution is new but concept referenced in A4 materials printing section and B2 WhatsApp PDF trend."
+      },
+      "nav": {
+        "next": {
+          "id": "reduce-costs-hall-rent",
+          "label": "Hall rent is too high for what I earn"
+        },
+        "back": {
+          "id": "branch-reduce-costs",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "reduce-costs-hall-rent",
+      "branch": "reduce-costs",
+      "pain_point": "Hall rent is too high for what I earn",
+      "path": [
+        "Reduce Costs",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I pay LKR 30,000 rent for a hall I use maybe 15 hours a week. The rest of the time it just sits there.",
+        "After rent and printing, I barely feel like I'm earning what my time is worth.",
+        "A teacher I know splits a hall with someone who teaches a different subject. I keep thinking I should do something like that."
+      ],
+      "intro_body": "Hall rent is the most visible cost — but it's usually not the actual problem. Before moving or downsizing, check whether you're using what you're paying for.",
+      "strategies": [
+        {
+          "id": "strat-revenue-per-seat-analysis",
+          "number": 1,
+          "color": "accent",
+          "title": "Do the revenue-per-seat analysis before changing anything",
+          "content_paragraphs": [
+            "Hall rent is visible. Half-filled seats are silent. If you're paying LKR 30,000 for a 50-seat hall but running only 25 students, your rent problem is actually an occupancy problem.",
+            "<strong>Fill the hall before moving to a smaller one.</strong> Each additional student makes the same rent cheaper per head.",
+            "The math: 25 students at LKR 3,000 = LKR 75,000. Hall rent LKR 30,000. Net LKR 45,000. 40 students: LKR 120,000 revenue, same LKR 30,000 rent. Net LKR 90,000. The hall didn't change — the occupancy did."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "25 students",
+                "desc": "Net after LKR 30k rent: LKR 45k"
+              },
+              {
+                "num": "40 students",
+                "desc": "Same rent. Net: LKR 90k. Same hall."
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-time-slot-optimization",
+          "number": 2,
+          "color": "purple",
+          "title": "Stop renting empty hours",
+          "content_paragraphs": [
+            "If you're renting a hall 6 days a week but only teaching 4, you're paying for 2 days of nothing.",
+            "<strong>Most hall rental agreements can be renegotiated — or you can switch to a 4-day arrangement.</strong> The worst they say is no. Most landlords prefer a reliable 4-day tenant to an empty hall.",
+            "Alternatively, rent the hall by the session rather than monthly. More expensive per session, cheaper if you're using fewer than 4 days a week."
+          ]
+        },
+        {
+          "id": "strat-hall-sharing",
+          "number": 3,
+          "color": "coral",
+          "title": "Share a hall with a different-subject teacher",
+          "content_paragraphs": [
+            "A mathematics teacher and a chemistry teacher who both teach A/L students don't compete — they complement each other. Their students are the same parents, different subjects.",
+            "<strong>Split the monthly rent.</strong> LKR 30,000 becomes LKR 15,000. That's LKR 15,000 permanently removed from your cost base, with zero change to how you teach.",
+            "Find one compatible teacher in your area with a compatible schedule. One conversation, one arrangement."
+          ]
+        },
+        {
+          "id": "strat-home-to-hall-readiness",
+          "number": 4,
+          "color": "amber",
+          "title": "Know when a hall makes sense (and when it doesn't)",
+          "content_paragraphs": [
+            "A home-based teacher with a waiting list of 10+ students and a current batch of 25+ is ready for a hall. A home-based teacher with 15 students and no waiting list is not.",
+            "<strong>At LKR 3,000/student, you need 10 new students to cover a LKR 30,000/month hall.</strong> If you can't generate 10 new students in the first month of having the hall, you're subsidizing the landlord.",
+            "Do the calculation for your own numbers before signing any agreement."
+          ]
+        },
+        {
+          "id": "strat-hybrid-reduces-space",
+          "number": 5,
+          "color": "blue",
+          "title": "A hybrid model permanently reduces your physical space needs",
+          "content_paragraphs": [
+            "10 students attending physically + 20 students attending online = the same teaching effort and similar revenue, but a smaller required venue.",
+            "<strong>A smaller room (cheaper rent) serves the physical students. Online students pay slightly less but have no venue cost for you.</strong>",
+            "The hybrid model may be the most effective long-term tool for managing venue costs — as online adoption continues to grow."
+          ]
+        },
+        {
+          "id": "strat-enrollment-to-cover-rent",
+          "number": 6,
+          "color": "text-mid",
+          "title": "Calculate your break-even enrollment before committing",
+          "content_paragraphs": [
+            "Before signing any hall agreement: monthly rent ÷ monthly fee per student = number of students needed just to cover rent. That's your break-even number.",
+            "<strong>Can you realistically recruit that many new students in the first month?</strong> If yes, the hall makes sense. If not, the hall eats into your existing income.",
+            "One hour of calculation prevents 6 months of regret."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "diy",
+        "headline": "You've got this — here's a checklist",
+        "description": null
+      },
+      "template_pack": {
+        "title": "Venue cost reduction pack",
+        "subtitle": "Tools to find out if your rent problem is really an occupancy problem",
+        "items": [
+          {
+            "name": "Revenue-per-seat analysis worksheet",
+            "pages": 1
+          },
+          {
+            "name": "Hall sharing agreement template",
+            "pages": 1
+          },
+          {
+            "name": "Hall rental negotiation guide + talking points",
+            "pages": 1
+          },
+          {
+            "name": "Home-to-hall financial readiness calculator",
+            "pages": 1
+          },
+          {
+            "name": "Hybrid model revenue calculator (physical + online mix)",
+            "pages": 1
+          },
+          {
+            "name": "Time-slot optimization worksheet",
+            "pages": 1
+          },
+          {
+            "name": "Enrollment target calculator (students needed to cover rent)",
+            "pages": 1
+          },
+          {
+            "name": "Venue options comparison worksheet",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "Revenue-per-seat analysis worksheet"
+      },
+      "internal_notes": {
+        "competitor_intel": "No competitor addresses venue cost specifically. General financial planning tools exist but nothing tuition-specific.",
+        "automation_scope": "Not automated — DIY node. The hybrid model calculation tool naturally leads to awareness of our dashboard (which handles online student management as well as physical).",
+        "research_sources": [
+          "A3",
+          "A6",
+          "A9"
+        ],
+        "content_gaps": "Hall rental data for Colombo suburbs is estimated at LKR 15,000–50,000/month from general commercial data — not tuition-specific confirmed rates. Rural rental data not available.",
+        "cross_refs": "strat-hybrid-reduces-space also in 3.3. strat-home-to-hall-readiness also referenced in 1.3."
+      },
+      "nav": {
+        "next": {
+          "id": "reduce-costs-where-money-goes",
+          "label": "I'm not sure where my money actually goes"
+        },
+        "back": {
+          "id": "branch-reduce-costs",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "reduce-costs-where-money-goes",
+      "branch": "reduce-costs",
+      "pain_point": "I'm not sure where my money actually goes",
+      "path": [
+        "Reduce Costs",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "January was good. April feels empty. I don't know what changed — I'm teaching the same students.",
+        "I know money is coming in but I never seem to have any. Something is going wrong somewhere.",
+        "Someone asked me what my profit margin is. I had no answer. I don't even know what that means for my class."
+      ],
+      "intro_body": "Independent tuition teachers should have some of the highest profit margins of any profession. Most don't know their number — and that's the only reason they don't.",
+      "strategies": [
+        {
+          "id": "strat-expense-tracking-one-month",
+          "number": 1,
+          "color": "accent",
+          "title": "Track every expense for one month — just one",
+          "content_paragraphs": [
+            "Hall rent, printing, phone data, transport, stationery. Write down everything you spend related to your tuition business for exactly one month.",
+            "<strong>Most teachers who do this find 2–3 expenses they'd forgotten existed</strong> and 1–2 that are significantly higher than they thought.",
+            "The month of tracking isn't about being perfect. It's about seeing reality."
+          ]
+        },
+        {
+          "id": "strat-four-cost-categories",
+          "number": 2,
+          "color": "purple",
+          "title": "Categorize your costs — four buckets is enough",
+          "content_paragraphs": [
+            "Venue (rent, utilities). Materials (printing, stationery, data). Transport (travel to halls, petrol). Admin (phone costs, any software).",
+            "<strong>Once you can name the four categories, you can see which one is the problem.</strong> Usually it's venue or materials — and both are reducible.",
+            "Most teachers who do this exercise find their costs are concentrated in one or two categories, not spread evenly."
+          ]
+        },
+        {
+          "id": "strat-hidden-waste-identification",
+          "number": 3,
+          "color": "coral",
+          "title": "Find your hidden waste: cash float losses and venue downtime",
+          "content_paragraphs": [
+            "Cash you collected and can't account for. Hours you paid hall rent for and didn't teach.",
+            "<strong>In a cash-only system, small discrepancies accumulate.</strong> A student you forgot to chase for 3 months is LKR 9,000 gone. A hall rented on a day you cancelled class is LKR 1,000 wasted.",
+            "Tracking makes these visible. What's visible can be fixed."
+          ]
+        },
+        {
+          "id": "strat-actual-profit-margin",
+          "number": 4,
+          "color": "amber",
+          "title": "Calculate your actual profit margin — most teachers have never done it",
+          "content_paragraphs": [
+            "Monthly students × monthly fee = gross revenue. Subtract all expenses. What's left is your net income.",
+            "<strong>At 85%+ margins, independent tuition is an extremely profitable profession — if you track it.</strong>",
+            "The teachers who grow fastest aren't the ones with the most students. They're the ones who know their numbers."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "85%+",
+                "desc": "Typical profit margin for independent tuition teachers"
+              },
+              {
+                "num": "~LKR 402k",
+                "desc": "Net from 150 students at LKR 3,000 (5 classes/wk)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-tax-forcing-function",
+          "number": 5,
+          "color": "blue",
+          "title": "Tax preparation is your forcing function for financial clarity",
+          "content_paragraphs": [
+            "The annual income tax filing deadline is November 30. Declaring tuition income requires you to gather all income records and list deductible expenses. Even if you're below the LKR 1.2 million personal relief threshold, this process forces you to know your numbers.",
+            "<strong>Teachers who do their taxes know their numbers. Teachers who don't, don't.</strong>",
+            "Regulation is tightening. The teachers who already track their finances will barely notice when licensing and formal requirements arrive."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "automate",
+        "headline": "We can automate this for you",
+        "description": "This naturally connects to The Analyst AI on purifye.org — it tracks income, categorizes expenses automatically, and generates monthly profit reports for your tuition business. The same dashboard you use for student management works for your financial management."
+      },
+      "template_pack": {
+        "title": "Financial clarity template pack",
+        "subtitle": "Know exactly where your money goes — and why your margin should be 85%+",
+        "items": [
+          {
+            "name": "Monthly expense tracking spreadsheet (4-category)",
+            "pages": 1
+          },
+          {
+            "name": "Annual income and expense summary template",
+            "pages": 1
+          },
+          {
+            "name": "Profit margin calculator for tuition teachers",
+            "pages": 1
+          },
+          {
+            "name": "Cash flow calendar (aligned to SL exam cycle)",
+            "pages": 1
+          },
+          {
+            "name": "Tax preparation checklist (for November 30 filing)",
+            "pages": 2
+          },
+          {
+            "name": "Hidden waste audit worksheet",
+            "pages": 1
+          },
+          {
+            "name": "Month-end financial review routine (15 minutes)",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "Monthly expense tracking spreadsheet"
+      },
+      "internal_notes": {
+        "competitor_intel": "This is the clearest upsell to The Analyst AI (purifye.org's main product). The financial clarity node should warm users up to the idea that they need a financial dashboard — which is what The Analyst AI provides.",
+        "automation_scope": "The Analyst AI on purifye.org handles financial tracking, categorization, and reporting. This node's CTA should explicitly name The Analyst AI as the product being promoted.",
+        "research_sources": [
+          "A6",
+          "A10",
+          "B3"
+        ],
+        "content_gaps": "85%+ margin is an estimate derived from the A6 indicative calculation — explicitly labeled as [LOW] confidence in the research. Use with appropriate framing ('independent teachers typically see margins of 85%+ when costs are tracked').",
+        "cross_refs": "strat-expense-tracking-one-month and strat-actual-profit-margin also used in 5.1. strat-tax-forcing-function cross-refs 5.3."
+      },
+      "nav": {
+        "next": {
+          "id": "manage-money-am-i-profitable",
+          "label": "I have no idea if I'm actually profitable"
+        },
+        "back": {
+          "id": "branch-reduce-costs",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    }
+  ]
+}

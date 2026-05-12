@@ -1,0 +1,706 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planner Bot — Purifye</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══ BASE ═══ */
+:root{
+  --bg:#131311;--card:#1a1a18;--sf:#212120;--inp:#2a2a28;
+  --t1:#e8e7e0;--t2:#c4c3bc;--t3:#9c9b95;
+  --accent:#D4A843;--adim:rgba(212,168,67,0.1);--abrd:rgba(212,168,67,0.2);
+  --g1:#D4A843;--g2:#9E7B28;
+  --grn:#5DCAA5;--red:#D85A30;--amb:#D4A843;--blu:#5B8DEF;
+  --bdr:rgba(255,255,255,0.06);
+  --ff:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a09;color:var(--t1);font-family:var(--ff);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ═══ DEMO ANIMATION ═══ */
+.demo-section{display:flex;justify-content:center;padding:60px 0 40px}
+.demo-wrap{display:flex;flex-direction:column;align-items:center;gap:20px}
+.caption{position:fixed;top:0;left:0;right:0;z-index:200;padding:20px 24px 14px;background:rgba(15,15,13,0.97);border-bottom:2px solid rgba(212,168,67,0.5);font-size:20px;font-weight:700;color:#e8e7e0;text-align:center;line-height:1.3;opacity:0;transform:translateY(-100%);transition:opacity .35s,transform .35s;pointer-events:none;letter-spacing:-.3px;word-break:break-word}
+.caption.show{opacity:1;transform:translateY(0)}
+.caption .hl{color:var(--accent);font-weight:700}
+.caption .sub{display:block;font-size:15px;font-weight:400;color:#e8e7e0;margin-top:5px;letter-spacing:0;word-wrap:break-word;white-space:normal}
+.phone{width:375px;height:800px;background:#131311;border-radius:44px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 2px #3a3a38,0 0 0 5px #1a1a18,0 0 0 7px #0a0a09,0 30px 60px rgba(0,0,0,0.6),0 0 120px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.04)}
+.notch{height:50px;background:#131311;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notch-bar{width:120px;height:28px;background:#0a0a09;border-radius:0 0 18px 18px}
+.nav{padding:0 18px;flex-shrink:0}
+.nav-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0 6px}
+.nav-left{display:flex;align-items:center;gap:8px}
+.nav-ic{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--g1),var(--g2));display:grid;place-items:center;font-size:14px}
+.nav-h{font-size:16px;font-weight:700;color:var(--t1);letter-spacing:-0.3px}
+.nav-sub{font-family:var(--fm);font-size:9px;color:#6a6a64;margin-top:-2px;padding-left:36px}
+.nav-gear{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.04);display:grid;place-items:center}
+.nav-gear svg{width:16px;height:16px}
+.pills{display:flex;gap:5px;padding:6px 0 8px;border-bottom:1px solid var(--bdr)}
+.pill{padding:6px 14px;border-radius:8px;font-family:var(--fm);font-size:11px;font-weight:600;color:#6a6a64;transition:all 0.15s;border:1px solid transparent}
+.pill.on{background:var(--adim);color:var(--accent);border-color:var(--abrd)}
+.pill.on-blue{background:rgba(91,141,239,0.1);color:var(--blu);border-color:rgba(91,141,239,0.2)}
+.pill.on-green{background:rgba(93,202,165,0.1);color:var(--grn);border-color:rgba(93,202,165,0.2)}
+.scroll{flex:1;overflow:hidden;position:relative}
+.scene{position:absolute;inset:0;padding:10px 18px 80px;overflow-y:auto;scrollbar-width:none;opacity:0;transition:opacity 0.35s,transform 0.35s;pointer-events:none;transform:translateX(30px)}
+.scene::-webkit-scrollbar{display:none}
+.scene.in{opacity:1;transform:translateX(0)!important;pointer-events:auto}
+.scene.out-l{opacity:0;transform:translateX(-30px)}
+.bot-bar{height:64px;background:var(--card);border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding:0 6px}
+.bt{display:flex;flex-direction:column;align-items:center;gap:2px}
+.bt-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.bt-lb{font-family:var(--ff);font-size:10px;color:var(--t3)}
+.bt.on .bt-lb{color:var(--t1)}
+.bt.on .bt-ic{box-shadow:0 0 12px rgba(212,168,67,0.3)}
+.fab{position:absolute;bottom:74px;right:16px;width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--g1),var(--g2));display:grid;place-items:center;box-shadow:0 4px 16px rgba(212,168,67,0.3);z-index:50;color:#fff;font-size:22px;font-weight:300}
+.day-today{border-top:2px solid var(--accent);border-bottom:2px solid var(--accent);padding:8px 0 6px;margin-bottom:8px}
+.day-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.day-lbl{font-family:var(--fm);font-size:10px;font-weight:700;color:#6a6a64}
+.today-badge{font-family:var(--fm);font-size:8px;font-weight:700;color:var(--accent);background:rgba(212,168,67,0.08);padding:2px 7px;border-radius:4px}
+.day-bar{display:flex;margin-bottom:2px}
+.bar{width:3px;border-radius:2px;margin-right:12px;flex-shrink:0}
+.bar-red{background:var(--red)}
+.day-content{flex:1;padding-bottom:6px}
+.task-row{display:flex;align-items:center;gap:8px;padding:6px 0}
+.chk{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);flex-shrink:0;display:grid;place-items:center;transition:all 0.3s}
+.chk.done{border-color:var(--grn);background:rgba(93,202,165,0.13)}
+.chk.done::after{content:'✓';font-size:10px;color:var(--grn)}
+.task-title{font-size:12px;font-weight:500;color:var(--t1);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-title.strike{text-decoration:line-through;color:#6a6a64}
+.task-assignee{font-family:var(--fm);font-size:9px;font-weight:600;flex-shrink:0}
+.late-badge{font-family:var(--fm);font-size:8px;font-weight:700;color:var(--red);background:rgba(216,90,48,0.1);padding:2px 7px;border-radius:3px;flex-shrink:0}
+.member-hdr{display:flex;align-items:center;gap:8px;padding:8px 0 4px}
+.member-av{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:11px;font-weight:700}
+.member-name{font-size:12px;font-weight:600;flex:1}
+.member-stat{font-family:var(--fm);font-size:9px;font-weight:600}
+.member-task{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;margin-bottom:3px;margin-left:34px}
+.detail-card{background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--bdr);margin-bottom:10px}
+.detail-title{font-size:15px;font-weight:700;color:var(--t1);line-height:1.3}
+.badge{font-family:var(--fm);font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px}
+.audit-line{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--sf);border-radius:8px;margin-top:8px}
+.audit-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.audit-text{font-family:var(--fm);font-size:10px;color:var(--t3);flex:1}
+.section-lbl{font-family:var(--fm);font-size:9px;font-weight:700;color:#6a6a64;letter-spacing:0.1em;display:flex;align-items:center;gap:8px;padding:10px 0 6px}
+.section-line{flex:1;height:1px;background:var(--bdr)}
+.chat-msg{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.chat-av{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:9px;font-weight:700;flex-shrink:0;margin-top:1px}
+.chat-body{font-size:11px;font-weight:500;line-height:1.4;color:var(--t1)}
+.chat-meta{font-family:var(--fm);font-size:8px;color:#6a6a64;margin-top:2px}
+.chat-input{display:flex;align-items:center;background:var(--inp);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;margin-top:8px;gap:4px}
+.wa-btn,.send-btn{width:26px;height:26px;border-radius:6px;display:grid;place-items:center;flex-shrink:0}
+.wa-picker{background:rgba(37,211,102,0.04);border:1px solid rgba(37,211,102,0.12);border-radius:10px;padding:10px;margin-top:8px}
+.wa-picker-title{font-family:var(--fm);font-size:9px;font-weight:700;color:#25D366;letter-spacing:0.08em;margin-bottom:6px}
+.wa-contact{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.wa-contact-av{width:24px;height:24px;border-radius:6px;background:rgba(37,211,102,0.1);color:#25D366;display:grid;place-items:center;font-size:10px;font-weight:700}
+.wa-contact-name{font-size:12px;font-weight:500;color:var(--t1)}
+.wa-contact-phone{font-family:var(--fm);font-size:8px;color:#6a6a64}
+.wa-sent{display:flex;align-items:center;gap:8px;padding:10px;background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.12);border-radius:8px;margin-top:8px}
+.wa-sent-icon{width:28px;height:28px;border-radius:50%;background:rgba(37,211,102,0.15);display:grid;place-items:center;flex-shrink:0}
+.wa-sent-text{font-size:11px;font-weight:500;color:#25D366}
+.wa-sent-sub{font-family:var(--fm);font-size:8px;color:#6a6a64;margin-top:2px}
+.briefing-card{background:var(--card);border:1px solid rgba(212,168,67,0.12);border-radius:14px;padding:14px;margin-bottom:10px}
+.briefing-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.briefing-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:18px;background:rgba(212,168,67,0.1)}
+.briefing-title{font-size:12px;font-weight:700;color:var(--accent)}
+.briefing-time{font-family:var(--fm);font-size:9px;color:#6a6a64;margin-top:1px}
+.briefing-section{font-family:var(--fm);font-size:8px;font-weight:700;letter-spacing:0.1em;color:#6a6a64;margin:10px 0 6px}
+.briefing-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.briefing-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.briefing-text{font-size:11px;font-weight:500;flex:1}
+.briefing-right{font-family:var(--fm);font-size:9px;flex-shrink:0;opacity:0.8}
+.bs-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);z-index:60;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.bs-overlay.show{opacity:1;pointer-events:auto}
+.bs{position:absolute;bottom:0;left:0;right:0;background:var(--card);border-radius:14px 14px 0 0;z-index:61;transform:translateY(100%);transition:transform 0.3s ease;padding:16px 18px 24px}
+.bs.show{transform:translateY(0)}
+.bs-title{font-size:16px;font-weight:700;color:var(--t1);margin-bottom:14px}
+.bs-label{font-family:var(--fm);font-size:10px;font-weight:600;color:#6a6a64;letter-spacing:0.1em;margin-bottom:4px;margin-top:10px}
+.bs-input{width:100%;background:var(--inp);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--t1);font-family:var(--ff);min-height:38px}
+.bs-btn{width:100%;padding:13px;background:var(--accent);border-radius:12px;font-size:14px;font-weight:600;color:#fff;text-align:center;margin-top:14px}
+.completed-hdr{display:flex;align-items:center;gap:8px;padding:8px 0}
+.completed-label{font-size:12px;font-weight:600;color:#6a6a64}
+.el{opacity:0;transform:translateY(8px);transition:opacity 0.3s,transform 0.3s}
+.el.s{opacity:1;transform:translateY(0)}
+.tap-hl{animation:tapPulse 0.5s ease}
+@keyframes tapPulse{0%{background:rgba(212,168,67,0.25)}100%{background:transparent}}
+@keyframes slideIn{0%{opacity:0;transform:translateY(-10px);max-height:0}100%{opacity:1;transform:translateY(0);max-height:40px}}
+
+/* ═══ HERO ═══ */
+.hero{text-align:center;padding:40px 20px 20px;max-width:430px;margin:0 auto}
+.hero-icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--g1),var(--g2));display:grid;place-items:center;margin:0 auto 24px;box-shadow:0 8px 32px rgba(212,168,67,0.3)}
+.hero-icon svg{width:30px;height:30px}
+.hero h1{font-size:30px;font-weight:700;color:#e8e7e0;line-height:1.2;letter-spacing:-0.5px;margin-bottom:12px}
+.hero h1 .hl{color:var(--accent)}
+.hero p{font-size:14px;color:#e8e7e0;margin-bottom:40px}
+
+/* ═══ CONTENT SECTIONS ═══ */
+.content-wrap{max-width:430px;margin:0 auto;padding:0 20px 40px}
+.section{padding-top:72px}
+.sec-head{text-align:center;margin-bottom:48px}
+.sec-tag{font-family:var(--fm);font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:12px}
+.sec-title{font-size:24px;font-weight:700;color:var(--t1);line-height:1.25;letter-spacing:-0.5px;margin-bottom:10px}
+.sec-desc{font-size:13px;color:var(--t2);max-width:520px;margin:0 auto;line-height:1.6}
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.step{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:20px 16px;position:relative;overflow:hidden}
+.step-num{font-family:var(--fm);font-size:40px;font-weight:700;color:rgba(212,168,67,0.12);position:absolute;top:16px;right:18px;line-height:1}
+.step-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;margin-bottom:10px}
+.step-icon svg{width:18px;height:18px}
+.step-name{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:4px}
+.step-desc{font-size:12px;color:var(--t2);line-height:1.5}
+.features{display:flex;flex-direction:column;gap:20px}
+.feat{background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden}
+.feat-visual{background:var(--sf);padding:24px 20px;display:flex;align-items:center;justify-content:center;min-height:120px}
+.feat-content{padding:20px}
+.feat-badge{font-family:var(--fm);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;padding:4px 10px;border-radius:6px;display:inline-block;margin-bottom:8px}
+.feat-title{font-size:20px;font-weight:700;color:var(--t1);margin-bottom:8px;letter-spacing:-0.3px}
+.feat-desc{font-size:13px;color:var(--t2);line-height:1.6}
+
+/* Mini visuals */
+.mini-week{width:100%;max-width:280px}
+.mw-today{border-top:2px solid var(--accent);border-bottom:2px solid var(--accent);padding:6px 8px;margin-bottom:6px}
+.mw-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.mw-day{font-family:var(--fm);font-size:8px;font-weight:700;color:var(--t3)}
+.mw-badge{font-family:var(--fm);font-size:6px;font-weight:700;color:var(--accent);background:rgba(212,168,67,0.15);padding:1px 5px;border-radius:3px}
+.mw-task{display:flex;align-items:center;gap:5px;padding:3px 0}
+.mw-chk{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.15);flex-shrink:0}
+.mw-name{font-size:9px;color:var(--t1)}
+.mw-bar-row{display:flex;margin-bottom:2px}
+.mw-bar{width:2px;border-radius:1px;margin-right:8px;flex-shrink:0}
+.mw-bar-content{flex:1;padding-bottom:4px}
+.mini-team{width:100%;max-width:280px;display:flex;flex-direction:column;gap:6px}
+.mt-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px}
+.mt-av{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:9px;font-weight:700;flex-shrink:0}
+.mt-name{font-size:10px;font-weight:600;flex:1}
+.mt-stat{font-family:var(--fm);font-size:8px}
+.mt-late{color:var(--red);margin-left:4px}
+.mini-wa{width:100%;max-width:280px}
+.mwa-input{display:flex;align-items:center;background:var(--inp);border:1px solid var(--bdr);border-radius:6px;padding:6px 8px;gap:4px;margin-bottom:8px}
+.mwa-text{font-size:9px;color:var(--t1);flex:1}
+.mwa-icon{width:18px;height:18px;border-radius:4px;display:grid;place-items:center;flex-shrink:0}
+.mwa-picker{background:rgba(37,211,102,0.04);border:1px solid rgba(37,211,102,0.12);border-radius:6px;padding:8px}
+.mwa-picker-title{font-family:var(--fm);font-size:7px;font-weight:700;color:#25D366;letter-spacing:0.08em;margin-bottom:6px}
+.mwa-contact{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.mwa-contact:last-child{border-bottom:none}
+.mwa-cav{width:16px;height:16px;border-radius:4px;background:rgba(37,211,102,0.1);color:#25D366;display:grid;place-items:center;font-size:7px;font-weight:700}
+.mwa-cname{font-size:9px;color:var(--t1);flex:1}
+.mwa-cphone{font-family:var(--fm);font-size:6px;color:var(--t3)}
+.mini-portal{width:100%;max-width:220px;background:var(--inp);border-radius:10px;padding:12px;border:1px solid var(--bdr)}
+.mp-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.mp-av{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:10px;font-weight:700}
+.mp-title{font-size:12px;font-weight:700;color:var(--t1)}
+.mp-sub{font-family:var(--fm);font-size:7px;color:var(--t3)}
+.mp-task{display:flex;align-items:center;gap:5px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.mp-task:last-child{border-bottom:none}
+.mini-recur{display:flex;gap:8px;align-items:center}
+.mr-circle{width:48px;height:48px;border-radius:50%;border:2px solid var(--accent);display:grid;place-items:center}
+.mr-circle svg{width:20px;height:20px}
+.mr-labels{display:flex;flex-direction:column;gap:4px}
+.mr-label{font-family:var(--fm);font-size:9px;font-weight:600;padding:3px 8px;border-radius:4px;display:inline-block}
+
+/* ═══ CTA ═══ */
+.cta{text-align:center;padding:60px 20px 80px;max-width:430px;margin:0 auto}
+.cta-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:380px;padding:16px 24px;border-radius:14px;background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;font-family:var(--ff);font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 8px 32px rgba(212,168,67,0.3);transition:transform 0.15s,box-shadow 0.15s;letter-spacing:-0.2px}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(212,168,67,0.4)}
+.cta-btn:active{transform:scale(0.98)}
+.cta-sub{font-family:var(--fm);font-size:11px;color:#e8e7e0;margin-top:12px}
+/* === PURIFYE NAV === */
+.purifye-nav{display:flex;justify-content:space-between;align-items:center;padding:21px 20px 0;max-width:420px;margin:0 auto}
+.purifye-logo{font-weight:700;font-size:18px;letter-spacing:-.4px}.purifye-logo a{color:#e8e7e0;text-decoration:none}.purifye-logo span{color:#5DCAA5}
+.purifye-ham{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:10px;-webkit-tap-highlight-color:transparent}
+.slide-menu{position:fixed;top:0;right:0;width:280px;height:100vh;background:#131311;border-left:1px solid rgba(255,255,255,.06);z-index:200;transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;padding:0 24px}.slide-menu.open{transform:translateX(0)}
+.slide-menu-hdr{display:flex;justify-content:space-between;align-items:center;padding:21px 0 0}
+.slide-menu-x{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:10px}
+.slide-menu-links{display:flex;flex-direction:column;gap:0;margin-top:40px}
+.slide-link{font-size:16px;font-weight:600;color:#9c9b95;text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04);display:block}
+.slide-link:first-child{border-top:1px solid rgba(255,255,255,.04)}
+.slide-link.active{color:#5DCAA5}.slide-link:active{color:#e8e7e0}
+.slide-link-group{border-bottom:1px solid rgba(255,255,255,.04)}
+.slide-link-parent{font-size:16px;font-weight:600;color:#9c9b95;padding:14px 0 8px}
+.slide-sub{display:block;font-size:13px;font-weight:500;color:#6a6a64;text-decoration:none;padding:6px 0 6px 16px;position:relative}
+.slide-sub::before{content:'';position:absolute;left:0;top:50%;width:8px;height:1px;background:rgba(255,255,255,.08)}
+.slide-sub:last-child{padding-bottom:14px}.slide-sub:active{color:#e8e7e0}
+.slide-signin{display:block;text-align:center;margin-top:20px;padding:12px;border-radius:10px;background:rgba(93,202,165,.08);border:1px solid rgba(93,202,165,.15);color:#5DCAA5;font-size:14px;font-weight:600;text-decoration:none;transition:all .15s}
+.slide-signin:active{background:rgba(93,202,165,.15)}
+.slide-menu-ftr{margin-top:auto;padding:20px 0;text-align:center}
+.slide-menu-ftr span{font-size:9px;color:#3a3a36;font-family:'DM Mono',monospace}
+.slide-menu-backdrop{position:fixed;inset:0;background:rgba(8,8,6,.7);z-index:199;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.slide-menu-backdrop.show{opacity:1;pointer-events:auto}
+.demo-section{height:100vh;overflow:hidden;padding:0;justify-content:center}
+@media(max-width:500px){
+  .demo-section{overflow:hidden;padding:20px 0 0;height:calc(20px + (100vw - 40px) * 2.133)}
+  .demo-wrap{padding:0;gap:0;width:375px;transform-origin:top center;transform:scale(calc((100vw - 40px) / 375))}
+}
+body.demo-away .cap,body.demo-away .caption{opacity:0!important;transform:translateY(-100%)!important;pointer-events:none!important}
+</style>
+</head>
+<body>
+<div class="purifye-nav">
+  <div class="purifye-logo"><a href="/">purifye<span>AI.com</span></a></div>
+  <div class="purifye-ham" onclick="toggleMenu()"><svg width="18" height="14" viewBox="0 0 18 14" fill="none"><line x1="0" y1="1" x2="18" y2="1" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="7" x2="18" y2="7" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/><line x1="5" y1="13" x2="18" y2="13" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+</div>
+<div class="slide-menu" id="slideMenu">
+  <div class="slide-menu-hdr">
+    <div class="purifye-logo"><a href="/">purifye<span>AI.com</span></a></div>
+    <div class="slide-menu-x" onclick="toggleMenu()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+  </div>
+  <div class="slide-menu-links">
+    <a href="/" class="slide-link">Home</a>
+    <div class="slide-link-group">
+      <div class="slide-link-parent">Automation</div>
+      <a href="/bots/accounting/" class="slide-sub">Accounts Bot</a>
+      <a href="/bots/inventory/" class="slide-sub">Inventory Bot</a>
+      <a href="/bots/social/" class="slide-sub">Social Bot</a>
+      <a href="/bots/planner/" class="slide-sub">Planner Bot</a>
+      <a href="/bots/customers/" class="slide-sub">Customer Bot</a>
+    </div>
+    <a href="/pricing/" class="slide-link">Pricing</a>
+    <a href="/contact/" class="slide-link">Contact</a>
+    <a href="/contact/" class="slide-signin">Sign in</a>
+  </div>
+  <div class="slide-menu-ftr"><span>Purifye Solutions (Pvt) Ltd</span></div>
+</div>
+<div class="slide-menu-backdrop" id="menuBackdrop" onclick="toggleMenu()"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 1: DEMO WALKTHROUGH
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="demo-section">
+<div class="demo-wrap">
+
+<div class="caption" id="caption"></div>
+<div class="phone">
+<div class="notch"><div class="notch-bar"></div></div>
+<div class="nav" id="mainNav">
+<div class="nav-row"><div class="nav-left"><div class="nav-ic">📅</div><span class="nav-h">Planner</span></div><div class="nav-gear"><svg viewBox="0 0 24 24" fill="none" stroke="#9c9b95" stroke-width="1.5"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div></div>
+<div class="nav-sub">FRI · May 9</div>
+<div class="pills" id="pills"><span class="pill on" id="pill-me">Me</span><span class="pill" id="pill-team">Team</span><span class="pill" id="pill-done">Completed</span></div>
+</div>
+<div class="scroll">
+
+<!-- Me Tab -->
+<div class="scene in" id="sc-me">
+<div class="day-today"><div class="day-hdr"><span class="day-lbl">FRI · May 9</span><span class="today-badge">TODAY</span></div>
+<div class="task-row el" id="t1"><div class="chk"></div><div class="task-title">Staff meeting</div></div>
+<div class="task-row el" id="t2"><div class="chk"></div><div class="task-title">Landlord — lease renewal</div></div>
+<div class="task-row el" id="t3"><div class="chk"></div><div class="task-title">Blood pressure meds</div></div></div>
+<div class="day-bar"><div class="bar bar-red"></div><div class="day-content"><div class="day-lbl" style="color:#D85A30;padding:6px 0">⚠ OVERDUE</div>
+<div class="task-row el" id="t-od1"><div class="chk"></div><div class="task-title">Website redesign</div><div class="late-badge">3D LATE</div><div class="task-assignee" style="color:#D85A30">Amali</div></div>
+<div class="task-row el" id="t-od2"><div class="chk"></div><div class="task-title">Monthly inventory count</div><div class="late-badge">1D LATE</div><div class="task-assignee" style="color:#D4A843">Ruwan</div></div></div></div>
+<div class="day-bar"><div class="bar" style="background:#5B8DEF"></div><div class="day-content"><div class="day-lbl" style="padding:6px 0">SAT · May 10</div>
+<div class="task-row el" id="t4"><div class="chk"></div><div class="task-title">Renew business license</div></div>
+<div class="task-row el" id="t5"><div class="chk"></div><div class="task-title">Fix AC unit</div><div class="task-assignee" style="color:#5B8DEF">Kamal</div></div></div></div>
+<div class="day-bar"><div class="bar" style="background:#5DCAA5"></div><div class="day-content"><div class="day-lbl" style="padding:6px 0">SUN · May 11</div>
+<div class="task-row el" id="t6"><div class="chk"></div><div class="task-title">Bulk order enquiry</div></div></div></div>
+<div class="day-bar"><div class="bar" style="background:#7068D9"></div><div class="day-content"><div class="day-lbl" style="padding:6px 0">MON · May 12</div>
+<div class="task-row el" id="t7"><div class="chk"></div><div class="task-title">Upload product photos</div><div class="task-assignee" style="color:#D85A30">Amali</div></div></div></div>
+<div class="day-bar"><div class="bar" style="background:#CF5BA0"></div><div class="day-content"><div class="day-lbl" style="padding:6px 0">TUE · May 13</div>
+<div class="task-row el"><div class="chk"></div><div class="task-title">Update price tags</div><div class="task-assignee" style="color:#5DCAA5">Nethmi</div></div></div></div>
+</div>
+
+<!-- Team Tab -->
+<div class="scene" id="sc-team">
+<div class="el" id="tm-amali"><div class="member-hdr"><div class="member-av" style="background:rgba(216,90,48,0.1);color:#D85A30">A</div><div class="member-name" style="color:#D85A30">Amali</div><div class="member-stat" style="color:#D85A30">2 tasks · <span style="color:#D85A30">1 late</span></div></div>
+<div class="member-task" style="background:rgba(216,90,48,0.03);border:1px solid rgba(216,90,48,0.08)"><div class="chk"></div><div class="task-title">Website redesign</div><div class="late-badge">3D LATE</div></div>
+<div class="member-task" style="background:rgba(216,90,48,0.03);border:1px solid rgba(216,90,48,0.08)"><div class="chk"></div><div class="task-title">Upload product photos</div><div class="badge" style="background:rgba(216,90,48,0.1);color:#D85A30">DUE MON</div></div>
+<div class="member-task" id="t-new-team" style="background:rgba(216,90,48,0.03);border:1px solid rgba(216,90,48,0.08);display:none"><div class="chk"></div><div class="task-title" style="color:#D4A843">Call supplier about fabric</div><div class="badge" style="background:rgba(212,168,67,0.1);color:#D4A843">TODAY</div></div></div>
+<div class="el" id="tm-kamal"><div class="member-hdr"><div class="member-av" style="background:rgba(91,141,239,0.1);color:#5B8DEF">K</div><div class="member-name" style="color:#5B8DEF">Kamal</div><div class="member-stat" style="color:#5B8DEF">2 tasks</div></div>
+<div class="member-task" style="background:rgba(91,141,239,0.03);border:1px solid rgba(91,141,239,0.08)" id="kamal-task1"><div class="chk"></div><div class="task-title">Fix AC unit</div><div class="badge" style="background:rgba(91,141,239,0.1);color:#5B8DEF">TOMORROW</div></div>
+<div class="member-task" style="background:rgba(91,141,239,0.03);border:1px solid rgba(91,141,239,0.08)"><div class="chk"></div><div class="task-title">Replace front door lock</div><div class="badge" style="background:rgba(91,141,239,0.1);color:#5B8DEF">DUE WED</div></div></div>
+<div class="el" id="tm-ruwan"><div class="member-hdr"><div class="member-av" style="background:rgba(212,168,67,0.1);color:#D4A843">R</div><div class="member-name" style="color:#D4A843">Ruwan</div><div class="member-stat" style="color:#D4A843">2 tasks · <span style="color:#D85A30">1 late</span></div></div>
+<div class="member-task" style="background:rgba(212,168,67,0.03);border:1px solid rgba(212,168,67,0.08)"><div class="chk"></div><div class="task-title">Monthly inventory count</div><div class="late-badge">1D LATE</div></div>
+<div class="member-task" style="background:rgba(212,168,67,0.03);border:1px solid rgba(212,168,67,0.08)"><div class="chk"></div><div class="task-title">Clean warehouse shelving</div><div class="badge" style="background:rgba(212,168,67,0.1);color:#D4A843">DUE MON</div></div></div>
+<div class="el" id="tm-nethmi"><div class="member-hdr"><div class="member-av" style="background:rgba(93,202,165,0.1);color:#5DCAA5">N</div><div class="member-name" style="color:#5DCAA5">Nethmi</div><div class="member-stat" style="color:#5DCAA5">2 tasks</div></div>
+<div class="member-task" style="background:rgba(93,202,165,0.03);border:1px solid rgba(93,202,165,0.08)"><div class="chk"></div><div class="task-title">Update price tags</div><div class="badge" style="background:rgba(93,202,165,0.1);color:#5DCAA5">DUE TUE</div></div>
+<div class="member-task" style="background:rgba(93,202,165,0.03);border:1px solid rgba(93,202,165,0.08)"><div class="chk"></div><div class="task-title">Restock display shelves</div><div class="badge" style="background:rgba(93,202,165,0.1);color:#5DCAA5">DUE WED</div></div></div>
+</div>
+
+<!-- Task Detail (Fix AC) -->
+<div class="scene" id="sc-detail">
+<div style="font-size:13px;color:#6a6a64;margin-bottom:12px">← Back</div>
+<div class="detail-card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div class="chk"></div><div class="detail-title" style="flex:1">Fix AC unit</div><div class="task-assignee" style="color:#5B8DEF">Kamal</div></div>
+<div style="display:flex;gap:6px;margin-bottom:8px"><span class="badge" style="background:rgba(91,141,239,0.1);color:#5B8DEF">OPEN</span></div>
+<div class="audit-line"><div class="audit-dot" style="background:#5B8DEF"></div><div class="audit-text">Created May 7 → Due May 10 · Pending</div><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#6a6a64" stroke-width="1.5" stroke-linecap="round"/></svg></div></div>
+<div class="section-lbl">CHAT <div class="section-line"></div></div>
+<div class="chat-msg el" id="ch1"><div class="chat-av" style="background:rgba(91,141,239,0.1);color:#5B8DEF">B</div><div><div class="chat-body" style="color:var(--t3)">New task: Fix AC unit · Due Saturday</div><div class="chat-meta"><span style="color:#5B8DEF">Bot</span> · May 7</div></div></div>
+<div class="chat-msg el" id="ch2"><div class="chat-av" style="background:rgba(91,141,239,0.1);color:#5B8DEF">K</div><div><div class="chat-body">Need to call repair guy, might cost around 15k</div><div class="chat-meta"><span style="color:#5B8DEF">Kamal</span> · May 8</div></div></div>
+<div class="chat-msg el" id="ch3"><div class="chat-av" style="background:rgba(93,202,165,0.1);color:#5DCAA5">Y</div><div><div class="chat-body">Go ahead, get it done before the weekend</div><div class="chat-meta"><span style="color:#5DCAA5">You</span> · May 8</div></div></div>
+<div class="chat-msg el" id="ch4"><div class="chat-av" style="background:rgba(91,141,239,0.1);color:#5B8DEF">K</div><div><div class="chat-body">Repair guy confirmed. Coming tomorrow 10am</div><div class="chat-meta"><span style="color:#5B8DEF">Kamal</span> · May 9</div></div></div>
+<div class="chat-msg el" id="ch5" style="display:none"><div class="chat-av" style="background:rgba(93,202,165,0.1);color:#5DCAA5">Y</div><div><div class="chat-body" id="ch5-text"></div><div class="chat-meta"><span style="color:#5DCAA5">You</span> · May 9</div></div></div>
+<div class="chat-input" id="chatInput"><div id="chatInputText" style="flex:1;font-size:12px;color:#6a6a64">Write a message...</div>
+<div class="wa-btn" id="waBtn" style="background:transparent"><svg width="13" height="13" viewBox="0 0 24 24" fill="#6a6a64"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 01-4.103-1.128l-.29-.174-3.01.894.81-2.96-.186-.296A8 8 0 1112 20z"/></svg></div>
+<div class="send-btn" id="sendBtn" style="background:transparent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="#6a6a64" stroke-width="2" stroke-linecap="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#6a6a64" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+</div>
+
+<!-- WhatsApp Task Detail (Bulk order) -->
+<div class="scene" id="sc-wa-detail">
+<div style="font-size:13px;color:#6a6a64;margin-bottom:12px">← Back</div>
+<div class="detail-card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div class="chk"></div><div class="detail-title" style="flex:1">Bulk order enquiry</div></div>
+<div style="display:flex;gap:6px;margin-bottom:8px"><span class="badge" style="background:rgba(212,168,67,0.1);color:#D4A843">OPEN</span></div>
+<div class="audit-line"><div class="audit-dot" style="background:#D4A843"></div><div class="audit-text">Created May 8 → Due May 11 · Pending</div><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#6a6a64" stroke-width="1.5" stroke-linecap="round"/></svg></div></div>
+<div class="section-lbl">CHAT <div class="section-line"></div></div>
+<div class="chat-msg" id="wch1"><div class="chat-av" style="background:rgba(91,141,239,0.1);color:#5B8DEF">B</div><div><div class="chat-body" style="color:var(--t3)">New task: Bulk order enquiry · Due Sunday</div><div class="chat-meta"><span style="color:#5B8DEF">Bot</span> · May 8</div></div></div>
+<div class="chat-msg" id="wch2"><div class="chat-av" style="background:rgba(93,202,165,0.1);color:#5DCAA5">Y</div><div><div class="chat-body">Need to check with Saman on pricing for 200 units</div><div class="chat-meta"><span style="color:#5DCAA5">You</span> · May 8</div></div></div>
+<div class="chat-input" id="waChatInput"><div id="waChatInputText" style="flex:1;font-size:12px;color:#6a6a64">Write a message...</div>
+<div class="wa-btn" id="waBtn2" style="background:transparent"><svg width="13" height="13" viewBox="0 0 24 24" fill="#6a6a64"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 01-4.103-1.128l-.29-.174-3.01.894.81-2.96-.186-.296A8 8 0 1112 20z"/></svg></div>
+<div class="send-btn" id="sendBtn2" style="background:transparent"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="#6a6a64" stroke-width="2" stroke-linecap="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#6a6a64" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+<div id="waPicker2" style="display:none" class="wa-picker"><div class="wa-picker-title">SEND TO</div>
+<div class="wa-contact el" id="wa2-c1"><div class="wa-contact-av">S</div><div style="flex:1"><div class="wa-contact-name">Saman</div><div class="wa-contact-phone">+94771234567 · Fabric supplier</div></div><svg width="12" height="12" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 01-4.103-1.128l-.29-.174-3.01.894.81-2.96-.186-.296A8 8 0 1112 20z"/></svg></div>
+<div class="wa-contact el" id="wa2-c2"><div class="wa-contact-av">D</div><div style="flex:1"><div class="wa-contact-name">Dilini</div><div class="wa-contact-phone">+94777654321 · Landlord</div></div><svg width="12" height="12" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 01-4.103-1.128l-.29-.174-3.01.894.81-2.96-.186-.296A8 8 0 1112 20z"/></svg></div></div>
+<div id="waSentConfirm2" style="display:none" class="wa-sent"><div class="wa-sent-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div><div class="wa-sent-text">WhatsApp opened for Saman</div><div class="wa-sent-sub">Message pre-filled · Logged to audit trail</div></div></div>
+</div>
+
+<!-- Briefing -->
+<div class="scene" id="sc-briefing">
+<div class="briefing-card el" id="br-card">
+<div class="briefing-top"><div class="briefing-icon">☀️</div><div><div class="briefing-title">Good morning — here's your Friday</div><div class="briefing-time">Auto-generated · 8:00 AM</div></div></div>
+<div class="briefing-section">YOUR DAY</div>
+<div class="briefing-row el" id="br1"><div class="briefing-dot" style="background:#D4A843"></div><div class="briefing-text" style="color:#D4A843">Staff meeting</div><div class="briefing-right" style="color:#D4A843"></div></div>
+<div class="briefing-row el" id="br2"><div class="briefing-dot" style="background:#D4A843"></div><div class="briefing-text" style="color:#D4A843">Landlord — lease renewal</div><div class="briefing-right" style="color:#D4A843"></div></div>
+<div class="briefing-row el" id="br3"><div class="briefing-dot" style="background:#D4A843"></div><div class="briefing-text" style="color:#D4A843">Blood pressure meds</div><div class="briefing-right" style="color:#D4A843">Daily</div></div>
+<div class="briefing-section">TEAM — OVERDUE</div>
+<div class="briefing-row el" id="br4"><div class="member-av" style="background:rgba(216,90,48,0.1);color:#D85A30;width:20px;height:20px;border-radius:5px;font-size:9px">A</div><div class="briefing-text" style="color:#e8e7e0">Website redesign</div><div class="briefing-right" style="color:#D85A30">3D LATE</div></div>
+<div class="briefing-row el" id="br5"><div class="member-av" style="background:rgba(212,168,67,0.1);color:#D4A843;width:20px;height:20px;border-radius:5px;font-size:9px">R</div><div class="briefing-text" style="color:#e8e7e0">Monthly inventory count</div><div class="briefing-right" style="color:#D85A30">1D LATE</div></div>
+<div class="briefing-section">HEADS UP — NEXT 3 DAYS</div>
+<div class="briefing-row el" id="br6"><div class="briefing-dot" style="background:#5B8DEF"></div><div class="briefing-text" style="color:#e8e7e0">Fix AC unit — Kamal</div><div class="briefing-right" style="color:#5B8DEF">Tomorrow</div></div>
+<div class="briefing-row el" id="br7"><div class="briefing-dot" style="background:#5DCAA5"></div><div class="briefing-text" style="color:#e8e7e0">Bulk order enquiry</div><div class="briefing-right" style="color:#5DCAA5">2 days</div></div>
+<div style="text-align:center;padding-top:10px;border-top:1px solid rgba(255,255,255,0.04);margin-top:10px"><span style="font-family:var(--fm);font-size:9px;color:#6a6a64">Sent automatically every morning</span></div>
+</div></div>
+
+<!-- Completed -->
+<div class="scene" id="sc-done">
+<div style="display:flex;gap:4px;margin-bottom:12px;padding-top:4px"><span class="pill on-green">Me</span><span class="pill">Team</span></div>
+<div class="task-row el" id="d1"><div class="chk done"></div><div class="task-title strike">Order new uniforms</div></div>
+<div class="task-row el" id="d2"><div class="chk done"></div><div class="task-title strike">Call plumber</div></div>
+<div class="task-row el" id="d3"><div class="chk done"></div><div class="task-title strike">Reorder business cards</div></div></div>
+
+<!-- Completed Task Detail -->
+<div class="scene" id="sc-done-detail">
+<div style="font-size:13px;color:#6a6a64;margin-bottom:12px">← Back</div>
+<div class="detail-card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div class="chk done"></div><div class="detail-title" style="flex:1">Order new uniforms</div><div class="task-assignee" style="color:#D4A843">Ruwan</div></div>
+<div style="display:flex;gap:6px;margin-bottom:8px"><span class="badge" style="background:rgba(93,202,165,0.1);color:#5DCAA5">DONE</span></div>
+<div class="audit-line"><div class="audit-dot" style="background:#5DCAA5"></div><div class="audit-text">Created Apr 28 → Due May 4 · Done</div><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#6a6a64" stroke-width="1.5" stroke-linecap="round"/></svg></div></div>
+<div class="section-lbl">CHAT <div class="section-line"></div></div>
+<div class="chat-msg el" id="dd1"><div class="chat-av" style="background:rgba(91,141,239,0.1);color:#5B8DEF">B</div><div><div class="chat-body" style="color:var(--t3)">New task: Order new uniforms · Due May 4</div><div class="chat-meta"><span style="color:#5B8DEF">Bot</span> · Apr 28</div></div></div>
+<div class="chat-msg el" id="dd2"><div class="chat-av" style="background:rgba(212,168,67,0.1);color:#D4A843">R</div><div><div class="chat-body">Ordered from usual supplier — 12 sets</div><div class="chat-meta"><span style="color:#D4A843">Ruwan</span> · May 2</div></div></div>
+<div class="chat-msg el" id="dd3"><div class="chat-av" style="background:rgba(93,202,165,0.1);color:#5DCAA5">Y</div><div><div class="chat-body">Perfect, thanks</div><div class="chat-meta"><span style="color:#5DCAA5">You</span> · May 2</div></div></div>
+<div class="chat-msg el" id="dd4"><div class="chat-av" style="background:rgba(91,141,239,0.1);color:#5B8DEF">B</div><div><div class="chat-body" style="color:var(--t3)">✓ Task completed by Ruwan — May 4</div><div class="chat-meta"><span style="color:#5B8DEF">Bot</span> · May 4</div></div></div>
+</div>
+
+</div>
+
+<div class="bs-overlay" id="bsOverlay"></div>
+<div class="bs" id="bsAdd"><div class="bs-title">Add task or reminder</div>
+<div class="bs-label">TASK TITLE</div><div class="bs-input" id="bsTaskTitle"></div>
+<div class="bs-label">ASSIGN TO</div><div class="bs-input" style="color:var(--t3)" id="bsAssignee">Me (personal)</div>
+<div class="bs-label">DUE DATE</div><div class="bs-input" style="color:var(--t3)">May 9</div>
+<div class="bs-btn" id="bsBtn">Create Task</div></div>
+
+<div class="fab" id="fab">+</div>
+<div class="bot-bar">
+<div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#28997A,#13654C)">📊</div><div class="bt-lb">Accounting</div></div>
+<div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#EE7844,#B84D22)">📦</div><div class="bt-lb">Inventory</div></div>
+<div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#7068D9,#4840A3)">📣</div><div class="bt-lb">Social</div></div>
+<div class="bt on"><div class="bt-ic" style="background:linear-gradient(135deg,#D4A843,#9E7B28)">📅</div><div class="bt-lb">Planner</div></div>
+<div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#CF5BA0,#8A3063)">👥</div><div class="bt-lb">Customers</div></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 2: HERO
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="hero">
+  <div class="hero-icon"><svg viewBox="0 0 32 32" fill="none" width="30" height="30"><rect x="5" y="6" width="6.5" height="6.5" rx="1.5" fill="rgba(255,255,255,.85)"/><rect x="12.8" y="6" width="6.5" height="6.5" rx="1.5" fill="rgba(255,255,255,.5)"/><rect x="20.5" y="6" width="6.5" height="6.5" rx="1.5" fill="rgba(255,255,255,.3)"/><rect x="5" y="14" width="6.5" height="6.5" rx="1.5" fill="rgba(255,255,255,.4)"/><rect x="12.8" y="14" width="6.5" height="6.5" rx="1.5" fill="rgba(255,255,255,.7)"/></svg></div>
+  <h1>Your week.<br><span class="hl">Properly Planned.</span></h1>
+  <p>Deadlines, payments, meetings — bot reminds you and your team every morning.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 3: CONTENT
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="content-wrap">
+
+  <!-- HOW IT WORKS -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">How It Works</div>
+      <div class="sec-title">Six steps. Zero chasing.</div>
+      <div class="sec-desc">From adding your first task to your team completing it — here's the daily flow.</div>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="step-num">01</span><div class="step-icon" style="background:rgba(93,202,165,0.1);color:var(--grn)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div class="step-name">Add a Task</div><div class="step-desc">Tap +, type what needs doing, pick who does it. Takes 5 seconds.</div></div>
+      <div class="step"><span class="step-num">02</span><div class="step-icon" style="background:rgba(91,141,239,0.1);color:var(--blu)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div class="step-name">Assign to Team</div><div class="step-desc">Assign to any member.</div></div>
+      <div class="step"><span class="step-num">03</span><div class="step-icon" style="background:rgba(212,168,67,0.1);color:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="step-name">Track it All</div><div class="step-desc">Due dates, overdue flags, who's doing what. You see everything. They see only theirs.</div></div>
+      <div class="step"><span class="step-num">04</span><div class="step-icon" style="background:rgba(216,90,48,0.1);color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2m-8-10H4m16 0h2m-2.93-7.07l-1.41 1.41m-9.32 9.32l-1.41 1.41m0-12.14l1.41 1.41m9.32 9.32l1.41 1.41"/></svg></div><div class="step-name">Morning Briefing</div><div class="step-desc">8am every day — your tasks, team overdue, what's coming. Sent to you and your team.</div></div>
+      <div class="step"><span class="step-num">05</span><div class="step-icon" style="background:rgba(112,104,217,0.1);color:#7068D9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div class="step-name">Team Chat Built In</div><div class="step-desc">Every task has a conversation. Your team replies directly. No scattered WhatsApp groups.</div></div>
+      <div class="step"><span class="step-num">06</span><div class="step-icon" style="background:rgba(37,211,102,0.1);color:#25D366"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg></div><div class="step-name">Message Externally</div><div class="step-desc">Tell a supplier or landlord? Type it, tap WhatsApp — sent and logged to the task.</div></div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">Features</div>
+      <div class="sec-title">Everything your notebook can't do</div>
+      <div class="sec-desc">Assign, track, follow up, and never forget. Your bot manages the team so you don't have to.</div>
+    </div>
+    <div class="features">
+
+      <!-- Week View -->
+      <div class="feat"><div class="feat-visual"><div class="mini-week">
+        <div class="mw-today"><div class="mw-hdr"><span class="mw-day">FRI · May 9</span><span class="mw-badge">TODAY</span></div><div class="mw-task"><div class="mw-chk"></div><div class="mw-name">Staff meeting</div></div><div class="mw-task"><div class="mw-chk"></div><div class="mw-name">Landlord — lease renewal</div></div><div class="mw-task"><div class="mw-chk"></div><div class="mw-name">Blood pressure meds</div></div></div>
+        <div class="mw-bar-row"><div class="mw-bar" style="background:#D85A30;min-height:24px"></div><div class="mw-bar-content"><div class="mw-day" style="color:#D85A30;padding:2px 0">⚠ OVERDUE</div><div class="mw-task"><div class="mw-chk"></div><div class="mw-name">Website redesign</div><span style="font-family:var(--fm);font-size:7px;color:#D85A30;margin-left:auto">3D LATE</span></div></div></div>
+        <div class="mw-bar-row"><div class="mw-bar" style="background:#5B8DEF;min-height:20px"></div><div class="mw-bar-content"><div class="mw-day" style="padding:2px 0">SAT · May 10</div><div class="mw-task"><div class="mw-chk"></div><div class="mw-name">Fix AC unit</div><span style="font-family:var(--fm);font-size:7px;color:#5B8DEF;margin-left:auto">Kamal</span></div></div></div>
+        <div class="mw-bar-row"><div class="mw-bar" style="background:#5DCAA5;min-height:16px"></div><div class="mw-bar-content"><div class="mw-day" style="padding:2px 0">SUN · May 11</div></div></div>
+      </div></div><div class="feat-content"><span class="feat-badge" style="background:rgba(212,168,67,0.1);color:var(--accent)">DASHBOARD</span><div class="feat-title">Your Week at a Glance</div><div class="feat-desc">Today on top with gold borders. Overdue flagged in red. Future days color-coded. You open the app and know exactly where you stand — no scrolling through lists, no checking notebooks.</div></div></div>
+
+      <!-- Team -->
+      <div class="feat"><div class="feat-visual"><div class="mini-team">
+        <div class="mt-row" style="background:rgba(216,90,48,0.06)"><div class="mt-av" style="background:rgba(216,90,48,0.1);color:#D85A30">A</div><div class="mt-name" style="color:#D85A30">Amali</div><div class="mt-stat" style="color:#D85A30">2 tasks<span class="mt-late">· 1 late</span></div></div>
+        <div class="mt-row" style="background:rgba(91,141,239,0.06)"><div class="mt-av" style="background:rgba(91,141,239,0.1);color:#5B8DEF">K</div><div class="mt-name" style="color:#5B8DEF">Kamal</div><div class="mt-stat" style="color:#5B8DEF">2 tasks</div></div>
+        <div class="mt-row" style="background:rgba(212,168,67,0.06)"><div class="mt-av" style="background:rgba(212,168,67,0.1);color:#D4A843">R</div><div class="mt-name" style="color:#D4A843">Ruwan</div><div class="mt-stat" style="color:#D4A843">2 tasks<span class="mt-late">· 1 late</span></div></div>
+        <div class="mt-row" style="background:rgba(93,202,165,0.06)"><div class="mt-av" style="background:rgba(93,202,165,0.1);color:#5DCAA5">N</div><div class="mt-name" style="color:#5DCAA5">Nethmi</div><div class="mt-stat" style="color:#5DCAA5">2 tasks</div></div>
+      </div></div><div class="feat-content"><span class="feat-badge" style="background:rgba(91,141,239,0.1);color:var(--blu)">TEAM</span><div class="feat-title">Team Without the Chaos</div><div class="feat-desc">Every team member has their color, their tasks, their deadlines. Who's late shows instantly. Tap any task to see the full conversation and audit trail. No more He said She said.</div></div></div>
+
+      <!-- WhatsApp -->
+      <div class="feat"><div class="feat-visual"><div class="mini-wa">
+        <div class="mwa-input"><div class="mwa-text">Fabric order delayed 2 weeks...</div><div class="mwa-icon" style="background:rgba(37,211,102,0.15)"><svg width="10" height="10" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 01-4.103-1.128l-.29-.174-3.01.894.81-2.96-.186-.296A8 8 0 1112 20z"/></svg></div><div class="mwa-icon" style="background:rgba(212,168,67,0.15)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="#D4A843" stroke-width="2" stroke-linecap="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#D4A843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+        <div class="mwa-picker"><div class="mwa-picker-title">SEND TO</div><div class="mwa-contact"><div class="mwa-cav">S</div><div class="mwa-cname">Saman</div><div class="mwa-cphone">Fabric supplier</div></div><div class="mwa-contact"><div class="mwa-cav">D</div><div class="mwa-cname">Dilini</div><div class="mwa-cphone">Landlord</div></div><div class="mwa-contact"><div class="mwa-cav">P</div><div class="mwa-cname">Pradeep</div><div class="mwa-cphone">Delivery partner</div></div></div>
+      </div></div><div class="feat-content"><span class="feat-badge" style="background:rgba(37,211,102,0.1);color:#25D366">WHATSAPP</span><div class="feat-title">WhatsApp Anyone From Any Task</div><div class="feat-desc">Type your message, tap the green icon, pick a contact — WhatsApp opens with the message ready. One tap to send.</div></div></div>
+
+      <!-- Employee Portal -->
+      <div class="feat"><div class="feat-visual"><div class="mini-portal">
+        <div class="mp-hdr"><div class="mp-av" style="background:rgba(91,141,239,0.1);color:#5B8DEF">K</div><div><div class="mp-title">My Tasks</div><div class="mp-sub">Kamal · Maintenance · 2 tasks</div></div></div>
+        <div class="mp-task"><div class="mw-chk"></div><div class="mw-name">Fix AC unit</div><span style="font-family:var(--fm);font-size:7px;color:var(--accent);margin-left:auto">Tomorrow</span></div>
+        <div class="mp-task"><div class="mw-chk"></div><div class="mw-name">Replace front door lock</div><span style="font-family:var(--fm);font-size:7px;color:var(--t3);margin-left:auto">May 14</span></div>
+        <div class="mp-task"><div class="mw-chk" style="border-color:#5DCAA5;background:rgba(93,202,165,0.13)"></div><div class="mw-name" style="text-decoration:line-through;color:var(--t3)">Order uniforms</div></div>
+      </div></div><div class="feat-content"><span class="feat-badge" style="background:rgba(216,90,48,0.1);color:var(--red)">TEAM ACCESS</span><div class="feat-title">Employee Portal — No App Needed</div><div class="feat-desc">Add a team member, get a unique link. Text it to them. They open it, bookmark it, add to home screen. They see their tasks, mark done, add their own, chat with you. No app store, no signup, no training.</div></div></div>
+
+      <!-- Recurring -->
+      <div class="feat"><div class="feat-visual"><div class="mini-recur">
+        <div class="mr-circle"><svg viewBox="0 0 24 24" fill="none" stroke="#D4A843" stroke-width="2" stroke-linecap="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg></div>
+        <div class="mr-labels"><div class="mr-label" style="background:rgba(93,202,165,0.1);color:#5DCAA5">Daily — Meds reminder</div><div class="mr-label" style="background:rgba(91,141,239,0.1);color:#5B8DEF">Weekly — Staff meeting</div><div class="mr-label" style="background:rgba(212,168,67,0.1);color:#D4A843">Monthly — Inventory count</div></div>
+      </div></div><div class="feat-content"><span class="feat-badge" style="background:rgba(112,104,217,0.1);color:#7068D9">AUTOMATION</span><div class="feat-title">Recurring Tasks Run Themselves</div><div class="feat-desc">Rent due on the 1st. Inventory count every Monday. Staff meeting weekly. Set it once — the bot auto-creates the next instance every time you complete one. You never set a reminder twice.</div></div></div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 4: CTA
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="cta">
+  <a href="/pricing/" class="cta-btn">Never be the one chasing everytime →</a>
+  <div class="cta-sub">Let the Bot do the work for you · Free for 7 days</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     DEMO SCRIPT
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+const $=id=>document.getElementById(id);
+const $$=sel=>document.querySelectorAll(sel);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+async function label(html,dur=2500){const c=$('caption');c.classList.remove('show');await wait(300);c.innerHTML=html;c.classList.add('show');await wait(dur)}
+async function hideLabel(){$('caption').classList.remove('show');await wait(300)}
+function showScene(id){$$('.scene').forEach(s=>{s.classList.remove('in');s.classList.add('out-l')});const sc=$(id);sc.classList.remove('out-l','out-r');sc.style.transform='translateX(30px)';void sc.offsetHeight;sc.classList.add('in');sc.scrollTop=0}
+function setPill(id){$$('#pills .pill').forEach(p=>p.classList.remove('on','on-blue','on-green'));$(id).classList.add(id==='pill-team'?'on-blue':id==='pill-done'?'on-green':'on')}
+async function reveal(ids,delay=80){for(const id of ids){const el=typeof id==='string'?$(id):id;if(el){el.classList.add('s');await wait(delay)}}}
+async function highlight(el,dur=500){if(typeof el==='string')el=$(el);el.classList.remove('tap-hl');void el.offsetHeight;el.classList.add('tap-hl');await wait(dur);el.classList.remove('tap-hl');await wait(100)}
+async function typeText(el,text,speed=50){if(typeof el==='string')el=$(el);el.textContent='';el.style.color='#e8e7e0';for(let i=0;i<text.length;i++){el.textContent=text.substring(0,i+1);await wait(speed)}}
+function setInputActive(){$('waBtn').style.background='rgba(37,211,102,0.15)';$('waBtn').querySelector('svg').setAttribute('fill','#25D366');$('sendBtn').style.background='#D4A84322';$('sendBtn').querySelectorAll('path').forEach(p=>p.setAttribute('stroke','#D4A843'))}
+function setInputInactive(){$('chatInputText').textContent='Write a message...';$('chatInputText').style.color='#6a6a64';$('waBtn').style.background='transparent';$('waBtn').querySelector('svg').setAttribute('fill','#6a6a64');$('sendBtn').style.background='transparent';$('sendBtn').querySelectorAll('path').forEach(p=>p.setAttribute('stroke','#6a6a64'))}
+
+function resetAll(){
+  $$('.el').forEach(e=>e.classList.remove('s'));
+  $$('.scene').forEach(s=>{s.classList.remove('in','out-l');s.scrollTop=0});
+  $('sc-me').classList.add('in');setPill('pill-me');
+  $('mainNav').style.display='';$('fab').style.display='';
+  $('bsOverlay').classList.remove('show');$('bsAdd').classList.remove('show');
+  $('waPicker2').style.display='none';$('waSentConfirm2').style.display='none';
+  $('waChatInputText').textContent='Write a message...';$('waChatInputText').style.color='#6a6a64';
+  $('ch5').style.display='none';$('t-new-team').style.display='none';
+  setInputInactive();$('bsTaskTitle').textContent='';
+  $('bsAssignee').textContent='Me (personal)';$('bsAssignee').style.color='var(--t3)';
+  $$('.chk').forEach(c=>{c.classList.remove('done');c.style.cssText=''});
+  $$('.task-title').forEach(t=>{t.classList.remove('strike');t.style.color=''});
+  ['d1','d2','d3'].forEach(id=>{const el=$(id);if(el){el.querySelector('.chk').classList.add('done');el.querySelector('.task-title').classList.add('strike')}});
+  $('sc-done-detail').querySelector('.chk').classList.add('done');
+}
+
+async function runDemo(){
+  resetAll();await wait(300);
+
+  // 1: ADD TASK
+  await label('<span class="hl">Add tasks in seconds</span><span class="sub">Tap +, type what needs doing, assign to your team.</span>',600);
+  await reveal(['t1','t2','t3','t-od1','t-od2','t4','t5','t6','t7'],0);
+  await wait(200);await highlight('fab');await wait(200);
+  $('bsOverlay').classList.add('show');$('bsAdd').classList.add('show');await wait(400);
+  await typeText('bsTaskTitle','Call supplier about fabric',45);await wait(400);
+  await highlight('bsAssignee',300);
+  $('bsAssignee').textContent='Amali';$('bsAssignee').style.color='#D85A30';await wait(600);
+  await highlight('bsBtn',400);await wait(200);
+  $('bsOverlay').classList.remove('show');$('bsAdd').classList.remove('show');
+  $('bsAssignee').textContent='Me (personal)';$('bsAssignee').style.color='var(--t3)';await wait(300);
+  setPill('pill-team');showScene('sc-team');await wait(300);
+  ['tm-amali','tm-kamal','tm-ruwan','tm-nethmi'].forEach(id=>$(id).classList.add('s'));await wait(400);
+  $('t-new-team').style.display='';$('t-new-team').style.animation='slideIn 0.4s ease';await wait(1200);
+  $('t-new-team').style.animation='';
+  setPill('pill-me');showScene('sc-me');await wait(300);
+
+  // 2: YOUR WEEK
+  await label('<span class="hl">Your week at a glance</span><span class="sub">Today on top. Overdue flagged. Color-coded days ahead.</span>',600);
+  await wait(400);$('sc-me').scrollTo({top:160,behavior:'smooth'});await wait(1000);
+  $('sc-me').scrollTo({top:320,behavior:'smooth'});await wait(1000);
+  $('sc-me').scrollTo({top:0,behavior:'smooth'});await wait(800);
+
+  // 3: CHECK OFF
+  await label('<span class="hl">Check off a task</span><span class="sub">One tap. Done. Moves to Completed automatically.</span>',600);
+  await highlight('t1');$('t1').querySelector('.chk').classList.add('done');
+  $('t1').querySelector('.task-title').classList.add('strike');await wait(1200);
+
+  // 4: TEAM
+  await label('<span class="hl">Your whole team</span><span class="sub">Who\'s doing what. Who\'s late. All in one view.</span>',600);
+  setPill('pill-team');showScene('sc-team');await wait(300);
+  await reveal(['tm-amali'],0);await wait(250);await reveal(['tm-kamal'],0);await wait(250);
+  await reveal(['tm-ruwan'],0);await wait(250);await reveal(['tm-nethmi'],0);await wait(1800);
+
+  // 5: TEAM CHAT
+  await label('<span class="hl">Built-in team chat</span><span class="sub">Every task has a conversation. No separate WhatsApp groups.</span>',600);
+  $('fab').style.display='none';await highlight('kamal-task1',400);await wait(200);
+  showScene('sc-detail');await wait(400);
+  ['ch1','ch2','ch3','ch4'].forEach(id=>$(id).classList.add('s'));await wait(800);
+  await typeText('chatInputText','Great, I\'ll be there to let him in',35);setInputActive();await wait(600);
+  await highlight('sendBtn',400);
+  $('ch5').style.display='';$('ch5-text').textContent='Great, I\'ll be there to let him in';$('ch5').classList.add('s');
+  setInputInactive();$('sc-detail').scrollTo({top:$('sc-detail').scrollHeight,behavior:'smooth'});await wait(1500);
+
+  // 6: WHATSAPP
+  await label('<span class="hl">Message anyone via WhatsApp</span><span class="sub">Type your message. Tap the green icon. Pick a contact. Sent.</span>',800);
+  $('fab').style.display='';setPill('pill-me');showScene('sc-me');await wait(400);
+  $('sc-me').scrollTo({top:180,behavior:'smooth'});await wait(600);
+  await highlight('t6',400);await wait(200);
+  $('fab').style.display='none';showScene('sc-wa-detail');await wait(500);
+  await typeText('waChatInputText','Hi Saman, can you send pricing for 200 units? Need by Sunday',30);
+  $('waBtn2').style.background='rgba(37,211,102,0.15)';$('waBtn2').querySelector('svg').setAttribute('fill','#25D366');
+  $('sendBtn2').style.background='#D4A84322';$('sendBtn2').querySelectorAll('path').forEach(p=>p.setAttribute('stroke','#D4A843'));await wait(600);
+  $('waBtn2').style.background='#25D366';$('waBtn2').querySelector('svg').setAttribute('fill','#fff');$('waBtn2').style.transition='all 0.2s';await wait(400);
+  $('waBtn2').style.background='rgba(37,211,102,0.15)';$('waBtn2').querySelector('svg').setAttribute('fill','#25D366');await wait(200);
+  $('waPicker2').style.display='';$('sc-wa-detail').scrollTo({top:$('sc-wa-detail').scrollHeight,behavior:'smooth'});await wait(300);
+  await reveal(['wa2-c1','wa2-c2'],150);await wait(800);
+  await highlight('wa2-c1',500);await wait(200);
+  $('waPicker2').style.display='none';$('waChatInputText').textContent='Write a message...';$('waChatInputText').style.color='#6a6a64';
+  $('waBtn2').style.background='transparent';$('waBtn2').querySelector('svg').setAttribute('fill','#6a6a64');
+  $('sendBtn2').style.background='transparent';$('sendBtn2').querySelectorAll('path').forEach(p=>p.setAttribute('stroke','#6a6a64'));
+  $('waSentConfirm2').style.display='';$('waSentConfirm2').style.animation='slideIn 0.4s ease';
+  $('sc-wa-detail').scrollTo({top:$('sc-wa-detail').scrollHeight,behavior:'smooth'});await wait(2500);
+  $('waSentConfirm2').style.display='none';
+
+  // 7: MORNING BRIEFING
+  await label('<span class="hl">Morning briefing at 8am</span><span class="sub">Sent to you and your team automatically. Every single morning.</span>',800);
+  showScene('sc-briefing');$('fab').style.display='none';setPill('pill-me');await wait(300);
+  await reveal(['br-card'],0);await wait(300);
+  await reveal(['br1','br2','br3'],100);await wait(400);
+  await reveal(['br4','br5'],100);await wait(400);
+  await reveal(['br6','br7'],100);await wait(2500);
+
+  // 8: COMPLETED — show history
+  await label('<span class="hl">Full history on every task</span><span class="sub">Completed tasks keep their entire chat trail. Nothing lost.</span>',800);
+  $('fab').style.display='';setPill('pill-done');showScene('sc-done');await wait(300);
+  await reveal(['d1','d2','d3'],100);await wait(800);
+  await highlight('d1',400);await wait(200);
+  $('fab').style.display='none';showScene('sc-done-detail');await wait(400);
+  ['dd1','dd2','dd3','dd4'].forEach(id=>$(id).classList.add('s'));await wait(200);
+  $('sc-done-detail').scrollTo({top:100,behavior:'smooth'});await wait(2500);
+
+  await hideLabel();await wait(800);runDemo();
+}
+runDemo();
+</script>
+
+<script>
+var menuOpen=false;
+function toggleMenu(){
+  menuOpen=!menuOpen;
+  document.getElementById('slideMenu').classList.toggle('open',menuOpen);
+  document.getElementById('menuBackdrop').classList.toggle('show',menuOpen);
+  document.body.style.overflow=menuOpen?'hidden':'';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&menuOpen)toggleMenu()});
+</script>
+<script>
+(function(){
+  var demoEl = document.querySelector('.demo-section');
+  var heroEl = document.querySelector('.hero') || (demoEl && demoEl.nextElementSibling);
+  var capEl  = document.getElementById('caption');
+  if (!demoEl) return;
+
+  var locked = false;
+
+  function snapDown() {
+    if (locked) return;
+    locked = true;
+    if (capEl) capEl.classList.remove('show');
+    if (heroEl) heroEl.scrollIntoView({behavior:'smooth'});
+    setTimeout(function(){locked=false;}, 800);
+  }
+
+  function snapUp() {
+    if (locked) return;
+    locked = true;
+    demoEl.scrollIntoView({behavior:'smooth'});
+    setTimeout(function(){locked=false;}, 800);
+  }
+
+  // Desktop wheel
+  window.addEventListener('wheel', function(e) {
+    var sY = window.scrollY;
+    var dT = demoEl.offsetTop;
+    var dB = dT + demoEl.offsetHeight;
+    if (e.deltaY > 0 && sY < dB - 80) {
+      e.preventDefault(); snapDown();
+    } else if (e.deltaY < 0 && sY > dT && sY <= dB + 100) {
+      e.preventDefault(); snapUp();
+    }
+  }, {passive:false});
+
+  // Mobile touch
+  var ty0 = 0;
+  window.addEventListener('touchstart', function(e) {
+    ty0 = e.touches[0].clientY;
+  }, {passive:true});
+  window.addEventListener('touchmove', function(e) {
+    if (locked) { e.preventDefault(); return; }
+    var sY = window.scrollY;
+    var dT = demoEl.offsetTop;
+    var dB = dT + demoEl.offsetHeight;
+    var dy = ty0 - e.touches[0].clientY;
+    if (dy > 40 && sY < dB - 80) {
+      e.preventDefault(); snapDown();
+    } else if (dy < -40 && sY > dT && sY <= dB + 100) {
+      e.preventDefault(); snapUp();
+    }
+  }, {passive:false});
+})();
+</script>
+
+<script>
+(function(){
+  var demoEl = document.querySelector('.demo-section');
+  if (!demoEl) return;
+  function checkScroll() {
+    var demoBottom = demoEl.offsetTop + demoEl.offsetHeight;
+    if (window.scrollY > demoBottom * 0.5) {
+      document.body.classList.add('demo-away');
+    } else {
+      document.body.classList.remove('demo-away');
+    }
+  }
+  window.addEventListener('scroll', checkScroll, {passive:true});
+  checkScroll();
+})();
+</script>
+</body>
+</html>

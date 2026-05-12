@@ -1,4 +1,5 @@
-﻿import { useMemo } from 'react';
+﻿import { useMemo, useState, useEffect } from 'react';
+import { api } from '../api'
 import type { EnrichedCustomer } from './utils/segmentation';
 
 const MNAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -16,6 +17,9 @@ interface Props {
 }
 
 export default function Dashboard({ customers, messages, settings, onSwitchTab, onOpenBuilder, onDrillday, onDrillrecency }: Props) {
+  
+  const [dailyStats, setDailyStats] = useState<{date:string;total:number;ret:number;new:number}[]>([])
+  useEffect(() => { api('/api/customer/daily_stats').then(setDailyStats).catch(()=>{}) }, [])
   const th = settings?.thresholds || { active: 14, warm: 21, cooling: 30, cold: 60 };
   const NOW = Date.now();
   const DAY = 86400000;
@@ -33,6 +37,14 @@ export default function Dashboard({ customers, messages, settings, onSwitchTab, 
         if (!dailyMap[key]) dailyMap[key] = { ret: 0, new: 0, custs: [] };
         if ((c.visits || 0) > 1) dailyMap[key].ret++; else dailyMap[key].new++;
         dailyMap[key].custs.push(c);
+      }
+    }
+    // Overlay purchase-level daily counts when available (richer coverage)
+    if (dailyStats.length > 0) {
+      for (const stat of dailyStats) {
+        if (!dailyMap[stat.date]) dailyMap[stat.date] = { ret: 0, new: 0, custs: [] };
+        dailyMap[stat.date].ret = Math.max(dailyMap[stat.date].ret, stat.ret || 0);
+        dailyMap[stat.date].new = Math.max(dailyMap[stat.date].new, stat.new || 0);
       }
     }
 
@@ -59,7 +71,7 @@ export default function Dashboard({ customers, messages, settings, onSwitchTab, 
     }
 
     return { segCounts, repeatN, daily, recencyBkts: bkts };
-  }, [customers, th]);
+  }, [customers, th, dailyStats]);
 
   const n = customers.length;
   const atRisk = (segCounts.cooling || 0) + (segCounts.cold || 0) + (segCounts.inactive || 0);
@@ -84,10 +96,10 @@ export default function Dashboard({ customers, messages, settings, onSwitchTab, 
   if (!n) {
     return (
       <div style={{ textAlign: 'center', padding: '50px 20px' }}>
-        <div style={{ fontSize: 36, marginBottom: 10, opacity: .6 }}>????</div>
+        <div style={{ fontSize: 36, marginBottom: 10, opacity: .6 }}>👥</div>
         <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>No customers yet</div>
         <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 16, lineHeight: 1.5 }}>Import a spreadsheet or POS export to get started</div>
-        <button onClick={() => onSwitchTab('messages')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', background: 'rgba(207,91,160,.1)', color: '#CF5BA0', border: '1px solid rgba(207,91,160,.2)', borderRadius: 10, fontSize: 12, fontWeight: 600, minHeight: 44 }}>???? Import data</button>
+        <button onClick={() => onSwitchTab('messages')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', background: 'rgba(207,91,160,.1)', color: '#CF5BA0', border: '1px solid rgba(207,91,160,.2)', borderRadius: 10, fontSize: 12, fontWeight: 600, minHeight: 44 }}>📥 Import data</button>
       </div>
     );
   }
@@ -175,7 +187,7 @@ export default function Dashboard({ customers, messages, settings, onSwitchTab, 
           <div style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--font-mono)', letterSpacing: '.05em', padding: '10px 14px', borderBottom: '1px solid var(--border)', color: '#D85A30' }}>??? Needs your action</div>
           {atRisk > 0 && (
             <div onClick={() => onSwitchTab('messages')} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,.04)', cursor: 'pointer', minHeight: 44 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, background: 'rgba(216,90,48,.1)' }}>??????</div>
+              <div style={{ width: 32, height: 32, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, background: 'rgba(216,90,48,.1)' }}>💬</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 500 }}>{atRisk} customer{atRisk > 1 ? 's' : ''} at risk</div>
                 <div style={{ fontSize: 8, color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', marginTop: 1 }}>{draftWB ? `${draftWB} messages ready` : 'Tap to send "we miss you"'}</div>
@@ -185,7 +197,7 @@ export default function Dashboard({ customers, messages, settings, onSwitchTab, 
           )}
           {bdayCusts.length > 0 && (
             <div onClick={() => onOpenBuilder('exclusive')} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,.04)', cursor: 'pointer', minHeight: 44 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, background: 'rgba(176,141,48,.1)' }}>????</div>
+              <div style={{ width: 32, height: 32, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, background: 'rgba(176,141,48,.1)' }}>🎁</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 500 }}>{bdayCusts.length} exclusive day{bdayCusts.length > 1 ? 's' : ''} this week</div>
                 <div style={{ fontSize: 8, color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', marginTop: 1 }}>Birthdays, anniversaries</div>
@@ -212,7 +224,7 @@ export default function Dashboard({ customers, messages, settings, onSwitchTab, 
           {secLabel('Bot Activity', '#CF5BA0')}
           <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '12px 14px', marginBottom: 8, border: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderTop: 'none' }}>
-              <div style={{ fontSize: 15, flexShrink: 0 }}>????</div>
+              <div style={{ fontSize: 15, flexShrink: 0 }}>✉️</div>
               <div style={{ fontSize: 12, fontWeight: 500, flex: 1 }}>Messages drafted</div>
               <div style={{ fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-mono)', color: '#CF5BA0' }}>{drafts.length}</div>
             </div>

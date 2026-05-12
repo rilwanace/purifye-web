@@ -1,0 +1,83 @@
+{
+  "nodes": [
+    {
+      "id": "start-new-start-tuition",
+      "branch": "start-new",
+      "pain_point": "I want to start a tuition class from scratch",
+      "inner_thoughts": [
+        "I've been thinking about starting tuition classes for months. I just don't know where to begin.",
+        "I'm a good teacher — my students at school do well. But running my own class feels like a completely different thing.",
+        "What if nobody shows up? What if I set the wrong price? What if I can't handle the admin on top of everything else?"
+      ],
+      "intro_body": "Starting a tuition class is simpler than it feels. The teachers who succeed aren't the ones who planned everything perfectly — they're the ones who started with 5 students and figured the rest out as they went. Here's your day-one checklist.",
+      "strategies": [
+        {
+          "id": "strat-start-pick-subject",
+          "number": 1,
+          "color": "accent",
+          "title": "Pick your subject, level, and batch size before anything else",
+          "content_paragraphs": [
+            "Don't try to teach everything. Pick the one subject you're strongest in, at the level where demand is highest. O/L Mathematics, O/L Science, and A/L subjects have the most consistent demand in Sri Lanka. Start with one batch of 10–15 students, one day per week. That's manageable alongside a full-time job.",
+            "<strong>Write down: \"I will teach [subject] for [level] students, [day] from [time] to [time], maximum [number] students.\"</strong>",
+            "The teachers who try to teach 4 subjects from day one burn out in 3 months. The ones who start with one subject and do it well are still teaching 5 years later."
+          ]
+        },
+        {
+          "id": "strat-start-set-price",
+          "number": 2,
+          "color": "purple",
+          "title": "Set your price by checking what teachers near you charge",
+          "content_paragraphs": [
+            "Ask 3–4 parents what they currently pay for tuition in your subject and area. Check Iskolaya.lk and Panthi.lk listings for comparable teachers. Price yourself at or slightly below the area average to start — you can increase once you have results to show. Typical ranges: LKR 1,500–2,500 for O/L group classes outside Colombo, LKR 2,500–4,000 in Colombo suburbs, LKR 3,500–5,000 for A/L subjects.",
+            "<strong>Your starting price should be competitive enough that price isn't the reason a parent says no. Results will justify increases later.</strong>"
+          ]
+        },
+        {
+          "id": "strat-start-first-5",
+          "number": 3,
+          "color": "coral",
+          "title": "Find your first 5 students before you rent a hall",
+          "content_paragraphs": [
+            "Start at home. Your dining table, a whiteboard, and 5 students is a tuition class. Tell family, neighbours, colleagues at school, and parents you know. Post on your personal Facebook — not a page, your personal profile. \"I'm starting O/L maths tuition on Saturdays. Small group, maximum 10 students. First class is free — message me if interested.\" Your first students will come from people who already trust you.",
+            "<strong>Message 10 people today who might know parents looking for tuition. Not a broadcast — personal messages.</strong>"
+          ]
+        },
+        {
+          "id": "strat-start-basics-ready",
+          "number": 4,
+          "color": "amber",
+          "title": "Get your basics ready — it's less than you think",
+          "content_paragraphs": [
+            "You need: a whiteboard (LKR 3,000–5,000), markers, a printed fee policy (use our template), an attendance register, and a WhatsApp group for the batch. That's it. You don't need a hall, you don't need software, you don't need a logo, you don't need business cards. Those come later when you have 20+ students and actual revenue.",
+            "<strong>Total startup cost: under LKR 10,000. If you already have a whiteboard, under LKR 2,000.</strong>"
+          ]
+        },
+        {
+          "id": "strat-start-first-class",
+          "number": 5,
+          "color": "blue",
+          "title": "Run your first class — then follow up",
+          "content_paragraphs": [
+            "Your first class is your audition. Pick a topic you teach exceptionally well. Make it interactive — not a lecture. At the end, hand parents a one-page fee policy with your schedule, fee, and contact number. Collect WhatsApp numbers. Two days later, message every parent: \"Thank you for bringing [child name] to the class. I have [X] spots left in the Saturday batch. Would you like to reserve one?\"",
+            "<strong>The follow-up message within 2 days is what converts a trial into a student. Don't wait a week.</strong>"
+          ]
+        },
+        {
+          "id": "strat-start-system-day-one",
+          "number": 6,
+          "color": "pink",
+          "title": "Set up the system from day one — not after it gets messy",
+          "content_paragraphs": [
+            "From your very first student: track attendance, record test scores, track fee payments, send parents a monthly update. These habits take 30 minutes per week when you have 5 students. If you wait until you have 50 students to start tracking, you'll spend a full weekend trying to reconstruct 6 months of records. Start clean, stay clean.",
+            "<strong>Set up the fee tracker spreadsheet and attendance register before your first class, not after.</strong>"
+          ]
+        }
+      ],
+      "nav": {
+        "next": {"id": "grow-sales-need-students", "label": "I need more students"},
+        "back": {"id": "branch-start-new", "label": "Back to Start Something New"},
+        "main": {"id": "main-menu", "label": "Main menu"}
+      }
+    }
+  ]
+}

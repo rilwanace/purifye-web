@@ -1,0 +1,424 @@
+{
+  "branch": {
+    "id": "improve-my-productivity",
+    "label": "Improve My Productivity",
+    "path": [
+      "Improve My Productivity",
+      "Services",
+      "Education & Tuition"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "productivity-working-all-time",
+      "branch": "improve-my-productivity",
+      "pain_point": "I'm working all the time and still behind",
+      "path": [
+        "Improve My Productivity",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I teach 6 days a week. I mark papers on Sunday. I don't remember the last time I had a full day off.",
+        "I'm working more hours than I ever have, but I feel like I'm getting less done.",
+        "I became a teacher because I love helping students. I spend maybe 60% of my time actually doing that."
+      ],
+      "intro_body": "Working constantly and still feeling behind is a signal — not that you need to work harder, but that too much of your time is going to the wrong things.",
+      "strategies": [
+        {
+          "id": "strat-one-day-off",
+          "number": 1,
+          "color": "accent",
+          "title": "Name your one full day off — and make it non-negotiable",
+          "content_paragraphs": [
+            "Teaching six days a week and spending Sunday on admin is not dedication. It is a system that is broken. The teachers who sustain 10+ year careers without burning out almost all share one habit: they protect at least one full day where they do not teach, do not reply, and do not plan.",
+            "<strong>Write this down: \"[Day] is my full day off. No teaching, no WhatsApp, no prep.\" Then tell a family member or colleague — accountability makes it stick.</strong>",
+            "This single commitment changes how you structure every other day in the week. When you know Sunday is protected, you stop letting Saturday bleed into it."
+          ]
+        },
+        {
+          "id": "strat-time-block-the-week",
+          "number": 2,
+          "color": "purple",
+          "title": "Time-block your week before anyone else fills it",
+          "content_paragraphs": [
+            "Most teachers have teaching hours and then everything else bleeding into the gaps. Time-blocking means deciding in advance: these hours are teaching, these are prep, these are off. If it is not in the calendar, it gets filled by whatever arrives first.",
+            "<strong>Every Sunday evening, block teaching prep, marking, and your full day off before the week starts. Two 90-minute prep windows minimum.</strong>",
+            "What gets scheduled gets done. What does not get scheduled gets interrupted."
+          ]
+        },
+        {
+          "id": "strat-set-response-windows",
+          "number": 3,
+          "color": "coral",
+          "title": "Set your response windows — and publish them",
+          "content_paragraphs": [
+            "Every WhatsApp notification during a teaching session is a boundary failure, not a communication priority. You do not have to reply immediately. You feel like you do because you never told parents when you do reply.",
+            "<strong>Set two 45-minute response windows. Send the announcement to all parents this week: \"I respond to messages between 6-7pm and 9-10pm on weekdays. For urgent matters, call me directly.\"</strong>",
+            "Parents adjust to this faster than you expect. The adjustment starts with you, not them."
+          ]
+        },
+        {
+          "id": "strat-scope-creep-boundary",
+          "number": 4,
+          "color": "amber",
+          "title": "Say no to scope creep — protect what you were hired to teach",
+          "content_paragraphs": [
+            "Parents ask for extras: catch-up lessons, out-of-scope subject help, marking for classes you do not teach, emergency sessions the night before a paper. Every unplanned yes adds unpaid hours and chips away at your boundaries.",
+            "<strong>Write down what your fee covers. Anything outside that scope is a separate conversation with a separate fee — or a polite no.</strong>",
+            "Scope creep does not make you more valuable. It makes you more available, which is not the same thing."
+          ]
+        },
+        {
+          "id": "strat-track-total-hours",
+          "number": 5,
+          "color": "blue",
+          "title": "Track your total weekly hours once — the number changes everything",
+          "content_paragraphs": [
+            "You do not need to change anything yet. Just count one week: teaching, prep, admin, parent messages, marking, travel, and quick replies. Add them up.",
+            "<strong>Most teachers who feel like they are always working are clocking 55-70 hours per week. Seeing that number written down is usually the thing that makes every other strategy in this list feel non-negotiable.</strong>",
+            "Do this audit once. It takes one week. The result stays with you."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "automate",
+        "headline": "We can automate this for you",
+        "description": "Fee reminders, attendance records, and parent message generation — all in one dashboard you check for 10 minutes a day. You stop being an administrator and go back to being a teacher."
+      },
+      "template_pack": {
+        "title": "Time recovery template pack",
+        "subtitle": "Get back 8–12 hours a week without changing how you teach",
+        "items": [
+          {
+            "name": "One-week time audit worksheet",
+            "pages": 1
+          },
+          {
+            "name": "What-only-I-can-do exercise template",
+            "pages": 1
+          },
+          {
+            "name": "Weekly time-blocking schedule (teaching, marking, admin windows)",
+            "pages": 1
+          },
+          {
+            "name": "Admin automation checklist (3 biggest drains + solutions)",
+            "pages": 1
+          },
+          {
+            "name": "Admin assistant hiring guide (scope, cost, daily checklist)",
+            "pages": 2
+          },
+          {
+            "name": "Less admin, more teaching — 30-day action plan",
+            "pages": 2
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "One-week time audit worksheet"
+      },
+      "internal_notes": {
+        "competitor_intel": "Same as 1.3 and 2.2 — CFMS, Possystem, TCMS are institutional tools. Our dashboard addresses the solo teacher productivity gap directly. Do NOT name competitors.",
+        "automation_scope": "Full admin dashboard: fee tracking and reminder automation (2–4 hrs/wk recovered), attendance with 2-absence flags (1–2 hrs/wk), parent message generation (2–3 hrs/wk). Together: 5–9 hrs/wk recovered.",
+        "research_sources": [
+          "A4",
+          "A5",
+          "A9"
+        ],
+        "content_gaps": "Time estimates for fee collection (2–4 hrs), parent comms (2–3 hrs), attendance (1–2 hrs) are from A4 inferred from CFMS/Possystem descriptions. Not directly surveyed from teachers.",
+        "cross_refs": "strat-time-audit-productivity and strat-only-i-can-do-productivity also in 1.3, 2.2. strat-hire-admin-at-100 also in 1.3, 2.2. strat-automate-three-drains is a synthesis node."
+      },
+      "nav": {
+        "next": {
+          "id": "productivity-marking-forever",
+          "label": "Test papers and marking take forever"
+        },
+        "back": {
+          "id": "branch-productivity",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "productivity-marking-forever",
+      "branch": "improve-my-productivity",
+      "pain_point": "Test papers and marking take forever",
+      "path": [
+        "Improve My Productivity",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I spent 4 hours on Saturday marking 30 papers. By the end I wasn't giving real feedback — I was just trying to finish.",
+        "I create a new test paper from scratch every month. I don't know why I don't just reuse them.",
+        "My students ask me for more practice papers. I want to give them more. But creating them takes as long as marking them."
+      ],
+      "intro_body": "Marking and paper creation are the two most time-consuming teaching tasks — and both can be dramatically reduced with the right format changes.",
+      "strategies": [
+        {
+          "id": "strat-mcq-self-correcting-marking",
+          "number": 1,
+          "color": "accent",
+          "title": "MCQ practice tests: self-correcting in 5 minutes",
+          "content_paragraphs": [
+            "A 20-question MCQ practice test can be peer-corrected in class by exchanging papers and reading answers aloud. No collection, no marking pile to take home. 5 minutes in class.",
+            "<strong>Design your regular practice tests in MCQ format where the subject allows.</strong> O/L and A/L exam papers include MCQ sections — your practice aligns to real exam format.",
+            "You're not compromising quality. You're removing marking time while making practice more exam-relevant."
+          ]
+        },
+        {
+          "id": "strat-question-bank",
+          "number": 2,
+          "color": "purple",
+          "title": "Build a question bank — stop writing from scratch",
+          "content_paragraphs": [
+            "After each test, save the questions you wrote to a master document organized by topic and difficulty. After 6 months, you have 80–100 questions per topic.",
+            "<strong>Future tests are assembled in 10 minutes by picking questions from the bank.</strong> The first year is investment. Every year after is return.",
+            "You've already written the questions. They exist in old test papers. Spend one afternoon organizing them — you'll never start from scratch again."
+          ]
+        },
+        {
+          "id": "strat-past-paper-pack-compilation",
+          "number": 3,
+          "color": "coral",
+          "title": "Compile a comprehensive past paper pack — once",
+          "content_paragraphs": [
+            "5–10 years of past papers, organized by topic and year, printed and bound (or distributed as PDF). Distribute at the start of the year.",
+            "<strong>The most useful practice material already exists.</strong> You don't need to create it — you need to curate it.",
+            "A student working through a 5-year past paper pack practices every question type that will appear in the exam. That's better than anything you'd write, and it takes you one afternoon to compile."
+          ]
+        },
+        {
+          "id": "strat-marking-rubrics",
+          "number": 4,
+          "color": "amber",
+          "title": "Marking rubrics cut structured question time in half",
+          "content_paragraphs": [
+            "For structured and essay-style questions, a marking rubric defines what gets marks, how many, and for exactly what content.",
+            "<strong>Create rubrics for your 10 most common question types once.</strong> With a rubric, marking a structured question takes 60 seconds — check, tick, add up. Without one, it takes 3–5 minutes as you re-read and re-decide every time.",
+            "A marking rubric is your own decision made once and applied many times."
+          ],
+          "visual": {
+            "type": "highlight",
+            "text": "A rubric for 30 structured papers saves 1–2 hours of marking per test session. Across a year of monthly tests, that's 12–24 hours returned to you."
+          }
+        },
+        {
+          "id": "strat-marking-assistant",
+          "number": 5,
+          "color": "blue",
+          "title": "At 150+ students, consider a marking assistant",
+          "content_paragraphs": [
+            "A final-year undergraduate or a student who recently scored well in the subject can mark MCQ and structured responses against your rubric. Pay per paper or a fixed monthly amount.",
+            "<strong>At 150 students × 4 practice tests per month = 600 papers.</strong> At your time value, that's 40–60 hours of marking. A marking assistant does it for LKR 30,000–60,000 — less than 20% of one month's revenue.",
+            "Your expertise is the teaching. The marking against a rubric is a mechanical task."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "diy",
+        "headline": "You've got this — here's a checklist",
+        "description": null
+      },
+      "template_pack": {
+        "title": "Marking efficiency pack",
+        "subtitle": "Cut marking and paper creation time by 50%+",
+        "items": [
+          {
+            "name": "Question bank template (organized by topic, difficulty, year)",
+            "pages": 2
+          },
+          {
+            "name": "MCQ test paper template (20-question format with answer key)",
+            "pages": 1
+          },
+          {
+            "name": "Marking rubric templates (5 common question types)",
+            "pages": 3
+          },
+          {
+            "name": "Past paper compilation guide (organizing by topic)",
+            "pages": 1
+          },
+          {
+            "name": "Peer-correction in-class guide (student instructions)",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "Marking rubric templates"
+      },
+      "internal_notes": {
+        "competitor_intel": "No competitor directly addresses the marking efficiency problem for solo tuition teachers. Generic education tools exist but are not Sri Lanka O/L and A/L specific.",
+        "automation_scope": "DIY node — our dashboard doesn't directly help with marking or paper creation. However, the score entry from MCQ marking is what feeds our attendance and progress tracking dashboard.",
+        "research_sources": [
+          "A4",
+          "A5"
+        ],
+        "content_gaps": "Marking time (4–8 hrs/wk) is from A4's time breakdown. Specific reduction from rubrics vs. no rubrics is not measured — directionally supported by general education efficiency literature.",
+        "cross_refs": "strat-mcq-self-correcting-marking cross-refs strat-mcq-self-correcting (4.1). strat-past-paper-pack-compilation also referenced in 4.1."
+      },
+      "nav": {
+        "next": {
+          "id": "productivity-parent-messages",
+          "label": "I can't keep up with parent messages"
+        },
+        "back": {
+          "id": "branch-productivity",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "productivity-parent-messages",
+      "branch": "improve-my-productivity",
+      "pain_point": "I can't keep up with parent messages",
+      "path": [
+        "Improve My Productivity",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I got a WhatsApp message at 11:23pm asking if fees were due next week. I lay there wondering if I should reply.",
+        "I answered 'what time is class on Saturday?' four times yesterday. Four different parents. Same day.",
+        "There are 47 unread messages from parents in my WhatsApp right now. I know some are important but I can't face opening it."
+      ],
+      "intro_body": "The volume of parent messages isn't a people problem — it's a systems problem. The messages exist because information gaps exist. Close the gaps and the messages stop.",
+      "strategies": [
+        {
+          "id": "strat-broadcast-first",
+          "number": 1,
+          "color": "accent",
+          "title": "Switch to broadcast lists — immediately",
+          "content_paragraphs": [
+            "A WhatsApp broadcast sends the same message to many parents but lands in each person's private chat. No group thread, no parent-to-parent conversations to moderate.",
+            "<strong>One broadcast per batch. One update per week.</strong> Schedule changes, fee reminders, exam announcements — one message reaches everyone.",
+            "The parents who reply individually will still reply. But you've eliminated the need to send 30 individual messages and manage 30 simultaneous threads."
+          ]
+        },
+        {
+          "id": "strat-response-windows-productivity",
+          "number": 2,
+          "color": "purple",
+          "title": "Set response windows — tell parents at enrollment",
+          "content_paragraphs": [
+            "\"I respond to WhatsApp between 9–10am and 7–8pm.\" Written in your enrollment materials. Stated clearly on day one.",
+            "<strong>This isn't rude — it's professional.</strong> A doctor doesn't take calls during surgery. You don't take messages during class. When parents know this from day one, they don't feel ignored.",
+            "Parents who message at 11pm will stop expecting a reply. Parents who message at 9:05am will get one within the hour."
+          ]
+        },
+        {
+          "id": "strat-template-replies-productivity",
+          "number": 3,
+          "color": "coral",
+          "title": "Build template replies for your top 5 questions",
+          "content_paragraphs": [
+            "The same 5 questions arrive every week. \"What time is class?\" \"How do I pay?\" \"Is there class on Poya?\" \"How is my child doing?\" \"What's the fee for this month?\"",
+            "<strong>Save template answers as saved messages in WhatsApp.</strong> When the message arrives: 2 taps, done.",
+            "This doesn't feel significant until you realize you've been typing the same 30-word message 8 times a week for 3 years."
+          ],
+          "visual": {
+            "type": "quote_block",
+            "label": "Example saved reply — fee question",
+            "text": "Hi! Fees for this month are LKR [amount], due by the 1st. You can pay cash at class or scan the QR code on the whiteboard. Thank you!"
+          }
+        },
+        {
+          "id": "strat-parent-faq-enrollment",
+          "number": 4,
+          "color": "amber",
+          "title": "Give every new parent a FAQ at enrollment",
+          "content_paragraphs": [
+            "Class schedule, fee amount, due date, payment method, your response window, what happens if their child misses class — one page, given at enrollment.",
+            "<strong>For current parents who've never had this, send it now.</strong> \"Here's a quick reference for everything you might want to know — hope it's useful!\"",
+            "These answers stop at least 60% of the messages before they ever start."
+          ]
+        },
+        {
+          "id": "strat-proactive-stops-reactive",
+          "number": 5,
+          "color": "blue",
+          "title": "Proactive updates stop reactive questions",
+          "content_paragraphs": [
+            "A parent who received a monthly progress update last week won't message asking \"how is my child doing?\" A parent who got a fee reminder on the 25th won't message on the 2nd asking if they owe anything.",
+            "<strong>Most parent messages are filling information vacuums you left.</strong> The single most effective thing you can do is send one proactive update per month per student.",
+            "One message sent by you prevents 5–8 incoming messages."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "automate",
+        "headline": "We can automate this for you",
+        "description": "Our system generates pre-written monthly progress updates, fee reminders, and schedule notifications from your data. You review and tap send. No more reactive messaging — you're always one step ahead of the question."
+      },
+      "template_pack": {
+        "title": "Parent message management pack",
+        "subtitle": "Systems to cut parent WhatsApp from 2–3 hours a week to 20 minutes",
+        "items": [
+          {
+            "name": "Parent enrollment FAQ (1 page, print-and-give)",
+            "pages": 1
+          },
+          {
+            "name": "WhatsApp response window notice (for enrollment materials)",
+            "pages": 1
+          },
+          {
+            "name": "Template replies for 10 most common parent questions",
+            "pages": 2
+          },
+          {
+            "name": "Monthly update message templates (15 scenario variations)",
+            "pages": 2
+          },
+          {
+            "name": "WhatsApp broadcast list setup guide",
+            "pages": 1
+          },
+          {
+            "name": "Parent communication audit (track what questions you get most — 2-week log)",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "Template replies for 10 most common parent questions"
+      },
+      "internal_notes": {
+        "competitor_intel": "Same as 2.4 — no competitor specifically addresses the solo teacher parent communication volume problem at this level. Possystem has a parent portal for institutional scale.",
+        "automation_scope": "Same as 2.4 — our dashboard generates pre-written messages via wa.me links. Monthly progress updates, fee reminders, schedule notifications. Teacher taps, WhatsApp opens pre-filled, they hit send.",
+        "research_sources": [
+          "A4",
+          "A7"
+        ],
+        "content_gaps": "Same as 2.4. 47 unread messages example is illustrative, not measured.",
+        "cross_refs": "Strategies heavily cross-reference 2.4 (same problem, different entry point). strat-broadcast-first = strat-broadcast-not-group (2.4). strat-response-windows-productivity = strat-response-windows (2.4). strat-parent-faq-enrollment = strat-parent-faq (2.4). strat-proactive-stops-reactive = strat-proactive-updates-prevent-questions (2.4). strat-template-replies-productivity = strat-template-replies (2.4). The intro context is different — productivity framing vs. admin framing."
+      },
+      "nav": {
+        "next": null,
+        "back": {
+          "id": "branch-productivity",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,858 @@
+{
+  "branch": {
+    "id": "grow-my-sales",
+    "label": "Grow My Sales",
+    "path": [
+      "Grow My Sales",
+      "Services",
+      "Education & Tuition"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "grow-sales-need-students",
+      "branch": "grow-my-sales",
+      "pain_point": "I need more students",
+      "path": [
+        "Grow My Sales",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "Why is that teacher down the road always full when I know I teach better than him?",
+        "I had 40 students last January. Now it's 28 and I don't even know when they left.",
+        "Every time I think about marketing I just... don't know where to start."
+      ],
+      "intro_body": "If any of that sounds familiar — good, it means we've talked to enough teachers to know this is real. Here are 6 things that are actually working right now to fill tuition classes in Sri Lanka.",
+      "strategies": [
+        {
+          "id": "strat-directory-listings",
+          "number": 1,
+          "color": "accent",
+          "title": "Get listed where parents are actually looking",
+          "content_paragraphs": [
+            "Most teachers are on one platform, maybe two. Parents search across all of them — and if you're not there, they'll never find you.",
+            "<strong>Create a profile on at least 4 of these.</strong> It takes an afternoon and costs nothing.",
+            "Every listing needs the same 6 things — subjects, levels, location, class times, qualifications, and most importantly, your results."
+          ],
+          "visual": {
+            "type": "bar_chart",
+            "title": "Where parents search for tuition",
+            "data": [
+              {
+                "label": "Iskolaya",
+                "value": 100,
+                "display": "6M+ users",
+                "color": "#085041",
+                "valueColor": "#9FE1CB"
+              },
+              {
+                "label": "Panthi",
+                "value": 52,
+                "display": "3,100+ pages",
+                "color": "#1D9E75",
+                "valueColor": "var(--text)"
+              },
+              {
+                "label": "Mytutor",
+                "value": 42,
+                "display": "25 districts",
+                "color": "#5DCAA5",
+                "valueColor": "var(--text)"
+              },
+              {
+                "label": "ikman",
+                "value": 35,
+                "display": "Free listings",
+                "color": "#9FE1CB",
+                "valueColor": "#085041"
+              }
+            ],
+            "note": "60% of teachers promote on at least one. If you're not listed, parents can't find you."
+          },
+          "visuals": [
+            {
+              "type": "highlight",
+              "text": "Refresh your listings every term. Stale listings look abandoned. Updated ones with fresh results signal you're active and filling classes."
+            }
+          ]
+        },
+        {
+          "id": "strat-facebook-results-wall",
+          "number": 2,
+          "color": "purple",
+          "title": "Run a \"results wall\" on Facebook",
+          "content_paragraphs": [
+            "Parents pick tuition teachers based on one thing: exam results. The teachers who fill up fastest are the ones who prove it publicly.",
+            "<strong>After every major exam result release, post a \"results wall\"</strong> — pass rates, A-grade counts, top scorers with consent. This isn't bragging. It's the #1 thing parents look for.",
+            "<strong>Post 2–3 study tips per week in Sinhala or Tamil.</strong> That's the content parents share with each other.",
+            "<strong>Join 3–5 parent community groups on Facebook.</strong> Don't sell. Answer questions. Be the teacher whose name is already familiar when someone asks \"anyone know a good maths teacher near Nugegoda?\""
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "7M+",
+                "desc": "SL Facebook users"
+              },
+              {
+                "num": "#1",
+                "desc": "Platform for parent discovery"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-enrollment-calendar",
+          "number": 3,
+          "color": "coral",
+          "title": "Time your push to the enrollment calendar",
+          "content_paragraphs": [
+            "If you're marketing at the wrong time of year, you're wasting effort. Enrollment follows a very specific rhythm.",
+            "<strong>Start marketing in November for January enrollment.</strong> Don't wait until January — by then the best teachers are already full.",
+            "<strong>Run crash courses during August vacation</strong> when students are free all day. Price as a lump sum (LKR 8,000–15,000) instead of monthly."
+          ],
+          "visual": {
+            "type": "month_grid",
+            "months": [
+              {
+                "label": "Jan",
+                "sublabel": "Peak",
+                "level": "month-peak"
+              },
+              {
+                "label": "Feb",
+                "sublabel": "O/L exam",
+                "level": "month-mod"
+              },
+              {
+                "label": "Mar",
+                "sublabel": "Moderate",
+                "level": "month-mod"
+              },
+              {
+                "label": "Apr",
+                "sublabel": "Vacation",
+                "level": "month-low"
+              },
+              {
+                "label": "May",
+                "sublabel": "Moderate",
+                "level": "month-mod"
+              },
+              {
+                "label": "Jun",
+                "sublabel": "Moderate",
+                "level": "month-mod"
+              },
+              {
+                "label": "Jul",
+                "sublabel": "Moderate",
+                "level": "month-mod"
+              },
+              {
+                "label": "Aug",
+                "sublabel": "Peak",
+                "level": "month-peak"
+              },
+              {
+                "label": "Sep",
+                "sublabel": "Crash crse",
+                "level": "month-peak"
+              },
+              {
+                "label": "Oct",
+                "sublabel": "Moderate",
+                "level": "month-mod"
+              },
+              {
+                "label": "Nov",
+                "sublabel": "Recruit",
+                "level": "month-mod"
+              },
+              {
+                "label": "Dec",
+                "sublabel": "Recruit",
+                "level": "month-mod"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-trial-class-conversion",
+          "number": 4,
+          "color": "amber",
+          "title": "Offer a trial class — but make it a conversion tool",
+          "content_paragraphs": [
+            "Pick a topic that shows off your teaching style. At the end, hand parents a one-pager with your results, schedule, and fee structure. Collect WhatsApp numbers.",
+            "Then — this is where most teachers drop the ball — <strong>follow up within 2 days.</strong>",
+            "That follow-up converts more students than the trial class itself. Two days. Not a week. Two days."
+          ],
+          "visual": {
+            "type": "quote_block",
+            "label": "Example message",
+            "text": "Hi Mrs. Perera, Kavinda did well in the trial class. We have 3 seats left in the Thursday batch. Want me to hold one?"
+          }
+        },
+        {
+          "id": "strat-referral-system",
+          "number": 5,
+          "color": "blue",
+          "title": "Make it stupidly easy for parents to refer you",
+          "content_paragraphs": [
+            "Word of mouth is still #1 — especially outside Colombo. But most teachers leave it to chance.",
+            "<strong>After every positive result, send this:</strong>",
+            "You're not being pushy. You're giving a happy parent permission to recommend you — with specific details to pass along.",
+            "<strong>Time these asks to right after results come out.</strong> That's when parents are happiest."
+          ],
+          "visual": {
+            "type": "quote_block",
+            "label": "Example message",
+            "text": "Really happy with Nadeesha's improvement this term! If you know any parents looking for O/L maths tuition, I have a few spots open in the Saturday batch."
+          }
+        },
+        {
+          "id": "strat-physical-marketing",
+          "number": 6,
+          "color": "text-mid",
+          "title": "Go where the students physically are",
+          "content_paragraphs": [
+            "Print an A4 flyer with <strong>one headline result</strong> (\"92% O/L pass rate 2025\"), your subjects, class times, and phone number.",
+            "Place at school gates 2 weeks before January term starts and before August crash course season.",
+            "Cost: LKR 200–500 for printing. That's it."
+          ],
+          "visual": {
+            "type": "highlight",
+            "text": "Schools with unfilled teaching positions are your highest-conversion spots. The national teacher absenteeism rate is 15.9% — parents near those schools are desperate for supplementary teaching."
+          }
+        }
+      ],
+      "cta": {
+        "type": "diy",
+        "headline": "You've got this — here's a checklist",
+        "description": null
+      },
+      "template_pack": {
+        "title": "Student acquisition template pack",
+        "subtitle": "8 ready-to-use templates to execute the plan above",
+        "items": [
+          {
+            "name": "Directory listing copy (4 platforms)",
+            "pages": 2
+          },
+          {
+            "name": "12-week Facebook content calendar",
+            "pages": 4
+          },
+          {
+            "name": "A4 flyer design (editable)",
+            "pages": 1
+          },
+          {
+            "name": "Trial class announcement",
+            "pages": 1
+          },
+          {
+            "name": "Parent follow-up messages (3 variants)",
+            "pages": 1
+          },
+          {
+            "name": "Referral request + shareable card",
+            "pages": 1
+          },
+          {
+            "name": "2026 enrollment marketing calendar",
+            "pages": 2
+          },
+          {
+            "name": "Results wall post template",
+            "pages": 1
+          }
+        ],
+        "total_pages": 20,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "A4 flyer template"
+      },
+      "internal_notes": {
+        "competitor_intel": "CFMS (100+ institutions, 20,000+ students), Possystem.lk (300+ centers), eduX, TCMS App. None of these address acquisition — our content is fully differentiated here. Iskolaya, Panthi, Mytutor are listing platforms not competitors.",
+        "automation_scope": "Node 1.1 is a DIY node — our automation product is not directly relevant here. CTA is 'you've got this' to build trust before introducing automation in later nodes.",
+        "research_sources": [
+          "A1",
+          "A7",
+          "A8"
+        ],
+        "content_gaps": "Specific Colombo vs. rural directory platform preference data not confirmed. TikTok as acquisition channel is nascent — not recommended in this node.",
+        "cross_refs": "strat-directory-listings also used in 1.4, 3.1. strat-facebook-results-wall also used in 1.4, 3.2. strat-physical-marketing also used in 1.4. strat-enrollment-calendar referenced in 1.2 post-exam drop-off."
+      },
+      "nav": {
+        "next": {
+          "id": "grow-sales-students-dont-stay",
+          "label": "Students don't stay"
+        },
+        "back": {
+          "id": "branch-grow-sales",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "grow-sales-students-dont-stay",
+      "branch": "grow-my-sales",
+      "pain_point": "Students don't stay",
+      "path": [
+        "Grow My Sales",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I lost 8 students this term and I still don't know why most of them left — they just stopped showing up.",
+        "A mother called to say her daughter is switching to another teacher. I didn't even know she was unhappy.",
+        "After O/L results last March, half my batch disappeared. That hole took 3 months to fill."
+      ],
+      "intro_body": "Losing students is expensive — not just in fees, but in the time it takes to replace them. Most drop-offs are preventable once you know the early signals. Here's what works.",
+      "strategies": [
+        {
+          "id": "strat-progress-tracking",
+          "number": 1,
+          "color": "accent",
+          "title": "Track the trend, not just the score",
+          "content_paragraphs": [
+            "A parent seeing their child go from 45 to 62 to 71 over three tests won't leave — they can see the trajectory. A parent seeing three isolated scores, none of them explained, starts to wonder.",
+            "<strong>Keep a monthly test score column for every student.</strong> The number matters less than the direction.",
+            "The teachers who retain students longest aren't the ones with the highest pass rates. They're the ones who can show a parent a graph heading upward."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "#1",
+                "desc": "Drop-off reason: results not improving"
+              },
+              {
+                "num": "91%",
+                "desc": "O/L students receive maths tuition"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-parent-partnership",
+          "number": 2,
+          "color": "purple",
+          "title": "Make the parent feel like a partner, not a customer",
+          "content_paragraphs": [
+            "At primary level, the parent's relationship with you matters as much as the student's. At O/L level, both matter equally. Send a short WhatsApp message once a month — not a full report, just a note.",
+            "<strong>Two sentences is enough:</strong> what the student did well this month, and what you're working on together next month.",
+            "That single message does more for retention than any results poster."
+          ],
+          "visual": {
+            "type": "quote_block",
+            "label": "Example monthly update",
+            "text": "Hi Mrs. Fernando, Kavinda did well in last week's test — 74, up from 68. He's solid on algebra, still working on graph problems. We're focusing on those this week."
+          }
+        },
+        {
+          "id": "strat-financial-hardship-conversation",
+          "number": 3,
+          "color": "coral",
+          "title": "Talk about money before it becomes a problem",
+          "content_paragraphs": [
+            "The number-one reason students leave is financial pressure — but most families don't say that directly. They just stop coming.",
+            "<strong>Create two fee tiers: standard and reduced.</strong> Communicate at enrollment that you have a limited number of reduced-fee spots for students who commit to attending consistently. That gives struggling families a way to stay without the shame of asking.",
+            "You won't save every student. But you'll save more than you're saving now."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "60%+",
+                "desc": "Of poor families cannot afford tuition"
+              },
+              {
+                "num": "10–23%",
+                "desc": "Of income spent on tuition (low-income families)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-post-exam-cohort-transition",
+          "number": 4,
+          "color": "amber",
+          "title": "Plan for the post-exam cliff before it hits",
+          "content_paragraphs": [
+            "After O/L and A/L exams, a predictable wave of students leaves. This isn't personal — it's structural. The teachers who recover fastest are the ones who already started recruiting the next cohort.",
+            "<strong>Start your January recruitment campaign in November</strong> — when current exam results are fresh and new parents are actively evaluating teachers for the coming year.",
+            "Run a free \"exam results review\" session right after results come out. It attracts next year's students and retains borderline ones who want to improve."
+          ]
+        },
+        {
+          "id": "strat-early-warning-signals",
+          "number": 5,
+          "color": "blue",
+          "title": "Catch drop-off before it happens",
+          "content_paragraphs": [
+            "Two absences in a row is a signal. Homework consistently not done is a signal. A student going quiet in class is a signal. These things happen before a parent makes the call to leave.",
+            "<strong>After a second missed class with no message, send a check-in.</strong> Not a complaint — a genuine check-in.",
+            "That message costs 30 seconds. Keeping the student is worth months of fees."
+          ],
+          "visual": {
+            "type": "quote_block",
+            "label": "Example check-in message",
+            "text": "Hi Mrs. Kumari, just checking in — Dinesh missed Thursday. Is everything okay? We're covering exam-style questions this month and I'd hate for him to miss it."
+          }
+        },
+        {
+          "id": "strat-competitive-stickiness",
+          "number": 6,
+          "color": "text-mid",
+          "title": "Give your current students something competitors don't",
+          "content_paragraphs": [
+            "Competing teachers are constantly available at lower prices. Your best defense is value that's hard to compare.",
+            "<strong>Free revision sessions in the 6 weeks before the exam. An exam technique workshop the week before results. A results-review session the day results come out.</strong> These cost you 2–3 hours and make parents feel they're in the best place.",
+            "Students who feel looked after don't switch. Students who feel like a number do."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "automate",
+        "headline": "We can automate this for you",
+        "description": "We track attendance and flag 2+ absences automatically. Monthly progress reports are generated from your score data. Fee reminders go out on schedule — pre-due, due, and overdue. You see the alerts on your dashboard and tap send."
+      },
+      "template_pack": {
+        "title": "Student retention template pack",
+        "subtitle": "6 tools to keep your students — and catch drop-off before it happens",
+        "items": [
+          {
+            "name": "Student progress tracker (monthly marks + trend)",
+            "pages": 3
+          },
+          {
+            "name": "Monthly parent update message templates (10 variants)",
+            "pages": 2
+          },
+          {
+            "name": "Early warning checklist + intervention messages",
+            "pages": 2
+          },
+          {
+            "name": "Post-exam retention guide + next cohort recruitment messages",
+            "pages": 2
+          },
+          {
+            "name": "Financial hardship fee conversation script",
+            "pages": 1
+          },
+          {
+            "name": "Term-end progress report template",
+            "pages": 2
+          }
+        ],
+        "total_pages": 12,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "Monthly parent update message templates"
+      },
+      "internal_notes": {
+        "competitor_intel": "CFMS and Possystem both include attendance alerts and progress tracking — but they target institutions (100+ student centers), not solo teachers with 20–60 students. Our dashboard fills that gap for the solo teacher segment.",
+        "automation_scope": "Attendance tracking with 2-absence auto-flag. Monthly score entry → auto-generated parent update messages via wa.me links. 3-step fee reminder sequence (pre-due, due, 7-day overdue). All managed from mobile web dashboard.",
+        "research_sources": [
+          "A2",
+          "A3",
+          "A8"
+        ],
+        "content_gaps": "Exact retention rate improvement from progress tracking vs. no tracking — not directly measured in research. Anecdotal from platform testimonials only.",
+        "cross_refs": "strat-progress-tracking also used in 2.3. strat-post-exam-cohort-transition references strat-enrollment-calendar from 1.1. strat-early-warning-signals referenced in 2.3."
+      },
+      "nav": {
+        "next": {
+          "id": "grow-sales-cant-grow",
+          "label": "I can't grow beyond where I am"
+        },
+        "back": {
+          "id": "branch-grow-sales",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "grow-sales-cant-grow",
+      "branch": "grow-my-sales",
+      "pain_point": "I can't grow beyond where I am",
+      "path": [
+        "Grow My Sales",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I teach 6 days a week already. I don't know how to fit even one more student without something breaking.",
+        "Every time I think about hiring someone, I get scared they'll ruin the reputation I spent years building.",
+        "I spend more time chasing fees and sending messages than I spend actually teaching."
+      ],
+      "intro_body": "Growth stalls for specific, identifiable reasons — not because you've hit your natural limit. Here's how to find your actual bottleneck and break through it.",
+      "strategies": [
+        {
+          "id": "strat-identify-bottleneck",
+          "number": 1,
+          "color": "accent",
+          "title": "Name your actual bottleneck — it's probably not what you think",
+          "content_paragraphs": [
+            "Most teachers say \"I'm too busy\" when what they mean is \"I spend 8–12 hours a week on things that aren't teaching.\" The actual bottleneck is usually admin, not teaching capacity.",
+            "<strong>Track exactly what you do for one week before you try anything else.</strong> Teaching time, marking, fee-chasing, printing, WhatsApp replies — everything.",
+            "Most teachers are shocked to find they're effectively working two jobs: teacher and unpaid administrator."
+          ]
+        },
+        {
+          "id": "strat-home-to-hall-math",
+          "number": 2,
+          "color": "purple",
+          "title": "The math on moving from home to a hall",
+          "content_paragraphs": [
+            "A home-based class of 25 students at LKR 3,000/month generates LKR 75,000. A hall at LKR 25,000/month with 45 students at the same rate generates LKR 135,000 — LKR 60,000 more after rent.",
+            "<strong>The hall pays for itself once you fill 9 new students.</strong> If your waiting list already has 9+ names, the hall is money on the table.",
+            "Do the arithmetic for your own numbers before deciding. The question is never \"can I afford the hall?\" — it's \"how many new students do I need to cover it?\""
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "Stage 1",
+                "desc": "1–30 students: home-based"
+              },
+              {
+                "num": "Stage 2",
+                "desc": "30–100: rented hall, Facebook started"
+              },
+              {
+                "num": "Stage 3",
+                "desc": "100–300: multiple slots, software"
+              },
+              {
+                "num": "Stage 4",
+                "desc": "300+: coordinator or online arm"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-online-arm",
+          "number": 3,
+          "color": "coral",
+          "title": "Add an online arm without losing your quality",
+          "content_paragraphs": [
+            "Teaching 30 students physically and 20 online simultaneously with the same Zoom session is technically straightforward. The same lesson, two channels.",
+            "<strong>Price online at 60–70% of your physical rate</strong> — online students miss the in-person attention. Even at 60%, adding 20 online students adds LKR 36,000–60,000/month to your revenue without renting a bigger hall.",
+            "A teacher in Kandy can reach Colombo parents this way. The 30% of students without reliable internet still need your physical class — online supplements, it doesn't replace."
+          ]
+        },
+        {
+          "id": "strat-hire-admin-first",
+          "number": 4,
+          "color": "amber",
+          "title": "Hire admin before you hire teaching help",
+          "content_paragraphs": [
+            "The fear of hiring is usually about quality — you don't want someone teaching your students badly. But admin help has no quality risk.",
+            "<strong>At 100+ students, a part-time admin person (3–4 hours/day, LKR 20,000–25,000/month)</strong> handles fee collection, attendance records, and parent WhatsApps. That frees 8–12 hours per week of your time.",
+            "The cost is less than 7% of a 100-student monthly revenue at average rates. The return is the time you need to grow."
+          ]
+        },
+        {
+          "id": "strat-crash-course-scaling",
+          "number": 5,
+          "color": "blue",
+          "title": "Use crash courses to test scaling without commitment",
+          "content_paragraphs": [
+            "A crash course is a finite product. You sell it, deliver it, and it ends. No long-term commitment from either side.",
+            "<strong>Run a 6-week O/L exam prep crash course during August vacation for LKR 10,000–15,000 per student.</strong> 30 students = LKR 300,000–450,000 in 6 weeks.",
+            "If it works, you've added substantial revenue and tested a new student base. If it doesn't fill, you've learned something at zero ongoing cost."
+          ]
+        },
+        {
+          "id": "strat-admin-drain-kill",
+          "number": 6,
+          "color": "text-mid",
+          "title": "Kill your three biggest admin time sinks",
+          "content_paragraphs": [
+            "Fee chasing (2–4 hours/week), parent communication (2–3 hours/week), and attendance tracking (1–2 hours/week) together consume 5–9 hours every week.",
+            "<strong>That's 20–36 hours per month — equivalent to one full teaching day per week, unpaid.</strong> Automating these three things gives back that time immediately.",
+            "The teachers who grow fastest aren't working harder. They've stopped doing the things a system could do for them."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "automate",
+        "headline": "We can automate this for you",
+        "description": "Our dashboard handles fee tracking, attendance records, and parent message generation. You log in from your phone, check your dashboard, tap to send. Admin time goes from 8–12 hours a week to 1–2."
+      },
+      "template_pack": {
+        "title": "Growth readiness template pack",
+        "subtitle": "Tools to scale from where you are to the next stage",
+        "items": [
+          {
+            "name": "Admin time audit worksheet (one week)",
+            "pages": 1
+          },
+          {
+            "name": "Home-to-hall financial calculator",
+            "pages": 2
+          },
+          {
+            "name": "Crash course enrollment pack (announcement, booking, payment)",
+            "pages": 3
+          },
+          {
+            "name": "Online class setup guide (Zoom, pricing, student communication)",
+            "pages": 2
+          },
+          {
+            "name": "Hiring admin help guide (scope, daily checklist)",
+            "pages": 2
+          },
+          {
+            "name": "Growth stage planner (student count targets, revenue projections)",
+            "pages": 2
+          }
+        ],
+        "total_pages": 12,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "Admin time audit worksheet"
+      },
+      "internal_notes": {
+        "competitor_intel": "CFMS (100+ institutions), Possystem (300+ centers), eduX — all target the 100+ student center-level market. The solo teacher at 30–80 students who wants to grow is underserved by existing tools. Do NOT name any of these in user-facing content.",
+        "automation_scope": "Full admin dashboard: fee tracking with reminder automation, attendance with 2-absence flags, parent message generation. This node is the clearest upsell case — admin is the stated bottleneck.",
+        "research_sources": [
+          "A4",
+          "A5",
+          "A6",
+          "A9"
+        ],
+        "content_gaps": "Specific hall rental data for tuition-specific spaces limited. Cost of LKR 15,000–50,000/month derived from general commercial rental data, not tuition-specific survey.",
+        "cross_refs": "strat-identify-bottleneck / strat-admin-drain-kill also used in 2.2, 6.1. strat-online-arm also used in 3.3. strat-hire-admin-first also used in 2.2. strat-crash-course-scaling also in 4.2."
+      },
+      "nav": {
+        "next": {
+          "id": "grow-sales-word-of-mouth",
+          "label": "I'm too dependent on word of mouth"
+        },
+        "back": {
+          "id": "branch-grow-sales",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "grow-sales-word-of-mouth",
+      "branch": "grow-my-sales",
+      "pain_point": "I'm too dependent on word of mouth",
+      "path": [
+        "Grow My Sales",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "My three best-referring parents moved their kids to university this year. Suddenly I have no pipeline.",
+        "I keep telling myself I'll set up a Facebook page next week. That was 4 months ago.",
+        "If the O/L results don't come out well this year, I have no backup plan for enrollment."
+      ],
+      "intro_body": "Word of mouth is a gift. But when it's your only channel, one bad term can unravel years of work. Here's how to build a second engine — one that keeps working even when referrals dry up.",
+      "strategies": [
+        {
+          "id": "strat-directory-listings-wom",
+          "number": 1,
+          "color": "accent",
+          "title": "Directory presence is your foundation, not Facebook",
+          "content_paragraphs": [
+            "60% of teachers already promote on at least one directory. If your profile on Iskolaya, Panthi, Mytutor, and Advice isn't current, you're invisible to parents who are actively searching right now.",
+            "<strong>Directories don't require ongoing posting. Set them up once, update after each result season.</strong>",
+            "Word of mouth brings people who already know your name. Directories bring the ones who don't know you exist yet."
+          ],
+          "visual": {
+            "type": "bar_chart",
+            "title": "Where parents search for tuition",
+            "data": [
+              {
+                "label": "Iskolaya",
+                "value": 100,
+                "display": "6M+ users",
+                "color": "#085041",
+                "valueColor": "#9FE1CB"
+              },
+              {
+                "label": "Panthi",
+                "value": 52,
+                "display": "3,100+ pages",
+                "color": "#1D9E75",
+                "valueColor": "var(--text)"
+              },
+              {
+                "label": "Mytutor",
+                "value": 42,
+                "display": "25 districts",
+                "color": "#5DCAA5",
+                "valueColor": "var(--text)"
+              },
+              {
+                "label": "ikman",
+                "value": 35,
+                "display": "Free listings",
+                "color": "#9FE1CB",
+                "valueColor": "#085041"
+              }
+            ],
+            "note": "If referrals dry up and you have no listings, parents who don't know you personally cannot find you."
+          }
+        },
+        {
+          "id": "strat-facebook-formula",
+          "number": 2,
+          "color": "purple",
+          "title": "Turn Facebook from a thing you mean to do into a thing that works",
+          "content_paragraphs": [
+            "Most teachers post when they remember and wonder why nothing happens. The answer isn't more inspiration — it's a formula.",
+            "<strong>3 posts per week: a study tip in Sinhala/Tamil on Monday, a results or student story on Wednesday, class logistics or an exam date reminder on Friday.</strong> Post at 7pm when parents are scrolling after work.",
+            "After 90 days of this, parents in your area recognize your name. After 6 months, they recommend you to other parents unprompted — and those recommendations don't require a personal connection to you."
+          ]
+        },
+        {
+          "id": "strat-whatsapp-broadcast",
+          "number": 3,
+          "color": "coral",
+          "title": "Set up a WhatsApp broadcast list — this week",
+          "content_paragraphs": [
+            "A broadcast list sends a message to many parents at once, but it lands in their personal chat as if you sent it directly. It's not a group — there are no notifications from other parents, no thread to manage.",
+            "<strong>Export every current parent's number into a broadcast list.</strong> Send one update per week: exam dates, study tips, schedule changes.",
+            "This costs nothing, takes 5 minutes to set up, and keeps your name in front of every parent in your existing network."
+          ],
+          "visual": {
+            "type": "highlight",
+            "text": "WhatsApp groups create noise. Broadcast lists create presence. When parents see your name in their personal chat every week, you stay top of mind — without them having to follow you anywhere."
+          }
+        },
+        {
+          "id": "strat-youtube-long-game",
+          "number": 4,
+          "color": "amber",
+          "title": "Plant a YouTube channel as a long-term lead generator",
+          "content_paragraphs": [
+            "You don't need to be a YouTube star. 10-minute subject explainers in Sinhala or Tamil — one per week — build a searchable library that works while you sleep.",
+            "<strong>A parent Googling \"A/L chemistry diffusion Sri Lanka\" and finding your video is a warm lead who already knows how you teach before they message you.</strong>",
+            "This is a 12-month game. In month 1 you have 4 videos. In month 12 you have 52, and new students find you through search. That's not word of mouth — that's a second engine."
+          ]
+        },
+        {
+          "id": "strat-school-proximity-marketing",
+          "number": 5,
+          "color": "blue",
+          "title": "Partner with schools where teachers are missing",
+          "content_paragraphs": [
+            "Sri Lanka's national teacher absenteeism rate is 15.9%. Parents near government schools with chronically absent teachers are actively searching for supplementary teaching — not by choice, but because there's no alternative.",
+            "<strong>Identify the 2–3 schools nearest to you with a known reputation for absent subject teachers. Put your flyers near those schools specifically.</strong>",
+            "These parents are your most motivated prospects. They're not comparison shopping — they need you."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "15.9%",
+                "desc": "Government teacher absenteeism rate"
+              },
+              {
+                "num": "84.9%",
+                "desc": "University students who attended A/L tuition"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-community-group-engagement",
+          "number": 6,
+          "color": "text-mid",
+          "title": "Engage where parents are already talking",
+          "content_paragraphs": [
+            "Every area has Facebook community groups and school parent groups where parents ask each other for recommendations. Join 5 of them. Answer questions about O/L preparation, exam dates, study strategies — not as advertising, as a teacher being helpful.",
+            "<strong>When someone eventually asks \"does anyone know a good chemistry teacher near Kandana?\" — your name will already be familiar.</strong>",
+            "You're not selling. You're building familiarity. Familiarity converts when the moment arrives."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "help",
+        "headline": "Need help executing this?",
+        "description": "Setting up directory listings, a Facebook page, and a WhatsApp broadcast list isn't complicated — but if you've been putting it off for months, we can do it for you. We set up your complete online presence from scratch."
+      },
+      "template_pack": {
+        "title": "Online presence build template pack",
+        "subtitle": "Everything you need to stop depending entirely on referrals",
+        "items": [
+          {
+            "name": "Directory profile copy for 4 platforms",
+            "pages": 2
+          },
+          {
+            "name": "12-week Facebook content plan (3 posts/week)",
+            "pages": 4
+          },
+          {
+            "name": "WhatsApp broadcast list setup guide + 4 starter messages",
+            "pages": 2
+          },
+          {
+            "name": "YouTube channel launch checklist + first 3 video outlines",
+            "pages": 2
+          },
+          {
+            "name": "Parent community group engagement guide",
+            "pages": 1
+          },
+          {
+            "name": "School proximity flyer + placement guide",
+            "pages": 1
+          }
+        ],
+        "total_pages": 12,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "School proximity flyer template"
+      },
+      "internal_notes": {
+        "competitor_intel": "No direct competitors in this space — this is content strategy and online presence, not software. Iskolaya, Panthi, Mytutor are listing channels, not competitors.",
+        "automation_scope": "Not directly automated by our dashboard — this is a 'need help executing' CTA for manual setup. The WhatsApp broadcast list setup leads naturally into using our dashboard for ongoing parent communications.",
+        "research_sources": [
+          "A1",
+          "A7",
+          "A9"
+        ],
+        "content_gaps": "YouTube channel subscriber data for individual SL tuition teachers not available. Claims about YouTube as long-term lead gen are directionally supported but not quantified.",
+        "cross_refs": "strat-directory-listings-wom shares component with strat-directory-listings (1.1, 3.1). strat-facebook-formula also in 3.2. strat-whatsapp-broadcast also in 2.4, 6.3. strat-school-proximity-marketing shares component with strat-physical-marketing (1.1)."
+      },
+      "nav": {
+        "next": {
+          "id": "automate-ops-fee-collection",
+          "label": "Collecting fees is a nightmare"
+        },
+        "back": {
+          "id": "branch-grow-sales",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    }
+  ]
+}

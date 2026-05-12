@@ -39,7 +39,7 @@ export function TeamManageModal({ members, onRefresh, onClose }: Props) {
   }, [onRefresh]);
 
   const handleCopy = useCallback(async (token: string) => {
-    await navigator.clipboard.writeText(`https://purifye.org/t/${token}`);
+    await navigator.clipboard.writeText(`https://purifyeai.com/t/${token}`);
     setCopied(token);
     setTimeout(() => setCopied(null), 2000);
   }, []);
@@ -144,7 +144,7 @@ export function TeamManageModal({ members, onRefresh, onClose }: Props) {
                       <div className="text-[10px] text-[var(--text-muted)] truncate">{m.role}</div>
                     )}
                     <div className="text-[9px] font-mono text-[var(--text-muted)] mt-0.5 truncate">
-                      purifye.org/t/{m.token}
+                      purifyeai.com/t/{m.token}
                     </div>
                   </div>
 

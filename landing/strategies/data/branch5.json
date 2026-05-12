@@ -1,0 +1,533 @@
+{
+  "branch": {
+    "id": "manage-my-money",
+    "label": "Manage My Money Better",
+    "path": [
+      "Manage My Money Better",
+      "Services",
+      "Education & Tuition"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "manage-money-am-i-profitable",
+      "branch": "manage-my-money",
+      "pain_point": "I have no idea if I'm actually profitable",
+      "path": [
+        "Manage My Money Better",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I have 45 students paying me every month. I feel like I should be comfortable. But I never seem to have much saved.",
+        "I started a new A/L class this year — 12 students. I honestly don't know if it's making me money or costing me.",
+        "My friend has fewer students than me but seems more financially settled. I must be doing something wrong."
+      ],
+      "intro_body": "Independent tuition can be one of the most profitable professions in Sri Lanka — but only if you know your numbers. Most teachers have good income and poor financial clarity. Here's how to close that gap.",
+      "strategies": [
+        {
+          "id": "strat-calculate-gross-revenue",
+          "number": 1,
+          "color": "accent",
+          "title": "Calculate your gross revenue — most teachers haven't done this",
+          "content_paragraphs": [
+            "Students × monthly fee = gross revenue. If you have 45 students at LKR 3,000/month, that's LKR 135,000/month. If you have 45 students across 3 different fee levels, add them individually.",
+            "<strong>Write down every student's fee and add them up.</strong> That number — the real number — is probably different from what you had in your head.",
+            "This takes 10 minutes. It's the foundation of every financial decision that follows."
+          ]
+        },
+        {
+          "id": "strat-expenses-vs-revenue",
+          "number": 2,
+          "color": "purple",
+          "title": "Track your actual expenses against that revenue",
+          "content_paragraphs": [
+            "Hall rent, printing, transport, phone, any staff costs. Subtract these from your gross revenue. That's your actual net income.",
+            "<strong>Independent teachers with one hall typically have 85%+ profit margins</strong> — because the primary input is your own time, not raw materials or staff.",
+            "If your margin is significantly lower than 85%, something specific is eating it — and the expense tracking exercise will find it."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "85%+",
+                "desc": "Typical profit margin for independent tuition teachers"
+              },
+              {
+                "num": "LKR 402k",
+                "desc": "Example net from 150 students (5 classes/wk at LKR 3k)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-break-even-per-class",
+          "number": 3,
+          "color": "coral",
+          "title": "Calculate break-even before starting any new class",
+          "content_paragraphs": [
+            "That new A/L class with 12 students at LKR 4,000 each: LKR 48,000 revenue. Hall rented 3 sessions per week at LKR 1,000/session: LKR 12,000/month in venue cost. Net: LKR 36,000. Is that worth your time?",
+            "<strong>Before committing to any new class, new subject, or new hall: minimum students needed to cover costs = total monthly cost of that class ÷ fee per student. That is your break-even number.</strong>",
+            "Every teacher who has ever expanded into an unprofitable class and closed it after 3 months skipped this calculation. It takes 5 minutes."
+          ]
+        },
+        {
+          "id": "strat-calculate-hourly-rate",
+          "number": 4,
+          "color": "amber",
+          "title": "Calculate your actual hourly rate — it is usually lower than you think",
+          "content_paragraphs": [
+            "Total monthly income divided by total hours worked — including admin, marking, parent messages, and travel. Not just teaching hours. If you earn LKR 120,000 and work 60 hours per week, your hourly rate is LKR 500. That number changes how you think about your time.",
+            "<strong>Monthly income ÷ total hours worked this month = your real hourly rate. Write it down.</strong>",
+            "Most teachers who do this calculation find the number shockingly low. That is not a problem — it is information. It motivates either a price increase, an admin reduction, or both."
+          ]
+        },
+        {
+          "id": "strat-five-minute-monthly-check",
+          "number": 5,
+          "color": "blue",
+          "title": "The 5-minute monthly profit check",
+          "content_paragraphs": [
+            "On the last Sunday of every month: total fees collected, subtract total expenses, record net income. Write it down. Compare to last month.",
+            "<strong>You don't need accounting software. You need a notebook and 5 minutes.</strong>",
+            "Teachers who do this monthly catch problems in 30 days. Teachers who don't catch them in 12 months — or when a bank statement reveals something alarming."
+          ]
+        },
+        {
+          "id": "strat-revenue-comparison",
+          "number": 6,
+          "color": "text-mid",
+          "title": "Compare month-over-month — spot the patterns",
+          "content_paragraphs": [
+            "January vs. April vs. August: your income pattern follows the exam cycle. Once you see it written down, you can plan around it.",
+            "<strong>A teacher who knows January will be their best month saves differently than one who's surprised every April when cash runs short.</strong>",
+            "Two years of monthly records gives you the information to make financial decisions confidently."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "automate",
+        "headline": "We can automate this for you",
+        "description": "The Analyst AI on purifye.org is purpose-built for exactly this. Connect your fee data and expenses and it generates monthly profit reports automatically. Know your margin every month without calculating it yourself."
+      },
+      "template_pack": {
+        "title": "Profitability tracking pack",
+        "subtitle": "Know whether you're actually making money — and how much",
+        "items": [
+          {
+            "name": "Student fee calculator (multi-tier, auto-sum)",
+            "pages": 1
+          },
+          {
+            "name": "Monthly profit and loss statement template",
+            "pages": 1
+          },
+          {
+            "name": "Per-class profitability calculator",
+            "pages": 1
+          },
+          {
+            "name": "Break-even calculator for new classes or subjects",
+            "pages": 1
+          },
+          {
+            "name": "5-minute monthly profit check routine",
+            "pages": 1
+          },
+          {
+            "name": "Revenue comparison table (month-over-month, term-over-term)",
+            "pages": 1
+          },
+          {
+            "name": "Profitability improvement worksheet (what to cut or add)",
+            "pages": 1
+          },
+          {
+            "name": "Annual profit summary template",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "5-minute monthly profit check routine"
+      },
+      "internal_notes": {
+        "competitor_intel": "The Analyst AI (purifye.org) is the product being promoted here. No direct competitor for tuition-specific financial management at this level. Generic accounting apps (QuickBooks, Wave) exist but are not tuition-specific and have no SL market traction.",
+        "automation_scope": "The Analyst AI handles income tracking, expense categorization, profit margin calculation, and monthly report generation. This is the primary financial product upsell path.",
+        "research_sources": [
+          "A6",
+          "A10"
+        ],
+        "content_gaps": "85%+ margin is a modeled estimate from A6, not a surveyed average. Per-class profitability examples are illustrative, not confirmed averages.",
+        "cross_refs": "strat-calculate-gross-revenue and strat-expenses-vs-revenue share concepts with 4.3. strat-five-minute-monthly-check also in 5.2."
+      },
+      "nav": {
+        "next": {
+          "id": "manage-money-disappears",
+          "label": "Money comes in and disappears"
+        },
+        "back": {
+          "id": "branch-manage-money",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "manage-money-disappears",
+      "branch": "manage-my-money",
+      "pain_point": "Money comes in and disappears",
+      "path": [
+        "Manage My Money Better",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "January was my best month ever. By April I was borrowing from savings. How does that happen?",
+        "I put my tuition earnings into the same account as my personal money. I genuinely can't tell which is which.",
+        "I know the O/L batch is finishing in March. I have no plan for what happens to my income after that."
+      ],
+      "intro_body": "Money disappearing without explanation has two causes: mixed personal and business accounts, and a cash flow cycle you haven't planned around. Both are fixable.",
+      "strategies": [
+        {
+          "id": "strat-separate-accounts",
+          "number": 1,
+          "color": "accent",
+          "title": "Separate business and personal money — open a second account",
+          "content_paragraphs": [
+            "The easiest way to fix \"money disappears\" is to know whose money is whose. A separate bank account for tuition income takes 30 minutes to open.",
+            "<strong>Every tuition fee collected goes into the business account. Every business expense comes out of it.</strong> Your personal account gets a fixed monthly transfer.",
+            "Once accounts are separate, every financial question about your tuition business becomes answerable."
+          ]
+        },
+        {
+          "id": "strat-cash-flow-calendar",
+          "number": 2,
+          "color": "purple",
+          "title": "Build a cash flow calendar aligned to the exam cycle",
+          "content_paragraphs": [
+            "January: peak income, maximum enrollment. February–March: O/L exam period, structural drop-off begins. April: school vacation, lowest income. August–September: crash course income spike. This pattern repeats every year.",
+            "<strong>Plan your major expenses for January. Build your cash reserve during August.</strong> Don't make financial commitments in October that assume income that hasn't arrived yet.",
+            "The cycle is predictable. Plan for it."
+          ],
+          "visual": {
+            "type": "bar_chart",
+            "title": "Relative income across the year (tuition teacher cash flow pattern)",
+            "data": [
+              {
+                "label": "January",
+                "value": 100,
+                "display": "Peak — new enrollments",
+                "color": "#085041",
+                "valueColor": "#9FE1CB"
+              },
+              {
+                "label": "Aug–Sep",
+                "value": 85,
+                "display": "High — crash courses",
+                "color": "#1D9E75",
+                "valueColor": "var(--text)"
+              },
+              {
+                "label": "May–Jul",
+                "value": 65,
+                "display": "Moderate",
+                "color": "#5DCAA5",
+                "valueColor": "var(--text)"
+              },
+              {
+                "label": "Feb–Mar",
+                "value": 50,
+                "display": "Dropping — post-exam",
+                "color": "#B07815",
+                "valueColor": "var(--text)"
+              },
+              {
+                "label": "April",
+                "value": 30,
+                "display": "Low — vacation",
+                "color": "#D85A30",
+                "valueColor": "var(--text)"
+              }
+            ],
+            "note": "The post-exam drop is predictable every year. Build cash reserves during the peaks."
+          }
+        },
+        {
+          "id": "strat-two-month-reserve",
+          "number": 3,
+          "color": "coral",
+          "title": "Build a 2-month cash reserve — methodically",
+          "content_paragraphs": [
+            "Two months of operating expenses is enough buffer to survive any post-exam drop-off without stress. Take 10% of each month's net income and put it in a separate savings account. Don't touch it.",
+            "<strong>At LKR 400,000/month net income, 10% is LKR 40,000. In 5 months you have your 2-month reserve.</strong>",
+            "This is the single most stabilizing financial move a tuition teacher can make. April stops being stressful."
+          ]
+        },
+        {
+          "id": "strat-digital-payment-auto-record",
+          "number": 4,
+          "color": "amber",
+          "title": "Add digital payment for automatic income records",
+          "content_paragraphs": [
+            "Every LANKAQR transfer and bank transfer creates an automatic record. Cash doesn't.",
+            "<strong>Even moving 30–40% of fee collection to digital immediately gives you much better visibility into your monthly income.</strong>",
+            "Bank statements become a partial income ledger for free, without any extra record-keeping effort."
+          ]
+        },
+        {
+          "id": "strat-monthly-financial-review",
+          "number": 5,
+          "color": "blue",
+          "title": "15-minute financial review on the last Sunday of each month",
+          "content_paragraphs": [
+            "Total income received. Total expenses paid. Net income. Outstanding fees. Cash reserve balance. Five numbers. 15 minutes.",
+            "<strong>This habit, done consistently, means you never have another April where you're surprised by how little you have.</strong>",
+            "The teachers who manage money well don't have special knowledge. They have a consistent habit."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "automate",
+        "headline": "We can automate this for you",
+        "description": "The Analyst AI on purifye.org tracks income and expenses, generates monthly cash flow reports, and flags months where income is below your 3-month average. No more surprise shortfalls."
+      },
+      "template_pack": {
+        "title": "Cash flow management pack",
+        "subtitle": "Stop the money mystery — know exactly where you stand every month",
+        "items": [
+          {
+            "name": "Business vs. personal account separation guide",
+            "pages": 1
+          },
+          {
+            "name": "Annual cash flow calendar template (12-month, exam cycle)",
+            "pages": 2
+          },
+          {
+            "name": "Cash reserve calculator (how long to build 2-month buffer)",
+            "pages": 1
+          },
+          {
+            "name": "Monthly financial review worksheet (5 numbers, 15 minutes)",
+            "pages": 1
+          },
+          {
+            "name": "Digital payment setup guide (LANKAQR + bank transfer)",
+            "pages": 1
+          },
+          {
+            "name": "Seasonal planning guide (what to do financially in each period)",
+            "pages": 2
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "Annual cash flow calendar template"
+      },
+      "internal_notes": {
+        "competitor_intel": "Same as 5.1 — The Analyst AI is the upsell product. No direct competitor for tuition-specific cash flow management in SL.",
+        "automation_scope": "The Analyst AI handles cash flow tracking, monthly income vs. 3-month average comparison, and flagging shortfall months. Secondary: our fee collection dashboard feeds income data automatically.",
+        "research_sources": [
+          "A8",
+          "A10"
+        ],
+        "content_gaps": "The exact income pattern by month is inferred from exam cycle data and school calendar — not directly measured by a teacher survey. Cash flow pattern is directionally confirmed but specific percentages are modeled.",
+        "cross_refs": "strat-digital-payment-auto-record cross-refs strat-lankaqr-digital-payment (2.1). strat-monthly-financial-review also in 5.1. strat-cash-flow-calendar is unique to this node."
+      },
+      "nav": {
+        "next": {
+          "id": "manage-money-taxes",
+          "label": "I'm worried about taxes and regulations"
+        },
+        "back": {
+          "id": "branch-manage-money",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "manage-money-taxes",
+      "branch": "manage-my-money",
+      "pain_point": "I'm worried about taxes and regulations",
+      "path": [
+        "Manage My Money Better",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I've been teaching for 8 years and I've never filed taxes. I don't know if I'm breaking the law or if nobody cares.",
+        "I heard about a new licensing law coming. I don't know what it means for me.",
+        "I don't want to suddenly owe 5 years of back taxes one day. But I don't know where to start."
+      ],
+      "intro_body": "Most tuition teachers operate in a grey area — and the lines are getting clearer. Understanding your actual obligations right now is the only way to avoid a problem later.",
+      "strategies": [
+        {
+          "id": "strat-income-tax-obligations",
+          "number": 1,
+          "color": "accent",
+          "title": "Understand what you're actually legally required to do",
+          "content_paragraphs": [
+            "Self-employed tuition teachers must declare income under Individual Income Tax. The personal relief is LKR 1,200,000 per year — if your annual tuition income is below that, you owe zero income tax. You still need to file.",
+            "<strong>Annual filing deadline: November 30. Personal relief: LKR 1,200,000/year.</strong>",
+            "Most teachers who do this calculation discover they're either below the threshold or just slightly above it. The tax is real but manageable — and knowing is better than not knowing."
+          ],
+          "visual": {
+            "type": "tax_table",
+            "rows": [
+              {
+                "bracket": "Up to LKR 1,200,000 (personal relief)",
+                "rate": "0%"
+              },
+              {
+                "bracket": "Next LKR 500,000",
+                "rate": "6%"
+              },
+              {
+                "bracket": "Next LKR 500,000",
+                "rate": "12%"
+              },
+              {
+                "bracket": "Next LKR 500,000",
+                "rate": "18%"
+              },
+              {
+                "bracket": "Next LKR 500,000",
+                "rate": "24%"
+              },
+              {
+                "bracket": "Next LKR 500,000",
+                "rate": "30%"
+              },
+              {
+                "bracket": "Above LKR 3,700,000",
+                "rate": "36%"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-wht-institution-payments",
+          "number": 2,
+          "color": "purple",
+          "title": "If you work through an institution, understand WHT",
+          "content_paragraphs": [
+            "If a tuition center pays you more than LKR 50,000/month, they are legally required to deduct 5% Withholding Tax under Section 85 of the Inland Revenue Act 2017.",
+            "<strong>This applies to teachers paid by the center, not to teachers who collect fees directly from students.</strong>",
+            "If you're on a center's payroll, ask whether they're deducting WHT. Non-compliance penalties fall on the institution — but your tax record is still affected."
+          ]
+        },
+        {
+          "id": "strat-licensing-framework-coming",
+          "number": 3,
+          "color": "coral",
+          "title": "Licensing is coming — prepare now rather than be caught later",
+          "content_paragraphs": [
+            "In 2025, the Parliamentary Sectoral Oversight Committee recommended a formal licensing system for private tutors, citing international precedents. No implementation date has been set — but the direction is clear.",
+            "<strong>Teachers who have clean income records when licensing is implemented will face no problems.</strong> Teachers who have never declared income may face back-tax assessments.",
+            "Start a monthly income record now — even a simple notebook. By the time licensing arrives, you'll have 2+ years of records."
+          ]
+        },
+        {
+          "id": "strat-western-province-ban-context",
+          "number": 4,
+          "color": "amber",
+          "title": "What the Western Province ban means — and doesn't mean",
+          "content_paragraphs": [
+            "In December 2024, Western Province issued a circular banning government school teachers from teaching their own school's students privately. It was suspended within days after teacher objections. Central and Sabaragamuwa Provinces implemented similar bans earlier.",
+            "<strong>This does not ban private tuition in general.</strong> It targets the specific arrangement where a school teacher coerces their own students to attend their private classes.",
+            "If you are a full-time private tuition teacher (not a government school teacher), this regulation does not apply to you."
+          ]
+        },
+        {
+          "id": "strat-track-now-for-future",
+          "number": 5,
+          "color": "blue",
+          "title": "What to track right now — simple, not perfect",
+          "content_paragraphs": [
+            "Monthly income total. Monthly expense total. Keep receipts for major expenses (rent, printing). That's all you need for basic filing.",
+            "<strong>Start this month, not next term.</strong> A notebook with 12 monthly entries is more useful than perfect records you never started.",
+            "If you're already above LKR 1.2 million annually: consult a tax advisor before your first filing. The cost (LKR 3,000–8,000 for one consultation) is far less than filing incorrectly."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "diy",
+        "headline": "You've got this — here's a checklist",
+        "description": null
+      },
+      "template_pack": {
+        "title": "Tax and regulation readiness pack",
+        "subtitle": "Know your obligations, track what you need, and be ready when licensing arrives",
+        "items": [
+          {
+            "name": "Personal income tax guide for tuition teachers",
+            "pages": 2
+          },
+          {
+            "name": "Annual income record template (monthly totals, year summary)",
+            "pages": 1
+          },
+          {
+            "name": "Deductible expenses checklist (what you can subtract)",
+            "pages": 1
+          },
+          {
+            "name": "IRD filing checklist (for November 30 deadline)",
+            "pages": 1
+          },
+          {
+            "name": "WHT explainer (if you work through an institution)",
+            "pages": 1
+          },
+          {
+            "name": "Licensing readiness checklist (what to have in place)",
+            "pages": 1
+          },
+          {
+            "name": "Tax advisor consultation preparation worksheet",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "Deductible expenses checklist"
+      },
+      "internal_notes": {
+        "competitor_intel": "TaxAdvisor.lk provides WHT and general tax guidance. IRD.gov.lk has official forms. Neither is tuition-specific. No competitor creates tuition-specific tax guides.",
+        "automation_scope": "DIY node — tax compliance is fundamentally a personal action, not automatable by our dashboard. However, the income records our dashboard generates are exactly what's needed for tax filing. Natural bridge to The Analyst AI.",
+        "research_sources": [
+          "A6",
+          "A10",
+          "B3"
+        ],
+        "content_gaps": "Tax bracket rates confirmed from TaxAdvisor.lk and IRD. Personal relief of LKR 1.2M confirmed. Implementation status of licensing: no confirmed date as of research date (2026-05-02).",
+        "cross_refs": "strat-licensing-framework-coming and strat-western-province-ban-context are unique to this node. strat-income-tax-obligations mentioned briefly in 4.3. strat-wht-institution-payments is unique here."
+      },
+      "nav": {
+        "next": {
+          "id": "productivity-working-all-time",
+          "label": "I'm working all the time and still behind"
+        },
+        "back": {
+          "id": "branch-manage-money",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    }
+  ]
+}

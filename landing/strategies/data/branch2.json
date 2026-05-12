@@ -1,0 +1,750 @@
+{
+  "branch": {
+    "id": "automate-my-operations",
+    "label": "Automate My Operations",
+    "path": [
+      "Automate My Operations",
+      "Services",
+      "Education & Tuition"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "automate-ops-fee-collection",
+      "branch": "automate-my-operations",
+      "pain_point": "Collecting fees is a nightmare",
+      "path": [
+        "Automate My Operations",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I counted cash until 10pm last Monday. I'm a teacher, not a cashier.",
+        "There's a parent who's been 'paying next week' for 6 weeks. I don't even know how to have that conversation.",
+        "I honestly don't know right now if I'm short this month — I haven't finished tracking who's paid."
+      ],
+      "intro_body": "Fee collection is the biggest time drain in a tuition teacher's week — and the most avoidable. Here's how to get from 2–4 hours of chasing per week down to 10 minutes.",
+      "strategies": [
+        {
+          "id": "strat-fee-tracking-basic",
+          "number": 1,
+          "color": "accent",
+          "title": "Start with the most basic tracking system that will actually stick",
+          "content_paragraphs": [
+            "Start with the simplest system you'll actually use. Even a notebook with student names down the left and months across the top works as a first step — the point isn't the tool, it's the <strong>habit of recording every payment the day it happens</strong>. Once you're tracking consistently, you'll quickly see why automating this matters: at 30+ students, even a well-kept notebook becomes a job in itself.",
+            "<strong>The system doesn't need to be fancy. It needs to exist and be used every single month.</strong>",
+            "Most fee problems aren't about the money — they're about not knowing who owes what. A paper register solves that immediately."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "2–4 hrs",
+                "desc": "Per week spent on fee collection alone"
+              },
+              {
+                "num": "#1",
+                "desc": "Administrative time sink for tuition teachers"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-fee-reminder-sequence",
+          "number": 2,
+          "color": "purple",
+          "title": "Send fee reminders on a schedule, not when you remember",
+          "content_paragraphs": [
+            "Send 3 messages per month: 5 days before the due date, on the due date, and 7 days after if still unpaid. Write these messages once. Send them every month.",
+            "<strong>Most parents aren't trying to avoid paying — they just forget.</strong> A reminder is not rude. Silence followed by awkward in-class pressure is rude.",
+            "The 3-message sequence recovers most outstanding fees before they become awkward conversations."
+          ],
+          "visual": {
+            "type": "quote_block",
+            "label": "Example pre-due reminder",
+            "text": "Hi Mrs. Perera, just a reminder that fees for May are due on the 1st. You can pay by cash at class or transfer to [account]. Thank you!"
+          }
+        },
+        {
+          "id": "strat-lankaqr-digital-payment",
+          "number": 3,
+          "color": "coral",
+          "title": "Add a digital payment option — even one",
+          "content_paragraphs": [
+            "LANKAQR is free to set up and lets parents scan and pay by bank transfer instantly. Print the QR code, stick it on your whiteboard.",
+            "<strong>Adding digital payment doesn't replace cash — but for the parents who find it easier, you'll get paid faster and have an automatic record.</strong>",
+            "Teachers who have a QR code up collect fees faster because parents pay the moment they think of it, not when they happen to have cash at the next class."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "Cash",
+                "desc": "Dominant for physical classes"
+              },
+              {
+                "num": "LANKAQR",
+                "desc": "Growing — free to set up, instant record"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-fee-policy-day-one",
+          "number": 4,
+          "color": "amber",
+          "title": "Set your fee policy on day one — and write it down",
+          "content_paragraphs": [
+            "At enrollment, give every parent a one-page document: monthly fee, due date, what happens after 2 months of non-payment, and your payment methods.",
+            "<strong>Most fee awkwardness comes from unwritten expectations.</strong> When the policy is clear from the start, the conversation is about following what was agreed — not confronting someone.",
+            "Parents who signed a written policy rarely argue about it. Parents who never saw a policy argue about everything."
+          ]
+        },
+        {
+          "id": "strat-next-week-problem",
+          "number": 5,
+          "color": "blue",
+          "title": "Handle the \"I'll pay next week\" problem directly",
+          "content_paragraphs": [
+            "After two \"next weeks\", have a direct conversation: offer a payment plan. Half now, half on the 15th. That's professional, not aggressive.",
+            "<strong>The worst outcome is continuing to teach for free while resenting the student.</strong>",
+            "If the answer is \"no\" to a payment plan, you have clarity — and can make a decision. Endless deferral is worse than a clear answer."
+          ],
+          "visual": {
+            "type": "quote_block",
+            "label": "Example payment plan message",
+            "text": "Mrs. Kumari, I want Sachini to keep attending — she's making real progress. I can hold her spot if we agree on a payment plan. Can we do half now and half on the 15th?"
+          }
+        },
+        {
+          "id": "strat-monthly-income-record",
+          "number": 6,
+          "color": "text-mid",
+          "title": "Keep a monthly income record — even if it's just totals",
+          "content_paragraphs": [
+            "At the end of each month, write down: total students, total collected, total outstanding. Three numbers. Three minutes.",
+            "<strong>Regulation is moving toward licensing and tax enforcement.</strong> Teachers who have 2 years of income records when that happens will have a much easier time than teachers who have nothing.",
+            "This isn't about audits today — it's about not being unprepared when the rules change."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "automate",
+        "headline": "We can automate this for you",
+        "description": "Our dashboard tracks who's paid and who hasn't in real time. Pre-written reminder messages go out on your schedule — you tap send. On day 7 overdue, a final notice generates automatically. Fee collection time drops from hours to minutes."
+      },
+      "template_pack": {
+        "title": "Fee collection template pack",
+        "subtitle": "7 tools to get paid on time, every month, without the awkward conversations",
+        "items": [
+          {
+            "name": "Monthly fee tracker (30 students, auto-calculates outstanding)",
+            "pages": 2
+          },
+          {
+            "name": "Fee policy template (for new parent enrollment)",
+            "pages": 1
+          },
+          {
+            "name": "3-step fee reminder message sequence (pre-due, due, overdue)",
+            "pages": 1
+          },
+          {
+            "name": "LANKAQR setup guide + QR placement instructions",
+            "pages": 1
+          },
+          {
+            "name": "Payment methods reference card (for parents)",
+            "pages": 1
+          },
+          {
+            "name": "Late payment conversation scripts (first-time and persistent)",
+            "pages": 1
+          },
+          {
+            "name": "Annual income record template (monthly totals, year summary)",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "3-step fee reminder message sequence"
+      },
+      "internal_notes": {
+        "competitor_intel": "CFMS, Possystem, TCMS App, classfeesmanagementsystem.com — all address fee collection but target larger institutions. TCMS App is closest to solo-teacher level. Do NOT name any in user-facing content.",
+        "automation_scope": "Fee tracking dashboard: real-time paid/unpaid status. Automated reminder sequence (pre-due day-5, due day, 7-day overdue). One-tap send via wa.me deep links. LANKAQR integration guidance. Monthly income summary auto-generated.",
+        "research_sources": [
+          "A3",
+          "A4",
+          "A5",
+          "A10"
+        ],
+        "content_gaps": "LANKAQR adoption rate among tuition teachers specifically not measured. Digital payment data is general Sri Lanka payment market data.",
+        "cross_refs": "strat-fee-tracking-basic and strat-monthly-income-record also used in 4.3, 5.1, 5.2. strat-lankaqr-digital-payment also in 5.2. strat-fee-reminder-sequence also in 2.2."
+      },
+      "nav": {
+        "next": {
+          "id": "automate-ops-too-much-admin",
+          "label": "I spend too much time on admin"
+        },
+        "back": {
+          "id": "branch-automate-ops",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "automate-ops-too-much-admin",
+      "branch": "automate-my-operations",
+      "pain_point": "I spend too much time on admin, not teaching",
+      "path": [
+        "Automate My Operations",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I spent Sunday evening updating attendance records. Sunday evening. That's not why I became a teacher.",
+        "I calculated it once — I spend almost as many hours on admin as I do in front of students.",
+        "I'm burning out. Not from teaching — from everything around teaching."
+      ],
+      "intro_body": "Admin doesn't have to be your second job. Once you can see exactly where the hours go, most of it is fixable in under a week.",
+      "strategies": [
+        {
+          "id": "strat-time-audit",
+          "number": 1,
+          "color": "accent",
+          "title": "Track your time for one week before you change anything",
+          "content_paragraphs": [
+            "Get a notebook and for one week, log every hour: teaching, marking, fee collection, printing, parent messages, scheduling, travel. Do it honestly.",
+            "<strong>Most teachers who do this are shocked.</strong> Teaching is usually 12–20 hours. Admin is 8–12. Add marking and prep and you're at 28–40 hours a week — for what most people assume is a part-time job.",
+            "You can't fix what you haven't measured. And the measurement itself shows you exactly where to attack first."
+          ],
+          "visual": {
+            "type": "bar_chart",
+            "title": "Where a full-time tuition teacher's hours go",
+            "data": [
+              {
+                "label": "Teaching",
+                "value": 100,
+                "display": "12–20 hrs/wk",
+                "color": "#085041",
+                "valueColor": "#9FE1CB"
+              },
+              {
+                "label": "Marking",
+                "value": 65,
+                "display": "4–8 hrs/wk",
+                "color": "#1D9E75",
+                "valueColor": "var(--text)"
+              },
+              {
+                "label": "Admin",
+                "value": 80,
+                "display": "8–12 hrs/wk",
+                "color": "#D85A30",
+                "valueColor": "var(--text)"
+              },
+              {
+                "label": "Prep",
+                "value": 35,
+                "display": "3–5 hrs/wk",
+                "color": "#9FE1CB",
+                "valueColor": "#085041"
+              }
+            ],
+            "note": "The average tuition teacher works the equivalent of a full-time job — but pays themselves only for the teaching portion."
+          }
+        },
+        {
+          "id": "strat-only-i-can-do",
+          "number": 2,
+          "color": "purple",
+          "title": "Apply the \"what only I can do\" filter",
+          "content_paragraphs": [
+            "Teaching requires your expertise. Collecting cash, recording attendance, printing handouts, replying to \"what time is class?\" — these don't.",
+            "<strong>Make two lists: what only you can do vs. what could be done by a system, a template, or a part-time helper.</strong> Everything on the second list is a candidate for automation or delegation.",
+            "Most teachers find the second list is 50–60% of their working hours."
+          ]
+        },
+        {
+          "id": "strat-batch-communications",
+          "number": 3,
+          "color": "coral",
+          "title": "Batch your parent communications into two windows",
+          "content_paragraphs": [
+            "Replying to parent messages as they arrive throughout the day is one of the biggest hidden productivity killers. <strong>Set two windows per day — 9am and 7pm — for all parent communications.</strong>",
+            "Outside those windows, WhatsApp stays closed during teaching and prep time.",
+            "Most parents don't expect an instant reply. They expect a reply. Those are very different things."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "2–3 hrs",
+                "desc": "Per week on parent communications"
+              },
+              {
+                "num": "2 windows",
+                "desc": "Is all you need — 9am and 7pm"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-systematize-fees",
+          "number": 4,
+          "color": "amber",
+          "title": "Systematize fee collection once and stop thinking about it",
+          "content_paragraphs": [
+            "Set up the 3-message reminder sequence (pre-due, due, 7-day overdue) once. Every month, you run the sequence. The messages don't change — only the month name does.",
+            "<strong>This converts a 2–4 hour weekly process into a 10-minute monthly one.</strong>",
+            "One afternoon of setup recovers 2+ hours per week for the rest of the year."
+          ]
+        },
+        {
+          "id": "strat-digital-materials-distribution",
+          "number": 5,
+          "color": "blue",
+          "title": "Switch materials to digital distribution",
+          "content_paragraphs": [
+            "If you're printing 4 pages per student per week for 60 students, that's 240 pages a week — roughly LKR 600–900 in printing and 2–3 hours in printing logistics.",
+            "<strong>Create a WhatsApp group for each batch. Send the week's materials as a single PDF every Sunday evening.</strong> 15 minutes instead of hours of printing and collating.",
+            "Students screenshot what they need, or open the PDF on their phone during class. The transition takes one term to feel normal."
+          ]
+        },
+        {
+          "id": "strat-admin-hire-100",
+          "number": 6,
+          "color": "text-mid",
+          "title": "Hire admin help when you cross 100 students",
+          "content_paragraphs": [
+            "Below 100 students, automation handles most of the admin overhead without the cost of a person. Above 100, the volume of fee tracking, parent communications, and scheduling genuinely requires dedicated time.",
+            "<strong>A part-time admin assistant (3–4 hours/day, LKR 20,000–25,000/month) is less than 7% of a 100-student monthly revenue at average rates.</strong>",
+            "The question isn't whether you can afford help. It's whether you can afford to keep doing everything yourself."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "automate",
+        "headline": "We can automate this for you",
+        "description": "Our dashboard handles attendance, fee reminders, and parent message generation. You log 10 minutes of data per week and the system does the rest. Admin goes from your second job to a quick daily check."
+      },
+      "template_pack": {
+        "title": "Admin reduction template pack",
+        "subtitle": "Tools to get your admin time under 2 hours a week",
+        "items": [
+          {
+            "name": "One-week time audit worksheet",
+            "pages": 1
+          },
+          {
+            "name": "Admin vs. teaching task sorter (what-only-I-can-do exercise)",
+            "pages": 1
+          },
+          {
+            "name": "Daily admin checklist (10-minute routine)",
+            "pages": 1
+          },
+          {
+            "name": "Parent communication schedule template (batching guide)",
+            "pages": 1
+          },
+          {
+            "name": "Digital materials distribution guide (WhatsApp PDF setup)",
+            "pages": 1
+          },
+          {
+            "name": "Admin assistant job scope + daily task list template",
+            "pages": 2
+          },
+          {
+            "name": "Monthly admin review template (30-minute process)",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "One-week time audit worksheet"
+      },
+      "internal_notes": {
+        "competitor_intel": "Same as 2.1 — CFMS, Possystem, TCMS, eduX target institutions. Our value prop is simplicity for the solo teacher. Do NOT name competitors.",
+        "automation_scope": "Same dashboard as 2.1 — full admin automation suite. This node emphasizes time recovery rather than fee-specific outcomes. The dashboard reduces admin from 8–12 hours to 1–2 hours.",
+        "research_sources": [
+          "A4",
+          "A5",
+          "A9"
+        ],
+        "content_gaps": "The 8–12 hours/week admin figure is inferred from the CFMS/Possystem pain point descriptions and the A4 time breakdown — not directly surveyed from teachers.",
+        "cross_refs": "strat-time-audit and strat-only-i-can-do also used in 1.3, 6.1. strat-batch-communications also in 2.4, 6.3. strat-systematize-fees cross-refs 2.1. strat-admin-hire-100 also in 1.3."
+      },
+      "nav": {
+        "next": {
+          "id": "automate-ops-attendance-progress",
+          "label": "I can't keep track of attendance and progress"
+        },
+        "back": {
+          "id": "branch-automate-ops",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "automate-ops-attendance-progress",
+      "branch": "automate-my-operations",
+      "pain_point": "I can't keep track of attendance and progress",
+      "path": [
+        "Automate My Operations",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "A parent asked me last week how many times her son had been absent this term. I had no idea.",
+        "I know Nimali is struggling — I can see it every class — but when her mother asks me 'how is she doing?', I have nothing specific to say.",
+        "I've got 3 class registers, none of them fully complete, and I'm not confident any of them are right."
+      ],
+      "intro_body": "Tracking attendance and progress isn't paperwork — it's your retention system. The data you don't have is the data parents ask for right before they leave.",
+      "strategies": [
+        {
+          "id": "strat-simple-class-register",
+          "number": 1,
+          "color": "accent",
+          "title": "Start with a class list and a pencil — that's enough",
+          "content_paragraphs": [
+            "A5 notebook. Student names on the left. Dates across the top. A tick means present. A blank means absent. That's the whole system.",
+            "<strong>Nothing more complex than this is needed to start.</strong> The goal is a record that exists and gets used every class — not a perfect system.",
+            "Any system you'll actually use beats the perfect system you won't."
+          ]
+        },
+        {
+          "id": "strat-two-absence-flag",
+          "number": 2,
+          "color": "purple",
+          "title": "Flag 2 absences in a row — every time, without fail",
+          "content_paragraphs": [
+            "Two consecutive absences without explanation is the most reliable early signal of a student about to drop. The ones who leave quietly have almost always missed 2+ classes in a row first.",
+            "<strong>Set one rule: after 2 consecutive absences with no message, send a check-in.</strong> Not a complaint — a genuine check-in.",
+            "That message costs 30 seconds. It shows the parent you notice, you care, and the student matters to you by name."
+          ],
+          "visual": {
+            "type": "quote_block",
+            "label": "Example 2-absence check-in",
+            "text": "Hi Mrs. De Silva, just checking in — Tharushi missed the last two classes. Is everything okay? We've been doing exam-style past papers and I'd hate for her to miss the pattern."
+          }
+        },
+        {
+          "id": "strat-score-trend-tracking",
+          "number": 3,
+          "color": "coral",
+          "title": "Track test scores as trends, not snapshots",
+          "content_paragraphs": [
+            "A single score means nothing without context. A score that's been going up for 3 months means everything to a parent.",
+            "<strong>Keep a monthly score column in your register.</strong> Note whether it's up or down from last time. That's all you need.",
+            "A parent who sees 52 → 61 → 68 over three months won't question whether tuition is working."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "Medium–High",
+                "desc": "Willingness to pay for progress tracking tools"
+              },
+              {
+                "num": "#2",
+                "desc": "Drop-off reason: results not visibly improving"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-monthly-parent-updates",
+          "number": 4,
+          "color": "amber",
+          "title": "Send monthly parent updates — short, specific, proactive",
+          "content_paragraphs": [
+            "A monthly WhatsApp with 3 sentences: attendance this month, test score trend, one thing you're working on together next month.",
+            "<strong>That's every question a parent was going to ask — answered before they ask it.</strong>",
+            "Teachers who send proactive updates get fewer incoming messages, fewer worried calls, and retain students longer."
+          ],
+          "visual": {
+            "type": "quote_block",
+            "label": "Example monthly parent update",
+            "text": "Hi Mrs. Wickramasinghe, Kavinda attended 8/9 sessions in October. His test score was 74, up from 68 last month. He's solid on algebra — we're focusing on graph problems this term. Good progress."
+          }
+        },
+        {
+          "id": "strat-term-end-reports",
+          "number": 5,
+          "color": "blue",
+          "title": "Use term-end reports to justify your fee and build loyalty",
+          "content_paragraphs": [
+            "At the end of each school term, generate a one-page progress summary for every student: attendance rate, test score trend, areas of strength, areas to work on, plan for next term.",
+            "<strong>These reports do three things: show parents the value of what they're paying for, give students a sense of progress, and set expectations for the next term.</strong>",
+            "Teachers who send term reports retain students at a significantly higher rate than those who don't — because the report makes the progress tangible."
+          ]
+        },
+        {
+          "id": "strat-early-struggling-identification",
+          "number": 6,
+          "color": "text-mid",
+          "title": "Identify struggling students early — before parents do",
+          "content_paragraphs": [
+            "If you're tracking attendance and scores, you'll see a student starting to fall behind before their parents notice. <strong>Reach out first.</strong>",
+            "The moment a parent has to come to you with a concern, you're already in a defensive position. But if you message them first, you're a proactive teacher who caught it early.",
+            "That framing changes everything about how the conversation goes."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "automate",
+        "headline": "We can automate this for you",
+        "description": "Our system logs attendance as you mark it, calculates attendance rates, and generates monthly parent updates from your score data. Two-absence flags create automatic alerts. You tap, the message sends."
+      },
+      "template_pack": {
+        "title": "Attendance and progress template pack",
+        "subtitle": "Simple tools so you always know exactly how each student is doing",
+        "items": [
+          {
+            "name": "Class attendance register (printable, 30 students, 12 weeks)",
+            "pages": 2
+          },
+          {
+            "name": "Monthly score tracker (per student, trend calculation)",
+            "pages": 1
+          },
+          {
+            "name": "2-absence check-in message templates (3 variations)",
+            "pages": 1
+          },
+          {
+            "name": "Monthly parent update message templates (with variables)",
+            "pages": 1
+          },
+          {
+            "name": "Term-end progress report template (1 page per student)",
+            "pages": 1
+          },
+          {
+            "name": "Early intervention conversation guide (struggling scenarios)",
+            "pages": 1
+          },
+          {
+            "name": "Monthly attendance summary (printable)",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee",
+        "free_sample": "Monthly parent update message templates"
+      },
+      "internal_notes": {
+        "competitor_intel": "CFMS: smart card, barcode, fingerprint attendance for 100+ institutions. Possystem: bulk enrollment, auto SMS/email attendance alerts, parent portal. Both are center-scale solutions, not solo-teacher tools.",
+        "automation_scope": "Attendance entry via mobile dashboard (tap present/absent for each student). 2-absence auto-flag with alert notification. Score entry → automatic trend calculation → parent update message generation. Term-end report generation from accumulated data.",
+        "research_sources": [
+          "A2",
+          "A4",
+          "A5"
+        ],
+        "content_gaps": "Retention improvement rate from progress tracking vs. no tracking not quantified in research. Direction is clearly supported (A2) but no specific percentage data.",
+        "cross_refs": "strat-progress-tracking (from 1.2) maps to strat-score-trend-tracking here. strat-two-absence-flag also referenced in 1.2, 6.3. strat-monthly-parent-updates also in 2.4, 6.3."
+      },
+      "nav": {
+        "next": {
+          "id": "automate-ops-parent-messages",
+          "label": "Parents keep messaging me nonstop"
+        },
+        "back": {
+          "id": "branch-automate-ops",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "automate-ops-parent-messages",
+      "branch": "automate-my-operations",
+      "pain_point": "Parents keep messaging me nonstop",
+      "path": [
+        "Automate My Operations",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "My phone buzzed 14 times before I'd even started teaching this morning. 11 of them were WhatsApp from parents.",
+        "I answered 'what time is Saturday class?' six times this week. Six different parents. Same question.",
+        "There are 47 unread messages in my parent group right now. I know some of them are important but I can't face opening it."
+      ],
+      "intro_body": "Most parent messages are asking questions you haven't answered yet. Close the information gaps proactively and the volume drops — without ignoring anyone.",
+      "strategies": [
+        {
+          "id": "strat-broadcast-not-group",
+          "number": 1,
+          "color": "accent",
+          "title": "Broadcast lists, not group messages — the key difference",
+          "content_paragraphs": [
+            "A WhatsApp broadcast sends the same message to many people but lands in each parent's personal chat as if you sent it directly to them. There's no group thread, no notifications from other parents, no side conversations you have to manage.",
+            "<strong>Set up one broadcast list per batch.</strong> For schedule changes, fee reminders, and announcements — one message, sent once, reaches everyone.",
+            "WhatsApp groups breed questions. Broadcast lists breed silence. Silence is what you want."
+          ],
+          "visual": {
+            "type": "highlight",
+            "text": "The difference: a group message starts a thread. A broadcast ends one. Switch your class communications to broadcast lists and the noise drops immediately."
+          }
+        },
+        {
+          "id": "strat-response-windows",
+          "number": 2,
+          "color": "purple",
+          "title": "Set response windows — and tell parents about them",
+          "content_paragraphs": [
+            "\"I reply to messages between 9–10am and 7–8pm.\" Write that in your enrollment information. Put it in your class rules document.",
+            "<strong>Most parents don't need immediate replies — they need to know you'll reply.</strong> A note that sets response windows is the same as a doctor's receptionist saying \"the doctor will call you back this afternoon.\"",
+            "This isn't rude. It's professional. And once it's set as an expectation from day one, parents adapt to it instantly."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "2–3 hrs",
+                "desc": "Per week on parent communications"
+              },
+              {
+                "num": "2 windows",
+                "desc": "Is all you need to answer every message"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-parent-faq",
+          "number": 3,
+          "color": "coral",
+          "title": "Create a parent FAQ that pre-answers 80% of questions",
+          "content_paragraphs": [
+            "The 5 most common questions parents ask you are probably: what time is class, how do I pay, what happens if my child misses class, how will I know how they're doing, and what's your number.",
+            "<strong>Write the answers once, put them on one page, and give it to every parent on the day they enroll.</strong> For current parents who've never had this — send it now.",
+            "These answers stop at least 60% of the messages before they ever start."
+          ]
+        },
+        {
+          "id": "strat-template-replies",
+          "number": 4,
+          "color": "amber",
+          "title": "Build template replies for your 5 most-asked questions",
+          "content_paragraphs": [
+            "Save the text for your 5 most common replies in your phone's saved messages. When the same question arrives, 2 taps — done.",
+            "<strong>This doesn't feel like a big deal until you realize you've been typing the same 30-word message 8 times a week for 3 years.</strong>",
+            "The message for \"what time is Saturday class?\" already exists. Stop writing it from scratch."
+          ],
+          "visual": {
+            "type": "quote_block",
+            "label": "Example template reply",
+            "text": "Hi! The Saturday batch is at 10am at [address, near landmark]. Fee for this month is LKR [amount], due by the 1st. You can pay by cash at class or scan the QR code on the whiteboard."
+          }
+        },
+        {
+          "id": "strat-proactive-updates-prevent-questions",
+          "number": 5,
+          "color": "blue",
+          "title": "Proactive updates prevent most questions before they're asked",
+          "content_paragraphs": [
+            "A parent who received a monthly progress update last week won't message asking \"how is my child doing?\" A parent who got a fee reminder on the 25th won't message on the 2nd to ask if they owe anything.",
+            "<strong>Most parent messages are filling information vacuums you left.</strong> Close the vacuum, close the messages.",
+            "One proactive update per month eliminates the most common reactive questions."
+          ]
+        },
+        {
+          "id": "strat-class-info-status",
+          "number": 6,
+          "color": "text-mid",
+          "title": "Put class info in your WhatsApp status — once, visible to all",
+          "content_paragraphs": [
+            "A simple image saved to your WhatsApp status: class times, fee, your number, payment info. Update it once per term.",
+            "<strong>Parents who see it in a status update can screenshot and have everything they need — without messaging you.</strong>",
+            "One image. Zero messages. Takes 10 minutes to create."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "automate",
+        "headline": "We can automate this for you",
+        "description": "Our dashboard generates pre-written parent update messages from your data. One tap sends monthly progress updates, fee reminders, and schedule notifications to your entire parent list. No more answering the same question twice."
+      },
+      "template_pack": {
+        "title": "Parent communication template pack",
+        "subtitle": "Pre-written messages and tools to stop the nonstop WhatsApp",
+        "items": [
+          {
+            "name": "Parent enrollment FAQ (1 page, print-and-give format)",
+            "pages": 1
+          },
+          {
+            "name": "WhatsApp saved message templates for 10 common queries",
+            "pages": 2
+          },
+          {
+            "name": "Parent communication schedule card (your response windows)",
+            "pages": 1
+          },
+          {
+            "name": "Monthly update message templates (proactive sends)",
+            "pages": 1
+          },
+          {
+            "name": "WhatsApp broadcast list setup guide",
+            "pages": 1
+          },
+          {
+            "name": "Class info image template (for WhatsApp status)",
+            "pages": 1
+          },
+          {
+            "name": "Class broadcast message log (weekly)",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee",
+        "free_sample": "WhatsApp saved message templates"
+      },
+      "internal_notes": {
+        "competitor_intel": "No direct competitor addresses parent communication specifically at the solo teacher level. Possystem has a parent portal and auto SMS/email — but again, institution-scale. WhatsApp Business API could solve this but our product deliberately avoids it (no API, no Telegram).",
+        "automation_scope": "Our dashboard generates pre-written messages from data: monthly progress updates, fee reminders, schedule notifications. All sent via wa.me deep links — teacher taps the link, WhatsApp opens with the message pre-filled, teacher hits send. The system does the thinking, teacher does the sending.",
+        "research_sources": [
+          "A4",
+          "A7"
+        ],
+        "content_gaps": "No specific data on parent message volume per week. 2–3 hours/week on parent communication is inferred from A4's general time breakdown description.",
+        "cross_refs": "strat-broadcast-not-group also used in 1.4, 6.3. strat-response-windows also in 6.3. strat-parent-faq also in 6.3. strat-proactive-updates-prevent-questions also in 6.3."
+      },
+      "nav": {
+        "next": {
+          "id": "online-presence-where-to-start",
+          "label": "I don't know where to start online"
+        },
+        "back": {
+          "id": "branch-automate-ops",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    }
+  ]
+}

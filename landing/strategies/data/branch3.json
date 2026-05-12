@@ -1,0 +1,515 @@
+{
+  "branch": {
+    "id": "improve-online-presence",
+    "label": "Improve Online Presence",
+    "path": [
+      "Improve Online Presence",
+      "Services",
+      "Education & Tuition"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "online-presence-where-to-start",
+      "branch": "improve-online-presence",
+      "pain_point": "I don't know where to start online",
+      "path": [
+        "Improve Online Presence",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I know I should be online. I've been saying that for two years. I still don't have a single listing.",
+        "A teacher I know started a Facebook page last year and now I see parents recommending her in groups. I don't know how she did it.",
+        "Every time I try to figure out where to start I get lost in too many options and give up before doing anything."
+      ],
+      "intro_body": "You don't need to be on every platform. You need to be in the right two places, set up properly. Start here and you'll be further ahead than 40% of teachers in your area.",
+      "strategies": [
+        {
+          "id": "strat-directories-before-social",
+          "number": 1,
+          "color": "accent",
+          "title": "Start with directories — less work, more predictable",
+          "content_paragraphs": [
+            "Creating a profile on Iskolaya, Panthi, Mytutor, and Advice takes 2–3 hours total. Once it's up, it stays up, works 24/7, and reaches parents who are actively searching right now.",
+            "<strong>Directories don't require ongoing posting. Set them up once, update after each result season.</strong>",
+            "Social media requires creative energy. Directories don't. Do directories first — they're the online equivalent of a sign outside your house."
+          ],
+          "visual": {
+            "type": "bar_chart",
+            "title": "Where parents search for tuition",
+            "data": [
+              {
+                "label": "Iskolaya",
+                "value": 100,
+                "display": "6M+ users",
+                "color": "#085041",
+                "valueColor": "#9FE1CB"
+              },
+              {
+                "label": "Panthi",
+                "value": 52,
+                "display": "3,100+ pages",
+                "color": "#1D9E75",
+                "valueColor": "var(--text)"
+              },
+              {
+                "label": "Mytutor",
+                "value": 42,
+                "display": "25 districts",
+                "color": "#5DCAA5",
+                "valueColor": "var(--text)"
+              },
+              {
+                "label": "ikman",
+                "value": 35,
+                "display": "Free listings",
+                "color": "#9FE1CB",
+                "valueColor": "#085041"
+              }
+            ],
+            "note": "60% of teachers are already on at least one platform. Getting on 4 puts you ahead of the majority."
+          }
+        },
+        {
+          "id": "strat-facebook-page-setup",
+          "number": 2,
+          "color": "purple",
+          "title": "Set up a Facebook Page — not a personal profile",
+          "content_paragraphs": [
+            "A Facebook Page for your tuition class is free and takes 20 minutes to set up. Name it after your subject and area: \"Nugegoda O/L Mathematics — Mr. Jayawickrama.\"",
+            "<strong>Add your results, class times, phone number, and a real photo.</strong> Not a logo. A real photo of you teaching.",
+            "Parents search Facebook for teachers. If you're not there, they find someone else. The page doesn't need to be polished — it needs to exist."
+          ]
+        },
+        {
+          "id": "strat-whatsapp-broadcast-from-existing",
+          "number": 3,
+          "color": "coral",
+          "title": "Build a broadcast list from your current parents",
+          "content_paragraphs": [
+            "You already have the numbers. Create a broadcast list called \"Class Updates\" and add every current parent.",
+            "<strong>This is your owned audience — it doesn't depend on any algorithm or platform changing its rules.</strong> Start using it immediately: class schedule for the new term, exam reminders, study tips.",
+            "One message a week is enough. That's your existing audience staying warm while you build the new one."
+          ]
+        },
+        {
+          "id": "strat-platform-audience-match",
+          "number": 4,
+          "color": "amber",
+          "title": "Understand which platform is for which audience",
+          "content_paragraphs": [
+            "Facebook is where parents discover teachers and check credibility. WhatsApp is how they communicate day-to-day. TikTok and Instagram are where A/L students spend time — but not where they make tuition decisions.",
+            "<strong>For most teachers, Facebook + WhatsApp is the complete answer.</strong> You don't need to be everywhere.",
+            "Add other platforms only when Facebook and your directory listings are consistently generating inquiries."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "Facebook",
+                "desc": "Where parents discover and vet teachers"
+              },
+              {
+                "num": "WhatsApp",
+                "desc": "Where they communicate once they've decided"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-smartphone-content-creation",
+          "number": 5,
+          "color": "blue",
+          "title": "Content creation doesn't require equipment",
+          "content_paragraphs": [
+            "A photo of your whiteboard with today's lesson. A result message a parent sent you (with permission, with names removed). A study tip in Sinhala typed in 2 minutes.",
+            "<strong>Good tuition content isn't cinematic — it's specific and honest.</strong> A whiteboard photo with \"today we solved the hardest O/L algebra question from 2023\" gets more engagement than a professional graphic.",
+            "You don't need a camera or an editor. You need a phone and something worth saying."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "help",
+        "headline": "Need help executing this?",
+        "description": "We set up your directory listings, Facebook page, and WhatsApp broadcast list from scratch. You give us your details — we handle the setup. Your complete online presence is live within a week."
+      },
+      "template_pack": {
+        "title": "Online presence starter pack",
+        "subtitle": "Everything you need to get your first online presence right",
+        "items": [
+          {
+            "name": "Directory profile copy template (4 platforms, fill-in-the-blank)",
+            "pages": 2
+          },
+          {
+            "name": "Facebook page setup walkthrough (step-by-step guide)",
+            "pages": 2
+          },
+          {
+            "name": "WhatsApp broadcast list setup guide + 4 starter messages",
+            "pages": 1
+          },
+          {
+            "name": "Platform guide (what to post where, when, how often)",
+            "pages": 1
+          },
+          {
+            "name": "Phone photography tips for classroom content",
+            "pages": 1
+          },
+          {
+            "name": "Monthly profile update checklist",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee",
+        "free_sample": "Directory profile copy template"
+      },
+      "internal_notes": {
+        "competitor_intel": "No tuition-specific online presence setup service identified in SL market. Generic digital marketing agencies exist but are priced for businesses, not individual teachers. Our help offering is uniquely positioned here.",
+        "automation_scope": "This is a 'need help executing' CTA — our service sets up the pages, not our automation product. However, the WhatsApp broadcast list setup naturally leads into using the dashboard for ongoing communications.",
+        "research_sources": [
+          "A1",
+          "A7"
+        ],
+        "content_gaps": "Facebook algorithm changes may affect organic reach. The '3 posts per week' formula is directionally supported but specific reach data for SL tuition content not measured.",
+        "cross_refs": "strat-directories-before-social shares bar chart component with strat-directory-listings (1.1, 1.4). strat-facebook-page-setup related to strat-facebook-results-wall (1.1, 1.4) and strat-facebook-formula (1.4)."
+      },
+      "nav": {
+        "next": {
+          "id": "online-presence-posting-nothing-happens",
+          "label": "I post but nothing happens"
+        },
+        "back": {
+          "id": "branch-online-presence",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "online-presence-posting-nothing-happens",
+      "branch": "improve-online-presence",
+      "pain_point": "I post but nothing happens",
+      "path": [
+        "Improve Online Presence",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I posted a study tip 3 weeks ago. It got 4 likes. I don't know why I bother.",
+        "I see other teachers' posts getting shared and commented on. Mine disappear into nothing.",
+        "I've been 'building my Facebook page' for 6 months. I don't have a single inquiry from it."
+      ],
+      "intro_body": "Posting without a system is how most people get stuck. A small change in what you post, when you post it, and where you post it can change everything — without posting more often.",
+      "strategies": [
+        {
+          "id": "strat-three-post-formula",
+          "number": 1,
+          "color": "accent",
+          "title": "The 3-post-per-week formula that actually works",
+          "content_paragraphs": [
+            "<strong>Monday 7pm: a study tip or exam technique in Sinhala or Tamil.</strong> Wednesday 7pm: a student result or progress story. Friday 7pm: class schedule, upcoming exam dates, or a practical reminder.",
+            "Post when parents are scrolling — after work, after dinner. Not during school hours, not at 11am.",
+            "This isn't creative. It's consistent. And consistency at this scale beats quality when you're starting out."
+          ]
+        },
+        {
+          "id": "strat-content-parents-share",
+          "number": 2,
+          "color": "purple",
+          "title": "Make content parents share, not content you want to post",
+          "content_paragraphs": [
+            "Parents share two kinds of content: useful information (exam dates, study guides, preparation tips) and proof (results, student improvements, testimonials).",
+            "<strong>A post that says \"Working hard builds character!\" gets ignored.</strong> A post that says \"3 students scored distinctions in last week's O/L practice paper — proud of this batch\" gets shared by parents to other parents.",
+            "Every post should answer one question: would a parent share this with another parent? If not, rewrite it."
+          ]
+        },
+        {
+          "id": "strat-community-group-presence",
+          "number": 3,
+          "color": "coral",
+          "title": "Community groups are where discovery actually happens",
+          "content_paragraphs": [
+            "Every area has WhatsApp groups and Facebook groups for parents: \"Rajagiriya Parents\", school community groups, \"Anuradhapura Mothers Network.\" Join them. Answer questions about exams, study strategies, school calendars.",
+            "<strong>Don't advertise. Help.</strong> When someone eventually asks \"does anyone know a good chemistry teacher near Nugegoda?\" — your name will already be familiar from weeks of helpful answers.",
+            "Familiarity built over time converts when the moment arrives."
+          ]
+        },
+        {
+          "id": "strat-facebook-boosted-post",
+          "number": 4,
+          "color": "amber",
+          "title": "Run one small Facebook ad during enrollment season",
+          "content_paragraphs": [
+            "LKR 2,000–5,000 for a 7-day boosted post is enough to reach 3,000–5,000 parents in your area. Choose January (peak enrollment) or August (crash course season).",
+            "<strong>Boost a post with your best recent results</strong> — pass rates, grade counts, a student quote. Not a class schedule. Results.",
+            "This is not a big investment. It's enough to test whether paid reach works for you before committing more."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "LKR 2,000–5,000",
+                "desc": "7-day Facebook boost during Jan/Aug"
+              },
+              {
+                "num": "3,000–5,000",
+                "desc": "Parents reached in your area"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-measure-inquiries-not-likes",
+          "number": 5,
+          "color": "blue",
+          "title": "Measure inquiries, not likes",
+          "content_paragraphs": [
+            "Likes don't pay fees. Track how many new parent inquiries you get each month — and note which posts they mentioned seeing.",
+            "<strong>After 3 months of consistent posting, you'll know exactly which type of content brings inquiries.</strong> Double down on that. Stop making the rest.",
+            "A results post that gets 8 likes and 3 inquiries beats an inspirational post that gets 40 likes and zero inquiries every time."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "diy",
+        "headline": "You've got this — here's a checklist",
+        "description": null
+      },
+      "template_pack": {
+        "title": "Social media content template pack",
+        "subtitle": "12 weeks of posts, a boosted ad guide, and a system for tracking what works",
+        "items": [
+          {
+            "name": "12-week Facebook content calendar (Mon/Wed/Fri, 36 posts)",
+            "pages": 4
+          },
+          {
+            "name": "Facebook ad setup guide (boost a post in 10 minutes)",
+            "pages": 1
+          },
+          {
+            "name": "Parent community engagement guide",
+            "pages": 1
+          },
+          {
+            "name": "Content performance tracker (monthly inquiry source log)",
+            "pages": 1
+          },
+          {
+            "name": "Post templates for 6 content types (results, tip, info, testimonial, exam reminder, CTA)",
+            "pages": 2
+          }
+        ],
+        "total_pages": 9,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "Post templates for 6 content types"
+      },
+      "internal_notes": {
+        "competitor_intel": "No direct content-strategy competitor in the SL tuition space. W3Media.lk and ClassifyLanka.com offer general marketing guides but nothing tuition-specific at this level of detail.",
+        "automation_scope": "DIY node — our product doesn't directly help with social media content. This builds trust and credibility before the automation CTA in the next node.",
+        "research_sources": [
+          "A7"
+        ],
+        "content_gaps": "Optimal posting time for SL parents (7pm assumption) not directly measured. Facebook reach and engagement rates for SL tuition content not available.",
+        "cross_refs": "strat-three-post-formula and strat-content-parents-share related to strat-facebook-formula (1.4). strat-community-group-presence also used in 1.4. strat-facebook-boosted-post is new to this node."
+      },
+      "nav": {
+        "next": {
+          "id": "online-presence-teach-online",
+          "label": "I want to teach online but don't know how"
+        },
+        "back": {
+          "id": "branch-online-presence",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    },
+    {
+      "id": "online-presence-teach-online",
+      "branch": "improve-online-presence",
+      "pain_point": "I want to teach online but don't know how",
+      "path": [
+        "Improve Online Presence",
+        "Services",
+        "Education & Tuition"
+      ],
+      "inner_thoughts": [
+        "I have students outside my area who want to join my class. But I don't know how to do it properly.",
+        "I spent an hour trying to get Zoom working before my first online session. Three students couldn't connect and I gave up.",
+        "I don't know what to charge for online classes. The same as physical? Less? I have no idea."
+      ],
+      "intro_body": "Online teaching is simpler than the setup anxiety makes it seem. Once the first session runs without problems, it becomes routine quickly. Here's the setup that works first time.",
+      "strategies": [
+        {
+          "id": "strat-zoom-setup",
+          "number": 1,
+          "color": "accent",
+          "title": "Zoom is the tool — here's the setup that works first time",
+          "content_paragraphs": [
+            "Free Zoom allows 40-minute sessions (enough for practice, not full classes). Zoom Pro at LKR 1,500–2,000/month removes the time limit. Install on your tablet or laptop — not just your phone.",
+            "<strong>Do a test session with one trusted parent before your first real online class.</strong> 15 minutes. Check audio, screen sharing, and reconnection after a drop. This prevents the 3-student-connectivity disaster on launch day.",
+            "Settings to configure once: set a meeting password, enable waiting room, turn off participant screen sharing, mute participants on entry."
+          ]
+        },
+        {
+          "id": "strat-online-pricing",
+          "number": 2,
+          "color": "purple",
+          "title": "Price online classes at 60–70% of your physical rate",
+          "content_paragraphs": [
+            "Online students don't get the in-person attention, the physical classroom energy, or the ability to walk up to you after class with their book. The price should reflect that.",
+            "<strong>At 60–70% of your physical rate, the difference is fair and transparent.</strong> A physical class at LKR 3,000/month becomes LKR 2,000–2,100 online.",
+            "That's still meaningful revenue for zero hall costs and zero travel time. And it lets you reach students outside your area who couldn't attend physically."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "60–70%",
+                "desc": "Of physical rate for online classes"
+              },
+              {
+                "num": "0",
+                "desc": "Hall costs for online students"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-session-recording",
+          "number": 3,
+          "color": "coral",
+          "title": "Record sessions as catch-up content",
+          "content_paragraphs": [
+            "With student and parent consent, record your Zoom sessions. Students who miss a class can watch it back — they don't fall behind, they don't drop.",
+            "<strong>Recording solves the single biggest disadvantage of online tuition compared to physical.</strong> A student who misses a physical class is behind. A student who misses a recorded online class watches it back over the weekend.",
+            "This isn't free labor. It's a retention tool that costs zero extra time."
+          ]
+        },
+        {
+          "id": "strat-youtube-long-game-online",
+          "number": 4,
+          "color": "amber",
+          "title": "Start a YouTube channel for long-term lead generation",
+          "content_paragraphs": [
+            "10-minute subject explainers in Sinhala or Tamil — one per week. Build a searchable library of your best teaching.",
+            "<strong>A parent Googling \"A/L physics wave motion Sri Lanka Sinhala\" and finding your video is a warm lead who's already seen how you teach before they contact you.</strong>",
+            "This is a 12-month game: month 1 you have 4 videos, month 12 you have 52 — and new students find you while you sleep."
+          ]
+        },
+        {
+          "id": "strat-digital-divide-hybrid",
+          "number": 5,
+          "color": "blue",
+          "title": "Understand the digital divide — online supplements, it doesn't replace",
+          "content_paragraphs": [
+            "About 30% of Sri Lankan students still have no reliable internet access, particularly in rural areas. For these students, online-only isn't an option.",
+            "<strong>The hybrid model — physical class with an online version running in parallel — gives you the broadest reach.</strong> Rural students attend physically; Colombo students join online. Same session, different channels.",
+            "Online is your scaling lever, not your replacement strategy."
+          ],
+          "visual": {
+            "type": "stat_row",
+            "cards": [
+              {
+                "num": "30%",
+                "desc": "Of students still lack reliable internet access"
+              },
+              {
+                "num": "Hybrid",
+                "desc": "Physical + online is the broadest-reach model"
+              }
+            ]
+          }
+        },
+        {
+          "id": "strat-existing-online-platforms",
+          "number": 6,
+          "color": "text-mid",
+          "title": "Use existing platforms to reach beyond your geography",
+          "content_paragraphs": [
+            "Online listing platforms like OnlineTuition.lk, Siplo.lk (1,220+ qualified teachers), and TeacherOn.com (6,000+ SL tutors listed) have existing parent traffic. Listing on them doesn't replace your own channels — it adds to them.",
+            "<strong>These platforms are useful for reaching parents in districts where you have zero word-of-mouth presence yet.</strong>",
+            "Set up a profile once, keep it updated with current results, and let it work in the background."
+          ]
+        }
+      ],
+      "cta": {
+        "type": "help",
+        "headline": "Need help executing this?",
+        "description": "We can set up your online class infrastructure: Zoom configuration, student enrollment system, session recording workflow, and your first YouTube channel setup. Everything configured and tested before your first online student joins."
+      },
+      "template_pack": {
+        "title": "Online teaching setup pack",
+        "subtitle": "Everything to get your first online class running without the tech stress",
+        "items": [
+          {
+            "name": "Zoom setup guide for tuition teachers (with screenshots)",
+            "pages": 2
+          },
+          {
+            "name": "Online class rules and tech requirements (to send students)",
+            "pages": 1
+          },
+          {
+            "name": "Online pricing guide (how to price, how to announce it)",
+            "pages": 1
+          },
+          {
+            "name": "Session recording consent form + student notification message",
+            "pages": 1
+          },
+          {
+            "name": "YouTube channel launch guide (equipment, upload workflow, first 5 video outlines)",
+            "pages": 2
+          },
+          {
+            "name": "Online vs. physical comparison guide (for parents considering it)",
+            "pages": 1
+          }
+        ],
+        "total_pages": 8,
+        "price_lkr": 990,
+        "price_anchor": "Less than one student's monthly fee.",
+        "free_sample": "Online class rules and tech requirements"
+      },
+      "internal_notes": {
+        "competitor_intel": "Guru.lk (SLT-partnered, monthly subscription billed through SLT broadband) — mention as market context in the research, NOT as a competitor in user-facing content. OnlineTuition.lk, Siplo.lk, TeacherOn.com, Smart Tuition (free app) are listing/distribution platforms, not competitors. Do NOT name in user-facing strategy cards.",
+        "automation_scope": "This is a 'need help executing' CTA — our service sets up the online infrastructure. The dashboard can later handle online student fee collection and attendance the same way it does physical.",
+        "research_sources": [
+          "A7",
+          "A9",
+          "A11"
+        ],
+        "content_gaps": "Zoom Pro pricing in LKR may fluctuate. 30% digital divide figure is from ADB 2021 COVID study — may have improved by 2026 but no updated figure available.",
+        "cross_refs": "strat-youtube-long-game-online shares concept with strat-youtube-long-game (1.4). strat-digital-divide-hybrid mentioned briefly in 1.3 (online arm). strat-online-pricing is unique to this node."
+      },
+      "nav": {
+        "next": {
+          "id": "reduce-costs-printing",
+          "label": "Printing is eating my budget"
+        },
+        "back": {
+          "id": "branch-online-presence",
+          "label": "Back to all problems"
+        },
+        "main": {
+          "id": "main-menu",
+          "label": "Main menu"
+        }
+      }
+    }
+  ]
+}

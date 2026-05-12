@@ -1,0 +1,1463 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory Bot — Purifye</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══ PART 1: Base styles, phone frame, nav, tabs ═══ */
+
+:root {
+  --bg:#131311;--card:#1a1a18;--sf:#212120;--inp:#2a2a28;
+  --t1:#e8e7e0;--t2:#c4c3bc;--t3:#9c9b95;
+  --accent:#E86B3A;--adim:rgba(232,107,58,0.1);--abrd:rgba(232,107,58,0.2);
+  --g1:#EE7844;--g2:#B84D22;
+  --grn:#5DCAA5;--grn-deep:#2a8a6a;
+  --red:#D85A30;--rd:rgba(216,90,48,0.1);
+  --amb:#D4A843;--ad:rgba(212,168,67,0.1);
+  --blu:#5B8DEF;
+  --bdr:rgba(255,255,255,0.06);
+  --ff:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a09;color:var(--t1);font-family:var(--ff);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.demo-wrap{display:flex;flex-direction:column;align-items:center;gap:20px}
+.caption{position:fixed;top:0;left:0;right:0;z-index:200;padding:20px 24px 14px;background:rgba(15,15,13,0.97);border-bottom:2px solid rgba(232,107,58,0.5);font-size:20px;font-weight:700;color:#e8e7e0;text-align:center;line-height:1.3;opacity:0;transform:translateY(-100%);transition:opacity .35s,transform .35s;pointer-events:none;letter-spacing:-.3px;word-break:break-word}
+.caption.show{opacity:1;transform:translateY(0)}
+.caption .hl{color:var(--accent);font-weight:700}
+.caption .sub{display:block;font-size:15px;font-weight:400;color:#e8e7e0;margin-top:5px;letter-spacing:0;word-wrap:break-word;white-space:normal}
+
+.phone{width:375px;height:800px;background:var(--bg);border-radius:44px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 2px #3a3a38,0 0 0 5px #1a1a18,0 0 0 7px #0a0a09,0 30px 60px rgba(0,0,0,0.6),0 0 120px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.04)}
+.notch{height:50px;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notch-bar{width:120px;height:28px;background:#0a0a09;border-radius:0 0 18px 18px}
+
+/* Nav */
+.nav{padding:8px 18px 0;flex-shrink:0;background:var(--bg)}
+.nav-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.nav-left{display:flex;align-items:center;gap:8px}
+.nav-ic{width:26px;height:26px;background:linear-gradient(135deg,var(--g1),var(--g2));border-radius:5px;display:grid;place-items:center}
+.nav-ic svg{width:13px;height:13px}
+.nav-h{font-size:14px;font-weight:700;color:var(--t1)}
+.nav-gear{color:var(--t3);display:flex}
+.nav-gear svg{width:17px;height:17px}
+.pills{display:flex;gap:5px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
+.pill{font-family:var(--fm);font-size:10px;font-weight:600;padding:4px 12px;border-radius:16px;color:var(--t3);border:1px solid transparent;transition:all 0.3s}
+.pill.on{background:var(--adim);border-color:var(--abrd);color:var(--accent)}
+
+/* Scroll area */
+.scroll{flex:1;overflow:hidden;position:relative}
+.scene{position:absolute;inset:0;padding:10px 18px 80px;overflow-y:auto;scrollbar-width:none;opacity:0;transition:opacity 0.35s,transform 0.35s;pointer-events:none}
+.scene::-webkit-scrollbar{display:none}
+.scene.in{opacity:1;transform:translateX(0) !important;pointer-events:auto}
+.scene.out-l{opacity:0;transform:translateX(-30px)}
+.scene.out-r{opacity:0;transform:translateX(30px)}
+.scene{transform:translateX(30px)}
+
+/* Bot tabs — matches PWA */
+.bot-bar{height:64px;background:var(--card);border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding:0 6px;max-width:430px}
+.bt{display:flex;flex-direction:column;align-items:center;gap:2px}
+.bt-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.bt-lb{font-family:var(--ff);font-size:10px;color:var(--t3)}
+.bt.on .bt-lb{color:var(--t1)}
+.bt.on .bt-ic{box-shadow:0 0 12px rgba(232,107,58,0.3)}
+
+/* FAB */
+.fab{position:absolute;bottom:60px;right:16px;width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--g1),var(--g2));display:grid;place-items:center;box-shadow:0 4px 16px rgba(232,107,58,0.3);z-index:50;color:#fff;transition:transform 0.15s,opacity 0.3s}
+.fab svg{width:20px;height:20px}
+.fab.press{transform:scale(0.88)}
+
+/* Highlight pulse for tapped elements */
+.tap-hl{animation:tapPulse 0.5s ease}
+@keyframes tapPulse{0%{background:rgba(232,107,58,0.25)}100%{background:transparent}}
+
+/* Step label */
+/* step label removed — using .caption above phone instead */
+
+/* Bottom sheet */
+.bs-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);z-index:60;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.bs-overlay.show{opacity:1;pointer-events:auto}
+.bs{position:absolute;bottom:0;left:0;right:0;background:var(--card);border-radius:14px 14px 0 0;z-index:61;transform:translateY(100%);transition:transform 0.3s ease;padding:16px 18px 24px}
+.bs.show{transform:translateY(0)}
+.bs-handle{width:32px;height:3px;background:var(--sf);border-radius:2px;margin:0 auto 12px}
+.bs-title{font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px}
+.bs-opt{display:flex;align-items:center;gap:10px;padding:10px;background:var(--sf);border:1px solid var(--bdr);border-radius:8px;margin-bottom:5px;transition:background 0.15s}
+.bs-opt.hl{background:var(--inp);border-color:var(--abrd)}
+.bs-oi{width:30px;height:30px;border-radius:5px;display:grid;place-items:center;flex-shrink:0}
+.bs-oi svg{width:15px;height:15px}
+.bs-oi.ph{background:rgba(93,202,165,0.1);color:var(--grn)}
+.bs-oi.vo{background:var(--ad);color:var(--amb)}
+.bs-oi.fi{background:rgba(91,141,239,0.1);color:var(--blu)}
+.bs-oi.ma{background:var(--adim);color:var(--accent)}
+.bs-ol{font-size:12px;font-weight:500;color:var(--t1)}
+.bs-od{font-family:var(--fm);font-size:7px;color:var(--t2)}
+
+/* ═══ SCENE STYLES ═══ */
+
+/* Section label */
+.slbl{text-align:center;font-size:12px;font-weight:600;color:var(--t1);margin:4px 0 5px}
+
+/* Heatmap */
+.hm{background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:10px;margin-bottom:8px}
+.hm-hdr{display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:8px}
+.hm-t{font-size:11px;font-weight:600;color:var(--t1)}
+.hm-leg{position:absolute;right:0;display:flex;gap:1px}
+.hm-leg div{width:7px;height:5px;border-radius:1px}
+.hm-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-bottom:8px}
+.hm-c{aspect-ratio:1;border-radius:2px;opacity:0;transform:scale(0);transition:opacity 0.06s,transform 0.06s}
+.hm-c.s{opacity:1;transform:scale(1)}
+.hm-sum{display:flex;gap:4px}
+.hm-s{flex:1;background:var(--sf);border-radius:4px;padding:6px 4px;text-align:center}
+.hm-sv{font-family:var(--fm);font-size:14px;font-weight:500;line-height:1}
+.hm-sl{font-family:var(--fm);font-size:7px;color:var(--t2);margin-top:2px}
+
+/* Low stock */
+.ls{background:var(--card);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;position:relative;margin-bottom:8px}
+.ls::before{content:'';position:absolute;top:6px;bottom:6px;left:0;width:3px;border-radius:0 2px 2px 0;background:var(--red)}
+.lsi{padding:9px 10px 9px 12px;border-bottom:1px solid var(--bdr);opacity:0;transform:translateY(8px);transition:opacity 0.25s,transform 0.25s}
+.lsi:last-child{border-bottom:0}
+.lsi.s{opacity:1;transform:translateY(0)}
+.lsi-top{display:flex;justify-content:space-between;margin-bottom:4px}
+.lsi-nm{font-size:10.5px;font-weight:500;color:var(--t1)}
+.lsi-nums{font-family:var(--fm);font-size:9px;color:var(--t2)}
+.lsi-nums strong{color:var(--red)}
+.lsi-bar{height:4px;background:var(--sf);border-radius:2px;position:relative}
+.lsi-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--red),#e8704a);width:0;transition:width 0.5s ease}
+.lsi-mk{position:absolute;top:-2px;width:1.5px;height:8px;background:var(--t2);border-radius:1px;opacity:0.5}
+.lsi-bot{display:flex;justify-content:space-between;margin-top:3px}
+.lsi-def{font-family:var(--fm);font-size:7px;color:var(--t2)}
+.lsi-def strong{color:var(--red)}
+.lsi-act{font-family:var(--fm);font-size:7px;font-weight:500;color:var(--accent)}
+.lsi-act.hl{background:var(--adim);padding:2px 6px;border-radius:8px}
+
+/* Expiry */
+.ex{background:var(--card);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;position:relative;margin-bottom:8px}
+.ex::before{content:'';position:absolute;top:6px;bottom:6px;left:0;width:3px;border-radius:0 2px 2px 0;background:var(--amb)}
+.ex-tabs{display:flex;gap:3px;padding:7px 10px 3px 12px}
+.ex-t{font-family:var(--fm);font-size:8px;font-weight:600;padding:3px 8px;border-radius:12px;color:var(--t3);border:1px solid transparent;transition:all 0.25s}
+.ex-t.on{background:var(--ad);border-color:rgba(212,168,67,0.2);color:var(--amb)}
+.ex-days{display:flex;gap:3px;padding:5px 10px 5px 12px}
+.exd{flex:1;background:var(--sf);border-radius:4px;padding:4px 2px;text-align:center;border:1px solid var(--bdr);opacity:0;transform:scale(0.7);transition:all 0.15s}
+.exd.s{opacity:1;transform:scale(1)}
+.exd.today{border-color:var(--accent);background:rgba(232,107,58,0.06)}
+.exd.sel{border-color:var(--amb);background:rgba(212,168,67,0.04)}
+.exd .edl{font-family:var(--fm);font-size:6px;color:var(--t3);text-transform:uppercase;letter-spacing:0.04em}
+.exd .edn{font-family:var(--fm);font-size:12px;font-weight:500;color:var(--t1)}
+.exd.today .edn{color:var(--accent)}
+.exd .edc{font-family:var(--fm);font-size:6px;color:var(--t2);margin-top:1px}
+.exd.has .edc{color:var(--amb)}
+.ex-items{padding:3px 10px 8px 12px}
+.exi{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bdr);opacity:0;transition:opacity 0.2s}
+.exi:last-child{border-bottom:0}
+.exi.s{opacity:1}
+.exi-l{display:flex;align-items:center;gap:6px}
+.exi-pip{width:4px;height:4px;border-radius:50%}
+.exi-pip.u{background:var(--red);box-shadow:0 0 4px rgba(216,90,48,0.4)}
+.exi-pip.sn{background:var(--amb)}
+.exi-nm{font-size:10px;font-weight:500;color:var(--t1)}
+.exi-dt{font-family:var(--fm);font-size:8px;color:var(--t2)}
+/* Expired action btns */
+.exi-btns{display:flex;gap:3px}
+.exi-btn{font-family:var(--fm);font-size:7px;font-weight:500;padding:3px 7px;border-radius:3px;border:1px solid var(--bdr);background:var(--inp);color:var(--t2);transition:all 0.15s}
+.exi-btn.w{color:var(--red);border-color:rgba(216,90,48,0.2)}
+.exi-btn.hl{background:var(--rd);border-color:var(--red)}
+
+/* Bottom 3 boxes */
+.boxes{display:flex;gap:5px;margin-top:2px}
+.box{flex:1;background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:10px 6px;text-align:center}
+.box-lb{font-family:var(--fm);font-size:8px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px}
+.box-v{font-family:var(--fm);font-size:16px;font-weight:500;line-height:1}
+.box-sub{font-family:var(--fm);font-size:6px;color:var(--t3);margin-top:2px}
+
+/* ═══ PO Scene ═══ */
+.po-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.po-back{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t2)}
+.po-back svg{width:14px;height:14px}
+.po-center{text-align:center}
+.po-title{font-size:13px;font-weight:700;color:var(--t1)}
+.po-sub{font-family:var(--fm);font-size:7px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em}
+.po-badge{font-family:var(--fm);font-size:8px;font-weight:700;color:var(--amb);background:var(--ad);padding:3px 8px;border-radius:12px}
+
+.po-section{margin-bottom:8px}
+.po-slbl{font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+.po-card{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:10px}
+.po-sup{display:flex;align-items:center;gap:8px}
+.po-avatar{width:28px;height:28px;border-radius:6px;background:rgba(232,137,79,0.12);display:grid;place-items:center;font-family:var(--fm);font-size:11px;font-weight:700;color:#E8894F}
+.po-sup-name{font-size:11px;font-weight:500;color:var(--t1)}
+.po-sup-meta{font-family:var(--fm);font-size:7px;color:var(--t2)}
+
+.po-table{width:100%}
+.po-th{display:grid;grid-template-columns:1fr 40px 55px 50px;gap:4px;padding:5px 0;border-bottom:1px solid var(--bdr)}
+.po-th span{font-family:var(--fm);font-size:7px;color:var(--t3);text-transform:uppercase}
+.po-th span:not(:first-child){text-align:right}
+.po-tr{display:grid;grid-template-columns:1fr 40px 55px 50px;gap:4px;padding:6px 0;border-bottom:1px solid var(--bdr);opacity:0;transform:translateY(6px);transition:all 0.2s}
+.po-tr:last-child{border-bottom:0}
+.po-tr.s{opacity:1;transform:translateY(0)}
+.po-pn{font-size:10px;font-weight:500;color:var(--t1)}
+.po-pn small{font-family:var(--fm);font-size:7px;color:var(--t3);display:block}
+.po-tv{font-family:var(--fm);font-size:9px;color:var(--t2);text-align:right}
+
+.po-total{display:flex;justify-content:space-between;padding:8px 0 0;border-top:1px solid var(--bdr);margin-top:4px}
+.po-total-l{font-family:var(--fm);font-size:8px;font-weight:700;color:var(--t1);text-transform:uppercase;letter-spacing:0.06em}
+.po-total-v{font-family:var(--fm);font-size:14px;font-weight:500;color:var(--accent)}
+
+.po-send{width:100%;padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;font-family:var(--ff);font-size:12px;font-weight:600;text-align:center;margin-top:8px;transition:opacity 0.15s}
+.po-send.press{opacity:0.8}
+
+/* ═══ Stock List Scene ═══ */
+.stk-search{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.stk-search svg{width:13px;height:13px;color:var(--t3);flex-shrink:0}
+.stk-search span{font-size:11px;color:var(--t3)}
+
+.stk-grp{background:var(--card);border:1px solid var(--bdr);border-radius:8px;overflow:hidden;margin-bottom:6px}
+.stk-gh{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--bdr)}
+.stk-gl{display:flex;align-items:center;gap:6px}
+.stk-gn{font-family:var(--fm);font-size:9px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:0.06em}
+.stk-gc{font-family:var(--fm);font-size:8px;font-weight:700;padding:1px 5px;border-radius:8px}
+.stk-gc.rm{background:rgba(91,141,239,0.1);color:var(--blu)}
+.stk-gc.fg{background:rgba(93,202,165,0.1);color:var(--grn)}
+.stk-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--bdr);opacity:0;transform:translateY(4px);transition:all 0.15s}
+.stk-row:last-child{border-bottom:0}
+.stk-row.s{opacity:1;transform:translateY(0)}
+.stk-row.hl{background:var(--sf)}
+.stk-rn{font-size:10.5px;font-weight:500;color:var(--t1)}
+.stk-rq{font-family:var(--fm);font-size:10px;color:var(--t2)}
+
+/* ═══ Product Detail Scene ═══ */
+.pd-hero{background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:12px;display:flex;justify-content:space-between;margin-bottom:8px}
+.pd-nm{font-size:14px;font-weight:600;color:var(--t1)}
+.pd-meta{font-family:var(--fm);font-size:8px;color:var(--t2);margin-top:2px}
+.pd-qty-v{font-family:var(--fm);font-size:24px;font-weight:500;line-height:1;text-align:right}
+.pd-qty-u{font-family:var(--fm);font-size:8px;color:var(--t3);text-align:right;margin-top:2px}
+
+.pd-stats{display:flex;gap:4px;margin-bottom:8px}
+.pd-st{flex:1;background:var(--sf);border-radius:5px;padding:7px 5px;text-align:center}
+.pd-stv{font-family:var(--fm);font-size:13px;font-weight:500;color:var(--t1);line-height:1}
+.pd-stl{font-family:var(--fm);font-size:7px;color:var(--t2);margin-top:2px}
+
+.pd-reorder{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.pd-ro-l{display:flex;align-items:center;gap:8px}
+.pd-ro-dot{width:7px;height:7px;border-radius:50%;background:var(--red)}
+.pd-ro-lb{font-size:10px;font-weight:500;color:var(--t1)}
+.pd-ro-v{font-family:var(--fm);font-size:11px;color:var(--t2)}
+
+/* Movement timeline */
+.mv{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:10px;overflow:hidden}
+.mvi{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr);position:relative;opacity:0;transform:translateY(6px);transition:all 0.2s}
+.mvi:last-child{border-bottom:0}
+.mvi.s{opacity:1;transform:translateY(0)}
+.mvi-dot{width:22px;height:22px;border-radius:5px;display:grid;place-items:center;flex-shrink:0}
+.mvi-dot svg{width:10px;height:10px}
+.mvi-dot.pur{background:rgba(93,202,165,0.1);color:var(--grn)}
+.mvi-dot.sal{background:rgba(91,141,239,0.1);color:var(--blu)}
+.mvi-dot.was{background:var(--rd);color:var(--red)}
+.mvi-info{flex:1}
+.mvi-t{font-size:10px;font-weight:500;color:var(--t1)}
+.mvi-d{font-family:var(--fm);font-size:7px;color:var(--t2)}
+.mvi-r{text-align:right}
+.mvi-qty{font-family:var(--fm);font-size:10px;font-weight:500}
+.mvi-qty.plus{color:var(--grn)}
+.mvi-qty.minus{color:var(--red)}
+.mvi-date{font-family:var(--fm);font-size:7px;color:var(--t3)}
+
+/* ═══ Manual Entry Scene ═══ */
+.me-types{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
+.me-type{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px;background:var(--card);border:1px solid var(--bdr);border-radius:8px;transition:all 0.2s}
+.me-type.on{border-color:var(--abrd);background:var(--adim)}
+.me-type-ic{width:26px;height:26px;border-radius:5px;display:grid;place-items:center}
+.me-type-ic svg{width:12px;height:12px}
+.me-type-lb{font-size:10px;font-weight:600;color:var(--t2)}
+.me-type.on .me-type-lb{color:var(--accent)}
+
+.me-field{margin-bottom:8px}
+.me-label{font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px}
+.me-input{width:100%;background:var(--inp);border:1px solid var(--bdr);border-radius:5px;padding:8px 10px;font-family:var(--ff);font-size:11px;color:var(--t1)}
+.me-input.mono{font-family:var(--fm);font-size:13px;font-weight:500}
+.me-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+
+.me-total{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:10px;display:flex;justify-content:space-between;margin-bottom:8px}
+.me-total-l{font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.06em}
+.me-total-v{font-family:var(--fm);font-size:14px;font-weight:500;color:var(--accent)}
+
+.me-submit{width:100%;padding:10px;border-radius:8px;background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;font-family:var(--ff);font-size:12px;font-weight:600;text-align:center;transition:opacity 0.15s}
+.me-submit.press{opacity:0.8}
+
+/* Typing animation for inputs */
+.typing-cursor{display:inline-block;width:1px;height:14px;background:var(--accent);animation:blink 0.6s infinite;vertical-align:middle;margin-left:1px}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+
+/* Share sheet mock */
+.share-sheet{position:absolute;bottom:0;left:0;right:0;background:#1e1e1e;border-radius:12px 12px 0 0;z-index:70;padding:14px;transform:translateY(100%);transition:transform 0.3s}
+.share-sheet.show{transform:translateY(0)}
+.share-row{display:flex;justify-content:space-around;margin-top:8px}
+.share-app{display:flex;flex-direction:column;align-items:center;gap:3px}
+.share-app-ic{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;font-size:16px}
+.share-app-lb{font-size:8px;color:var(--t2)}
+.share-title{font-family:var(--fm);font-size:9px;color:var(--t2);text-align:center}
+/* ─── Section spacing ─── */
+.section{padding:72px 0 0}
+
+/* ─── Section header ─── */
+.sec-head{text-align:center;margin-bottom:48px}
+.sec-tag{font-family:var(--fm);font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:12px}
+.sec-title{font-size:24px;font-weight:700;color:var(--t1);line-height:1.25;letter-spacing:-0.5px;margin-bottom:10px}
+.sec-desc{font-size:13px;color:var(--t2);max-width:520px;margin:0 auto;line-height:1.6}
+
+/* ═══════════════════════════════ */
+/* HOW IT WORKS — 6 steps         */
+/* ═══════════════════════════════ */
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.step{background:var(--sf);border:1px solid var(--bdr);border-radius:14px;padding:24px 20px;position:relative;transition:border-color 0.2s}
+.step:hover{border-color:rgba(232,107,58,0.15)}
+.step-num{font-family:var(--fm);font-size:40px;font-weight:700;color:rgba(232,107,58,0.12);position:absolute;top:16px;right:18px;line-height:1}
+.step-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px}
+.step-icon svg{width:22px;height:22px}
+.step-name{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:6px}
+.step-desc{font-size:12px;color:var(--t2);line-height:1.5}
+
+/* ═══════════════════════════════ */
+/* FEATURE HIGHLIGHTS — 5 cards   */
+/* ═══════════════════════════════ */
+.features{display:flex;flex-direction:column;gap:20px}
+.feat{background:var(--sf);border:1px solid var(--bdr);border-radius:14px;padding:20px 18px;display:flex;flex-direction:column;gap:14px;transition:border-color 0.2s}
+.feat:hover{border-color:rgba(232,107,58,0.15)}
+.feat-visual{width:100%;height:120px;flex-shrink:0;background:var(--el);border-radius:10px;overflow:hidden;display:grid;place-items:center;border:1px solid var(--bdr)}
+.feat-content{flex:1}
+.feat-badge{font-family:var(--fm);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;padding:4px 10px;border-radius:20px;display:inline-block;margin-bottom:10px}
+.feat-title{font-size:20px;font-weight:700;color:var(--t1);margin-bottom:8px;letter-spacing:-0.3px}
+.feat-desc{font-size:13px;color:var(--t2);line-height:1.65}
+
+/* Mini heatmap inside feature card */
+.mini-hm{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;width:120px}
+.mini-hm div{aspect-ratio:1;border-radius:2px}
+
+/* Mini bars */
+.mini-bars{display:flex;flex-direction:column;gap:6px;width:140px}
+.mini-bar-row{display:flex;align-items:center;gap:6px}
+.mini-bar-label{font-family:var(--fm);font-size:8px;color:var(--t3);width:50px;text-align:right}
+.mini-bar-track{flex:1;height:6px;background:var(--inp);border-radius:3px;overflow:hidden}
+.mini-bar-fill{height:100%;border-radius:3px}
+
+/* Mini calendar */
+.mini-cal{display:flex;gap:3px}
+.mini-day{width:24px;background:var(--inp);border-radius:3px;padding:3px 0;text-align:center;border:1px solid var(--bdr)}
+.mini-day.today{border-color:var(--accent)}
+.mini-day .md-d{font-family:var(--fm);font-size:9px;color:var(--t1)}
+.mini-day .md-c{font-family:var(--fm);font-size:6px;color:var(--amb);margin-top:1px}
+
+/* Mini count */
+.mini-count{display:flex;flex-direction:column;gap:4px;width:140px}
+.mc-row{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:var(--inp);border-radius:4px}
+.mc-name{font-family:var(--fm);font-size:8px;color:var(--t1)}
+.mc-nums{display:flex;align-items:center;gap:4px}
+.mc-sys{font-family:var(--fm);font-size:8px;color:var(--t3)}
+.mc-counted{font-family:var(--fm);font-size:8px;color:var(--t1);background:var(--el);padding:1px 4px;border-radius:2px}
+.mc-dot{width:5px;height:5px;border-radius:50%}
+
+/* ═══════════════════════════════ */
+/* WAYS TO FEED DATA               */
+/* ═══════════════════════════════ */
+.feed-list{display:flex;flex-direction:column;gap:12px}
+.feed-card{background:var(--sf);border:1px solid var(--bdr);border-radius:14px;padding:18px 16px;transition:border-color 0.2s}
+.feed-card:hover{border-color:rgba(255,255,255,0.1)}
+.feed-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.feed-icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+.feed-icon svg{width:20px;height:20px}
+.feed-info{flex:1}
+.feed-name{font-size:15px;font-weight:700;color:var(--t1)}
+.feed-desc{font-size:11px;color:var(--t2);margin-top:2px}
+.feed-flow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.feed-side{}
+.feed-side-label{font-family:var(--fm);font-size:8px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
+.feed-file-chip{display:inline-flex;align-items:center;gap:6px;background:var(--el);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px}
+.feed-file-icon{font-size:14px}
+.feed-file-name{font-family:var(--fm);font-size:10px;color:var(--t1)}
+.feed-result{}
+.feed-result-line{font-family:var(--fm);font-size:10px;font-weight:500;margin-bottom:2px}
+.feed-result-line.ok{color:var(--grn)}
+.feed-result-meta{font-family:var(--fm);font-size:9px;color:var(--t3)}
+.feed-voice{display:flex;align-items:center;gap:8px;background:var(--el);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;margin-bottom:4px}
+.feed-wave{font-family:var(--fm);font-size:10px;color:var(--amb);letter-spacing:1px}
+.feed-voice-time{font-family:var(--fm);font-size:9px;color:var(--t3)}
+.feed-voice-text{font-family:var(--fm);font-size:9px;color:var(--t3);font-style:italic}
+
+
+/* ═══ HERO ═══ */
+.hero{text-align:center;padding:40px 20px 20px;max-width:430px;margin:0 auto}
+.hero-icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#EE7844,#B84D22);display:grid;place-items:center;margin:0 auto 24px;box-shadow:0 8px 32px rgba(232,107,58,0.3)}
+.hero-icon svg{width:30px;height:30px}
+.hero h1{font-size:30px;font-weight:700;color:#e8e7e0;line-height:1.2;letter-spacing:-0.5px;margin-bottom:12px}
+.hero h1 .hl{color:#E86B3A}
+.hero p{font-size:14px;color:#e8e7e0;margin-bottom:40px}
+
+/* ═══ DEMO WRAPPER (override for page context) ═══ */
+.demo-section{padding:40px 0 20px;display:flex;flex-direction:column;align-items:center}
+.demo-section .demo-wrap{gap:20px;align-items:center}
+
+/* ═══ CONTENT WRAPPER ═══ */
+.content-wrap{max-width:430px;margin:0 auto;padding:0 20px 40px}
+
+/* ═══ CTA ═══ */
+.cta{text-align:center;padding:60px 20px 80px;max-width:430px;margin:0 auto}
+.cta-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:380px;padding:16px 24px;border-radius:14px;background:linear-gradient(135deg,#EE7844,#B84D22);color:#fff;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 8px 32px rgba(232,107,58,0.3);transition:transform 0.15s,box-shadow 0.15s;letter-spacing:-0.2px}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(232,107,58,0.4)}
+.cta-btn:active{transform:scale(0.98)}
+.cta-sub{font-family:'DM Mono',monospace;font-size:11px;color:#e8e7e0;margin-top:12px}
+
+/* === PURIFYE NAV === */
+.purifye-nav{display:flex;justify-content:space-between;align-items:center;padding:21px 20px 0;max-width:420px;margin:0 auto}
+.purifye-logo{font-weight:700;font-size:18px;letter-spacing:-.4px}.purifye-logo a{color:#e8e7e0;text-decoration:none}.purifye-logo span{color:#5DCAA5}
+.purifye-ham{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:10px;-webkit-tap-highlight-color:transparent}
+.slide-menu{position:fixed;top:0;right:0;width:280px;height:100vh;background:#131311;border-left:1px solid rgba(255,255,255,.06);z-index:200;transform:translateX(100%);transition:transform .3s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;padding:0 24px}.slide-menu.open{transform:translateX(0)}
+.slide-menu-hdr{display:flex;justify-content:space-between;align-items:center;padding:21px 0 0}
+.slide-menu-x{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:10px}
+.slide-menu-links{display:flex;flex-direction:column;gap:0;margin-top:40px}
+.slide-link{font-size:16px;font-weight:600;color:#9c9b95;text-decoration:none;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.04);display:block}
+.slide-link:first-child{border-top:1px solid rgba(255,255,255,.04)}
+.slide-link.active{color:#5DCAA5}.slide-link:active{color:#e8e7e0}
+.slide-link-group{border-bottom:1px solid rgba(255,255,255,.04)}
+.slide-link-parent{font-size:16px;font-weight:600;color:#9c9b95;padding:14px 0 8px}
+.slide-sub{display:block;font-size:13px;font-weight:500;color:#6a6a64;text-decoration:none;padding:6px 0 6px 16px;position:relative}
+.slide-sub::before{content:'';position:absolute;left:0;top:50%;width:8px;height:1px;background:rgba(255,255,255,.08)}
+.slide-sub:last-child{padding-bottom:14px}.slide-sub:active{color:#e8e7e0}
+.slide-signin{display:block;text-align:center;margin-top:20px;padding:12px;border-radius:10px;background:rgba(93,202,165,.08);border:1px solid rgba(93,202,165,.15);color:#5DCAA5;font-size:14px;font-weight:600;text-decoration:none;transition:all .15s}
+.slide-signin:active{background:rgba(93,202,165,.15)}
+.slide-menu-ftr{margin-top:auto;padding:20px 0;text-align:center}
+.slide-menu-ftr span{font-size:9px;color:#3a3a36;font-family:'DM Mono',monospace}
+.slide-menu-backdrop{position:fixed;inset:0;background:rgba(8,8,6,.7);z-index:199;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.slide-menu-backdrop.show{opacity:1;pointer-events:auto}
+.demo-section{height:100vh;overflow:hidden;padding:0;justify-content:center}
+@media(max-width:500px){
+  .demo-section{overflow:hidden;padding:20px 0 0;height:calc(20px + (100vw - 40px) * 2.133)}
+  .demo-wrap{padding:0;gap:0;width:375px;transform-origin:top center;transform:scale(calc((100vw - 40px) / 375))}
+}
+body.demo-away .cap,body.demo-away .caption{opacity:0!important;transform:translateY(-100%)!important;pointer-events:none!important}
+</style>
+</head>
+<body>
+<div class="purifye-nav">
+  <div class="purifye-logo"><a href="/">purifye<span>AI.com</span></a></div>
+  <div class="purifye-ham" onclick="toggleMenu()"><svg width="18" height="14" viewBox="0 0 18 14" fill="none"><line x1="0" y1="1" x2="18" y2="1" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/><line x1="0" y1="7" x2="18" y2="7" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/><line x1="5" y1="13" x2="18" y2="13" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+</div>
+<div class="slide-menu" id="slideMenu">
+  <div class="slide-menu-hdr">
+    <div class="purifye-logo"><a href="/">purifye<span>AI.com</span></a></div>
+    <div class="slide-menu-x" onclick="toggleMenu()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="#9c9b95" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+  </div>
+  <div class="slide-menu-links">
+    <a href="/" class="slide-link">Home</a>
+    <div class="slide-link-group">
+      <div class="slide-link-parent">Automation</div>
+      <a href="/bots/accounting/" class="slide-sub">Accounts Bot</a>
+      <a href="/bots/inventory/" class="slide-sub">Inventory Bot</a>
+      <a href="/bots/social/" class="slide-sub">Social Bot</a>
+      <a href="/bots/planner/" class="slide-sub">Planner Bot</a>
+      <a href="/bots/customers/" class="slide-sub">Customer Bot</a>
+    </div>
+    <a href="/pricing/" class="slide-link">Pricing</a>
+    <a href="/contact/" class="slide-link">Contact</a>
+    <a href="/contact/" class="slide-signin">Sign in</a>
+  </div>
+  <div class="slide-menu-ftr"><span>Purifye Solutions (Pvt) Ltd</span></div>
+</div>
+<div class="slide-menu-backdrop" id="menuBackdrop" onclick="toggleMenu()"></div>
+
+
+
+<!-- ═══ DEMO WALKTHROUGH ═══ -->
+<div class="demo-section">
+<!-- ═══ PHONE FRAME + ALL SCENES ═══ -->
+<div class="demo-wrap">
+
+<div class="caption" id="caption"></div>
+<div class="phone" id="phone">
+  <div class="notch"><div class="notch-bar"></div></div>
+
+  <!-- Nav -->
+  <div class="nav" id="mainNav">
+    <div class="nav-row">
+      <div class="nav-left">
+        <div class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+        <span class="nav-h">Inventory</span>
+      </div>
+      <span class="nav-gear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+    </div>
+    <div class="pills" id="pills">
+      <span class="pill on" id="pill-dash">Dashboard</span>
+      <span class="pill" id="pill-stock">Full Stock</span>
+    </div>
+  </div>
+
+  <div class="scroll">
+
+    <!-- SCENE 1: DASHBOARD -->
+    <div class="scene in" id="sc-dash">
+      <!-- Heatmap -->
+      <div class="hm">
+        <div class="hm-hdr">
+          <span class="hm-t">Stock Health</span>
+          <div class="hm-leg">
+            <div style="background:var(--red)"></div>
+            <div style="background:var(--amb)"></div>
+            <div style="background:#7daa6b"></div>
+            <div style="background:var(--grn)"></div>
+            <div style="background:var(--grn-deep)"></div>
+          </div>
+        </div>
+        <div class="hm-grid" id="hmGrid"></div>
+        <div class="hm-sum">
+          <div class="hm-s"><div class="hm-sv" style="color:var(--grn)" id="hm-healthy">0</div><div class="hm-sl">Healthy</div></div>
+          <div class="hm-s"><div class="hm-sv" style="color:var(--red)" id="hm-low">0</div><div class="hm-sl">Low</div></div>
+          <div class="hm-s"><div class="hm-sv" style="color:var(--amb)" id="hm-exp">0</div><div class="hm-sl">Expiring</div></div>
+        </div>
+      </div>
+
+      <!-- Low Stock -->
+      <div class="slbl">Low Stock</div>
+      <div class="ls" id="lsCard">
+        <div class="lsi" id="ls0">
+          <div class="lsi-top"><span class="lsi-nm">Chicken Breast 1kg</span><span class="lsi-nums"><strong>4</strong> of 10 kg</span></div>
+          <div class="lsi-bar"><div class="lsi-fill" id="lsf0"></div><div class="lsi-mk" style="left:100%"></div></div>
+          <div class="lsi-bot"><span class="lsi-def">Need <strong>6 kg</strong></span><span class="lsi-act" id="lsa0">Draft PO →</span></div>
+        </div>
+        <div class="lsi" id="ls1">
+          <div class="lsi-top"><span class="lsi-nm">Coconut Oil 20L</span><span class="lsi-nums"><strong>3</strong> of 8 units</span></div>
+          <div class="lsi-bar"><div class="lsi-fill" id="lsf1"></div><div class="lsi-mk" style="left:100%"></div></div>
+          <div class="lsi-bot"><span class="lsi-def">Need <strong>5 units</strong></span><span class="lsi-act">Draft PO →</span></div>
+        </div>
+        <div class="lsi" id="ls2">
+          <div class="lsi-top"><span class="lsi-nm">Basmati Rice 5kg</span><span class="lsi-nums"><strong>12</strong> of 20 kg</span></div>
+          <div class="lsi-bar"><div class="lsi-fill" id="lsf2"></div><div class="lsi-mk" style="left:100%"></div></div>
+          <div class="lsi-bot"><span class="lsi-def">Need <strong>8 kg</strong></span><span class="lsi-act">Draft PO →</span></div>
+        </div>
+      </div>
+
+      <!-- Expiry -->
+      <div class="slbl">Expiry</div>
+      <div class="ex" id="exCard">
+        <div class="ex-tabs">
+          <span class="ex-t on" id="ext-bd">By Date</span>
+          <span class="ex-t" id="ext-7d">Next 7 Days</span>
+          <span class="ex-t" id="ext-exp">Expired</span>
+        </div>
+        <div class="ex-days" id="exDays">
+          <div class="exd today sel has" data-d="9"><div class="edl">Today</div><div class="edn">9</div><div class="edc">2</div></div>
+          <div class="exd has" data-d="10"><div class="edl">Sat</div><div class="edn">10</div><div class="edc">1</div></div>
+          <div class="exd" data-d="11"><div class="edl">Sun</div><div class="edn">11</div><div class="edc">—</div></div>
+          <div class="exd has" data-d="12"><div class="edl">Mon</div><div class="edn">12</div><div class="edc">3</div></div>
+          <div class="exd" data-d="13"><div class="edl">Tue</div><div class="edn">13</div><div class="edc">—</div></div>
+          <div class="exd has" data-d="14"><div class="edl">Wed</div><div class="edn">14</div><div class="edc">1</div></div>
+          <div class="exd" data-d="15"><div class="edl">Thu</div><div class="edn">15</div><div class="edc">—</div></div>
+        </div>
+        <div class="ex-items" id="exItems">
+          <div class="exi" data-d="9"><div class="exi-l"><span class="exi-pip u"></span><span class="exi-nm">Fresh Cream 1L</span></div><span class="exi-dt">3 L</span></div>
+          <div class="exi" data-d="9"><div class="exi-l"><span class="exi-pip u"></span><span class="exi-nm">Paneer 200g</span></div><span class="exi-dt">5 pcs</span></div>
+        </div>
+        <!-- Expired items (hidden until tab switch) -->
+        <div class="ex-items" id="exExpired" style="display:none">
+          <div class="exi s"><div class="exi-l"><span class="exi-pip u"></span><span class="exi-nm">Cheddar 200g</span></div><div class="exi-btns"><span class="exi-btn w" id="wasteBtn">Wastage</span><span class="exi-btn">Used</span></div></div>
+          <div class="exi s"><div class="exi-l"><span class="exi-pip u"></span><span class="exi-nm">Ham Slices 150g</span></div><div class="exi-btns"><span class="exi-btn w">Wastage</span><span class="exi-btn">Used</span></div></div>
+        </div>
+      </div>
+
+      <!-- Bottom boxes -->
+      <div class="boxes">
+        <div class="box"><div class="box-lb">Wastage</div><div class="box-v" style="color:var(--red)" id="bx-waste">—</div><div class="box-sub">LKR this week</div></div>
+        <div class="box"><div class="box-lb">Mismatch</div><div class="box-v" style="color:var(--amb)" id="bx-mis">0</div><div class="box-sub">items off count</div></div>
+        <div class="box"><div class="box-lb">POs</div><div class="box-v" style="color:var(--accent)" id="bx-po">0</div><div class="box-sub">drafts pending</div></div>
+      </div>
+    </div>
+
+    <!-- SCENE 2: PO VIEW -->
+    <div class="scene" id="sc-po">
+      <div class="po-nav">
+        <span class="po-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back</span>
+        <div class="po-center"><div class="po-title">PO-0041</div><div class="po-sub">Purchase Order</div></div>
+        <span class="po-badge">DRAFT</span>
+      </div>
+      <div class="po-section"><div class="po-slbl">Supplier</div>
+        <div class="po-card"><div class="po-sup">
+          <div class="po-avatar">C</div>
+          <div><div class="po-sup-name">Cargills Food City</div><div class="po-sup-meta">+94 77 123 4567</div></div>
+        </div></div>
+      </div>
+      <div class="po-section"><div class="po-slbl">Items</div>
+        <div class="po-card">
+          <div class="po-th"><span>Product</span><span>Qty</span><span>Price</span><span>Total</span></div>
+          <div class="po-tr" id="pot0"><span class="po-pn">Chicken Breast 1kg<small>Need 6 kg</small></span><span class="po-tv">6</span><span class="po-tv">950</span><span class="po-tv">5,700</span></div>
+          <div class="po-tr" id="pot1"><span class="po-pn">Coconut Oil 20L<small>Need 5 units</small></span><span class="po-tv">5</span><span class="po-tv">3,200</span><span class="po-tv">16,000</span></div>
+          <div class="po-tr" id="pot2"><span class="po-pn">Basmati Rice 5kg<small>Need 8 kg</small></span><span class="po-tv">8</span><span class="po-tv">480</span><span class="po-tv">3,840</span></div>
+          <div class="po-total"><span class="po-total-l">Total Due</span><span class="po-total-v">LKR 25,540</span></div>
+        </div>
+      </div>
+      <div class="po-send" id="poSend">Send PO</div>
+      <!-- Share sheet -->
+      <div class="share-sheet" id="shareSheet">
+        <div class="share-title">Share PO-0041.pdf via</div>
+        <div class="share-row">
+          <div class="share-app"><div class="share-app-ic" style="background:#25D366"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div><div class="share-app-lb">WhatsApp</div></div>
+          <div class="share-app"><div class="share-app-ic" style="background:#2AABEE"><svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012.056 0h-.112zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div><div class="share-app-lb">Telegram</div></div>
+          <div class="share-app"><div class="share-app-ic" style="background:#fff"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="#4285F4" d="M22 6.25V18c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6.25l10 6.5 10-6.5z"/><path fill="#EA4335" d="M22 4H2l10 7 10-7z"/></svg></div><div class="share-app-lb">Gmail</div></div>
+          <div class="share-app"><div class="share-app-ic" style="background:var(--sf)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#e8e7e0" stroke-width="2" stroke-linecap="round"><rect x="8" y="2" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10"/></svg></div><div class="share-app-lb">Copy</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 3: STOCK LIST -->
+    <div class="scene" id="sc-stock">
+      <div class="stk-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Search products...</span></div>
+      <div class="stk-grp">
+        <div class="stk-gh"><div class="stk-gl"><span class="stk-gn">Raw Materials</span><span class="stk-gc rm">62</span></div></div>
+        <div class="stk-row" id="sr0"><span class="stk-rn">Chicken Breast 1kg</span><span class="stk-rq">4 kg</span></div>
+        <div class="stk-row" id="sr1"><span class="stk-rn">Basmati Rice 5kg</span><span class="stk-rq">12 kg</span></div>
+        <div class="stk-row" id="sr2"><span class="stk-rn">Coconut Oil 20L</span><span class="stk-rq">3 units</span></div>
+        <div class="stk-row" id="sr3"><span class="stk-rn">Chili Powder bulk</span><span class="stk-rq">113 kg</span></div>
+        <div class="stk-row" id="sr4"><span class="stk-rn">Coriander bulk</span><span class="stk-rq">54 kg</span></div>
+        <div class="stk-row" id="sr5"><span class="stk-rn">Salt 50kg</span><span class="stk-rq">11,225 kg</span></div>
+        <div class="stk-row" id="sr6"><span class="stk-rn">Cumin bulk</span><span class="stk-rq">50 kg</span></div>
+        <div class="stk-row" id="sr7"><span class="stk-rn">Turmeric Powder</span><span class="stk-rq">28 kg</span></div>
+        <div class="stk-row" id="sr8"><span class="stk-rn">Black Pepper</span><span class="stk-rq">15 kg</span></div>
+        <div class="stk-row" id="sr9"><span class="stk-rn">Onions</span><span class="stk-rq">45 kg</span></div>
+        <div class="stk-row" id="sr10"><span class="stk-rn">Garlic</span><span class="stk-rq">18 kg</span></div>
+        <div class="stk-row" id="sr11"><span class="stk-rn">Ginger</span><span class="stk-rq">12 kg</span></div>
+        <div class="stk-row" id="sr12"><span class="stk-rn">Tomatoes</span><span class="stk-rq">30 kg</span></div>
+        <div class="stk-row" id="sr13"><span class="stk-rn">Green Chillies</span><span class="stk-rq">8 kg</span></div>
+        <div class="stk-row" id="sr14"><span class="stk-rn">Curry Leaves</span><span class="stk-rq">3 kg</span></div>
+        <div class="stk-row" id="sr15"><span class="stk-rn">Coconut Milk 1L</span><span class="stk-rq">24 units</span></div>
+        <div class="stk-row" id="sr16"><span class="stk-rn">Eggs</span><span class="stk-rq">120 pcs</span></div>
+        <div class="stk-row" id="sr17"><span class="stk-rn">Wheat Flour 10kg</span><span class="stk-rq">35 kg</span></div>
+        <div class="stk-row" id="sr18"><span class="stk-rn">Sugar 50kg</span><span class="stk-rq">42 kg</span></div>
+        <div class="stk-row" id="sr19"><span class="stk-rn">Fresh Cream 1L</span><span class="stk-rq">6 L</span></div>
+      </div>
+      <div class="stk-grp">
+        <div class="stk-gh"><div class="stk-gl"><span class="stk-gn">Finished Goods</span><span class="stk-gc fg">32</span></div></div>
+        <div class="stk-row" id="sr20"><span class="stk-rn">Chicken Burger</span><span class="stk-rq">0 units</span></div>
+        <div class="stk-row" id="sr21"><span class="stk-rn">Beef Patty</span><span class="stk-rq">0 units</span></div>
+        <div class="stk-row" id="sr22"><span class="stk-rn">Premium Curry Mix 250g</span><span class="stk-rq">8,301 units</span></div>
+        <div class="stk-row" id="sr23"><span class="stk-rn">Chili Flakes 100g</span><span class="stk-rq">420 units</span></div>
+        <div class="stk-row" id="sr24"><span class="stk-rn">Roasted Curry Powder</span><span class="stk-rq">1,250 units</span></div>
+      </div>
+    </div>
+
+    <!-- SCENE 4: PRODUCT DETAIL -->
+    <div class="scene" id="sc-detail">
+      <div class="po-nav">
+        <span class="po-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Stock</span>
+        <div class="po-center"><div class="po-title">Chicken Breast 1kg</div><div class="po-sub">Raw Material</div></div>
+        <span style="width:50px"></span>
+      </div>
+      <div class="pd-hero">
+        <div><div class="pd-nm">Current Stock</div><div class="pd-meta">Code: CB-001 · Unit: kg</div></div>
+        <div><div class="pd-qty-v" style="color:var(--red)" id="pdQty">0</div><div class="pd-qty-u">kg available</div></div>
+      </div>
+      <div class="pd-stats">
+        <div class="pd-st"><div class="pd-stv" id="pdWac">0</div><div class="pd-stl">WAC (LKR/kg)</div></div>
+        <div class="pd-st"><div class="pd-stv" id="pdVal">0</div><div class="pd-stl">Stock Value</div></div>
+        <div class="pd-st"><div class="pd-stv" style="color:var(--t2)">Main</div><div class="pd-stl">Location</div></div>
+      </div>
+      <div class="pd-reorder"><div class="pd-ro-l"><div class="pd-ro-dot"></div><span class="pd-ro-lb">Reorder Level</span></div><span class="pd-ro-v">10 kg</span></div>
+      <div class="po-slbl" style="margin-top:8px">Recent Movements</div>
+      <div class="mv">
+        <div class="mvi" id="mv0"><div class="mvi-dot sal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></div><div class="mvi-info"><div class="mvi-t">Sale — Walk-in</div><div class="mvi-d">Invoice #INV-0312</div></div><div class="mvi-r"><div class="mvi-qty minus">−2 kg</div><div class="mvi-date">9 May</div></div></div>
+        <div class="mvi" id="mv1"><div class="mvi-dot pur"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div><div class="mvi-info"><div class="mvi-t">Purchase — Cargills</div><div class="mvi-d">10 kg @ LKR 950/kg</div></div><div class="mvi-r"><div class="mvi-qty plus">+10 kg</div><div class="mvi-date">6 May</div></div></div>
+        <div class="mvi" id="mv2"><div class="mvi-dot sal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></div><div class="mvi-info"><div class="mvi-t">Sale — Hotel Lavinia</div><div class="mvi-d">Invoice #INV-0298</div></div><div class="mvi-r"><div class="mvi-qty minus">−5 kg</div><div class="mvi-date">5 May</div></div></div>
+        <div class="mvi" id="mv3"><div class="mvi-dot was"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></div><div class="mvi-info"><div class="mvi-t">Wastage — Expired</div><div class="mvi-d">Batch B-2026-032</div></div><div class="mvi-r"><div class="mvi-qty minus">−1 kg</div><div class="mvi-date">3 May</div></div></div>
+      </div>
+    </div>
+
+    <!-- SCENE 5: MANUAL ENTRY -->
+    <div class="scene" id="sc-entry">
+      <div class="po-nav">
+        <span class="po-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back</span>
+        <div class="po-center"><div class="po-title">Manual Entry</div></div>
+        <span style="width:50px"></span>
+      </div>
+      <div class="me-types">
+        <div class="me-type on" id="met-pur"><div class="me-type-ic" style="background:rgba(93,202,165,0.1);color:var(--grn)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div><span class="me-type-lb">Purchase</span></div>
+        <div class="me-type" id="met-sal"><div class="me-type-ic" style="background:rgba(91,141,239,0.1);color:var(--blu)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></div><span class="me-type-lb">Sale</span></div>
+        <div class="me-type" id="met-adj"><div class="me-type-ic" style="background:var(--ad);color:var(--amb)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><span class="me-type-lb">Adjustment</span></div>
+        <div class="me-type" id="met-was"><div class="me-type-ic" style="background:var(--rd);color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></div><span class="me-type-lb">Wastage</span></div>
+      </div>
+      <div class="me-field"><div class="me-label">Product</div><div class="me-input" id="meProduct">Chicken Breast 1kg</div></div>
+      <div class="me-row">
+        <div class="me-field"><div class="me-label">Quantity</div><div class="me-input mono" id="meQty"></div></div>
+        <div class="me-field"><div class="me-label">Unit Price (LKR)</div><div class="me-input mono" id="mePrice"></div></div>
+      </div>
+      <div class="me-field"><div class="me-label">Supplier</div><div class="me-input" id="meSup"></div></div>
+      <div class="me-total"><span class="me-total-l">Total Value</span><span class="me-total-v" id="meTotal">LKR 0</span></div>
+      <div class="me-submit" id="meSubmit">Record Purchase</div>
+    </div>
+
+  </div>
+
+  <!-- FAB -->
+  <div class="fab" id="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+
+  <!-- Bottom sheet -->
+  <div class="bs-overlay" id="bsOverlay"></div>
+  <div class="bs" id="bsSheet">
+    <div class="bs-handle"></div>
+    <div class="bs-title">Add Inventory Entry</div>
+    <div class="bs-opt" id="bso-ph"><div class="bs-oi ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div><div class="bs-ol">Photo / OCR</div><div class="bs-od">Snap a receipt or delivery note</div></div></div>
+    <div class="bs-opt" id="bso-vo"><div class="bs-oi vo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg></div><div><div class="bs-ol">Voice</div><div class="bs-od">"Got 10kg chicken from Keells"</div></div></div>
+    <div class="bs-opt" id="bso-fi"><div class="bs-oi fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div><div class="bs-ol">Import File</div><div class="bs-od">CSV or Excel — sales, purchases</div></div></div>
+    <div class="bs-opt" id="bso-ma"><div class="bs-oi ma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="bs-ol">Manual Entry</div><div class="bs-od">Purchase, sale, adjustment, wastage</div></div></div>
+  </div>
+
+  <!-- Bot tabs — matches actual PWA -->
+  
+<div class="bot-bar">
+    <div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#28997A,#13654C)">📊</div><div class="bt-lb">Accounting</div></div>
+    <div class="bt on"><div class="bt-ic" style="background:linear-gradient(135deg,#EE7844,#B84D22)">📦</div><div class="bt-lb">Inventory</div></div>
+    <div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#7068D9,#4840A3)">📣</div><div class="bt-lb">Social</div></div>
+    <div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#D4A843,#9E7B28)">📅</div><div class="bt-lb">Planner</div></div>
+    <div class="bt"><div class="bt-ic" style="background:linear-gradient(135deg,#CF5BA0,#8A3063)">👥</div><div class="bt-lb">Customers</div></div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="hero-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="4" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/><rect x="14" y="17" width="7" height="4" rx="1"/></svg></div>
+  <h1>Never run out.<br><span class="hl">Never waste.</span></h1>
+  <p>Your stock watches itself. Reorders before you notice.</p>
+</div>
+
+<!-- ═══ CONTENT SECTIONS ═══ -->
+<div class="content-wrap">
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">How It Works</div>
+      <div class="sec-title">Six steps. Full control.</div>
+      <div class="sec-desc">From adding your first item to sending a purchase order — here's the daily flow.</div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">01</span>
+        <div class="step-icon" style="background:rgba(93,202,165,0.1);color:var(--grn)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
+        <div class="step-name">Add Your Inventory</div>
+        <div class="step-desc">Photo a receipt, speak it, upload a file, or type it in. Your products are set up in minutes.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <div class="step-icon" style="background:rgba(91,141,239,0.1);color:var(--blu)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <div class="step-name">Feed Daily Movement</div>
+        <div class="step-desc">POS export, purchase receipts, production logs. Upload once — stock levels update automatically.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <div class="step-icon" style="background:rgba(232,107,58,0.1);color:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="step-name">Bot Monitors Everything</div>
+        <div class="step-desc">Live levels across all products. Unusual movements flagged. Nothing slips through.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">04</span>
+        <div class="step-icon" style="background:rgba(216,90,48,0.1);color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+        <div class="step-name">Alerts Before Problems</div>
+        <div class="step-desc">Reorder alerts when stock drops. Expiry warnings days in advance. Mismatches flagged instantly.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">05</span>
+        <div class="step-icon" style="background:rgba(212,168,67,0.1);color:var(--amb)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div class="step-name">Orders Ready to Send</div>
+        <div class="step-desc">Purchase orders auto-drafted. Review, pick a supplier, send via WhatsApp or email. One tap.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">06</span>
+        <div class="step-icon" style="background:rgba(112,104,217,0.1);color:#7068D9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></div>
+        <div class="step-name">Wastage Logged</div>
+        <div class="step-desc">Every expired, damaged, or discarded item recorded. Know exactly where your money goes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FEATURE HIGHLIGHTS ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">Features</div>
+      <div class="sec-title">Everything you need</div>
+      <div class="sec-desc">Track stock, catch problems early, and reorder in seconds. No spreadsheets required.</div>
+    </div>
+
+    <div class="features">
+
+      <!-- Heatmap -->
+      <div class="feat">
+        <div class="feat-visual">
+          <div class="mini-hm">
+            <div style="background:var(--red)"></div><div style="background:var(--red)"></div><div style="background:var(--amb)"></div><div style="background:#7daa6b"></div><div style="background:#7daa6b"></div><div style="background:var(--grn)"></div><div style="background:var(--grn)"></div><div style="background:var(--grn)"></div>
+            <div style="background:var(--amb)"></div><div style="background:#7daa6b"></div><div style="background:#7daa6b"></div><div style="background:var(--grn)"></div><div style="background:var(--grn)"></div><div style="background:var(--grn)"></div><div style="background:var(--grn)"></div><div style="background:#2a8a6a"></div>
+            <div style="background:#7daa6b"></div><div style="background:var(--grn)"></div><div style="background:var(--grn)"></div><div style="background:var(--grn)"></div><div style="background:var(--grn)"></div><div style="background:#2a8a6a"></div><div style="background:#2a8a6a"></div><div style="background:#2a8a6a"></div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(232,107,58,0.1);color:var(--accent)">Dashboard</span>
+          <div class="feat-title">Stock Health at a Glance</div>
+          <div class="feat-desc">Every product is a square on the heatmap. Red means below reorder level. Dark green means overstocked. You see the whole picture in one second — no scrolling, no reports, no spreadsheets.</div>
+        </div>
+      </div>
+
+      <!-- Reorder Alerts -->
+      <div class="feat">
+        <div class="feat-visual">
+          <div class="mini-bars">
+            <div class="mini-bar-row"><span class="mini-bar-label">Chicken</span><div class="mini-bar-track"><div class="mini-bar-fill" style="width:40%;background:linear-gradient(90deg,var(--red),#e8704a)"></div></div></div>
+            <div class="mini-bar-row"><span class="mini-bar-label">Coconut Oil</span><div class="mini-bar-track"><div class="mini-bar-fill" style="width:35%;background:linear-gradient(90deg,var(--red),#e8704a)"></div></div></div>
+            <div class="mini-bar-row"><span class="mini-bar-label">Rice</span><div class="mini-bar-track"><div class="mini-bar-fill" style="width:60%;background:linear-gradient(90deg,var(--red),#e8704a)"></div></div></div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(216,90,48,0.1);color:var(--red)">Alerts</span>
+          <div class="feat-title">Reorder Before You Run Out</div>
+          <div class="feat-desc">Set a reorder level per product. The moment stock drops below it, you see it on the dashboard. Tap "Draft PO" and a purchase order is ready to send to your supplier.</div>
+        </div>
+      </div>
+
+      <!-- Expiry Tracking -->
+      <div class="feat">
+        <div class="feat-visual">
+          <div class="mini-cal">
+            <div class="mini-day today"><div class="md-d">9</div><div class="md-c">2</div></div>
+            <div class="mini-day"><div class="md-d">10</div><div class="md-c">1</div></div>
+            <div class="mini-day"><div class="md-d">11</div><div class="md-c">—</div></div>
+            <div class="mini-day"><div class="md-d">12</div><div class="md-c">3</div></div>
+            <div class="mini-day"><div class="md-d">13</div><div class="md-c">—</div></div>
+            <div class="mini-day"><div class="md-d">14</div><div class="md-c">1</div></div>
+            <div class="mini-day"><div class="md-d">15</div><div class="md-c">—</div></div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(212,168,67,0.1);color:var(--amb)">Expiry</span>
+          <div class="feat-title">Never Discover Spoiled Stock</div>
+          <div class="feat-desc">7-day expiry calendar shows what's at risk. Batch tracking ties every item to its expiry date. When something expires, you decide — log as wastage or mark as used.</div>
+        </div>
+      </div>
+
+      <!-- Physical Count -->
+      <div class="feat">
+        <div class="feat-visual">
+          <div class="mini-count">
+            <div class="mc-row"><span class="mc-name">Chicken 1kg</span><div class="mc-nums"><span class="mc-sys">Sys: 4</span><span class="mc-counted">3</span><span class="mc-dot" style="background:var(--red)"></span></div></div>
+            <div class="mc-row"><span class="mc-name">Rice 5kg</span><div class="mc-nums"><span class="mc-sys">Sys: 8</span><span class="mc-counted">8</span><span class="mc-dot" style="background:var(--grn)"></span></div></div>
+            <div class="mc-row"><span class="mc-name">Oil 20L</span><div class="mc-nums"><span class="mc-sys">Sys: 3</span><span class="mc-counted">2</span><span class="mc-dot" style="background:var(--red)"></span></div></div>
+            <div class="mc-row"><span class="mc-name">Sugar 50kg</span><div class="mc-nums"><span class="mc-sys">Sys: 22</span><span class="mc-counted">22</span><span class="mc-dot" style="background:var(--grn)"></span></div></div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(93,202,165,0.1);color:var(--grn)">Accuracy</span>
+          <div class="feat-title">Physical Count in Minutes</div>
+          <div class="feat-desc">Start a count, enter what you see, and the system shows every variance. Post adjustments in one tap — your books update automatically. Upload a count sheet or snap a photo instead of typing.</div>
+        </div>
+      </div>
+
+      <!-- Purchase Orders -->
+      <div class="feat">
+        <div class="feat-visual" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
+          <div style="font-family:var(--fm);font-size:14px;font-weight:700;color:var(--t1)">PO-0041</div>
+          <div style="font-family:var(--fm);font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em">Purchase Order</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <div style="width:32px;height:32px;border-radius:8px;background:#25D366;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg></div>
+            <div style="width:32px;height:32px;border-radius:8px;background:#2AABEE;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="#fff"><path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.5 7.22c-.18 1.9-.96 6.5-1.36 8.63-.17.9-.5 1.2-.82 1.23-.7.06-1.22-.46-1.9-.9-1.06-.7-1.65-1.12-2.68-1.8-1.18-.78-.42-1.21.26-1.91.18-.18 3.25-2.98 3.31-3.23.01-.03.01-.15-.06-.21s-.17-.04-.25-.02c-.1.02-1.79 1.14-5.06 3.34-.48.33-.91.49-1.3.48-.43-.01-1.25-.24-1.87-.44-.75-.24-1.35-.37-1.3-.79.03-.22.33-.44.89-.66 3.5-1.52 5.83-2.53 7-3.01 3.33-1.39 4.03-1.63 4.48-1.64z"/></svg></div>
+            <div style="width:32px;height:32px;border-radius:8px;background:#fff;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="#EA4335" d="M22 4H2l10 7z"/><path fill="#4285F4" d="M22 6.25V18a2 2 0 01-2 2H4a2 2 0 01-2-2V6.25l10 6.5z"/></svg></div>
+          </div>
+        </div>
+        <div class="feat-content">
+          <span class="feat-badge" style="background:rgba(232,107,58,0.1);color:var(--accent)">Ordering</span>
+          <div class="feat-title">Send Orders in Seconds</div>
+          <div class="feat-desc">Purchase orders auto-drafted from your low stock items. Add a supplier, review quantities, and send the PDF via WhatsApp, email, or any app on your phone. Your accounts, your channel.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ WAYS TO FEED DATA ═══ -->
+  <div class="section">
+    <div class="sec-head">
+      <div class="sec-tag">Input Methods</div>
+      <div class="sec-title">Ways to feed data</div>
+    </div>
+
+    <div class="feed-list">
+
+      <!-- OCR -->
+      <div class="feed-card">
+        <div class="feed-top">
+          <div class="feed-icon" style="background:rgba(93,202,165,0.1);color:var(--grn)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <div class="feed-info">
+            <div class="feed-name">OCR (Photo)</div>
+            <div class="feed-desc">Snap a receipt, invoice, or delivery note</div>
+          </div>
+        </div>
+        <div class="feed-flow">
+          <div class="feed-side">
+            <div class="feed-side-label">You Send</div>
+            <div class="feed-file-chip">
+              <span class="feed-file-icon">🖼</span>
+              <span class="feed-file-name">receipt_keells.jpg</span>
+            </div>
+          </div>
+          <div class="feed-side">
+            <div class="feed-side-label">Bot Logs</div>
+            <div class="feed-result">
+              <div class="feed-result-line ok">✓ 5 items captured</div>
+              <div class="feed-result-meta">Qty, price, supplier matched</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voice -->
+      <div class="feed-card">
+        <div class="feed-top">
+          <div class="feed-icon" style="background:rgba(212,168,67,0.1);color:var(--amb)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg></div>
+          <div class="feed-info">
+            <div class="feed-name">Voice</div>
+            <div class="feed-desc">Say what came in or went out</div>
+          </div>
+        </div>
+        <div class="feed-flow">
+          <div class="feed-side">
+            <div class="feed-side-label">You Say</div>
+            <div class="feed-voice">
+              <div class="feed-wave">▎▌▊▋▍▎▌▊▋▍▎▌</div>
+              <span class="feed-voice-time">0:03</span>
+            </div>
+            <div class="feed-voice-text">"Got 10kg chicken from Keells"</div>
+          </div>
+          <div class="feed-side">
+            <div class="feed-side-label">Bot Logs</div>
+            <div class="feed-result">
+              <div class="feed-result-line ok">✓ Chicken +10kg</div>
+              <div class="feed-result-meta">Supplier: Keells — logged</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- File Upload -->
+      <div class="feed-card">
+        <div class="feed-top">
+          <div class="feed-icon" style="background:rgba(91,141,239,0.1);color:var(--blu)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="feed-info">
+            <div class="feed-name">File upload</div>
+            <div class="feed-desc">POS export, sales sheet, or production log</div>
+          </div>
+        </div>
+        <div class="feed-flow">
+          <div class="feed-side">
+            <div class="feed-side-label">You Send</div>
+            <div class="feed-file-chip">
+              <span class="feed-file-icon">📊</span>
+              <span class="feed-file-name">daily_sales.xlsx</span>
+            </div>
+          </div>
+          <div class="feed-side">
+            <div class="feed-side-label">Bot Logs</div>
+            <div class="feed-result">
+              <div class="feed-result-line ok">✓ 48 rows imported</div>
+              <div class="feed-result-meta">All items auto-matched</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manual Entry -->
+      <div class="feed-card">
+        <div class="feed-top">
+          <div class="feed-icon" style="background:rgba(232,107,58,0.1);color:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+          <div class="feed-info">
+            <div class="feed-name">Manual entry</div>
+            <div class="feed-desc">Type item and quantity directly</div>
+          </div>
+        </div>
+        <div class="feed-flow">
+          <div class="feed-side">
+            <div class="feed-side-label">You Type</div>
+            <div class="feed-file-chip">
+              <span class="feed-file-name">Cooking oil +5L</span>
+            </div>
+          </div>
+          <div class="feed-side">
+            <div class="feed-side-label">Bot Logs</div>
+            <div class="feed-result">
+              <div class="feed-result-line ok">✓ Cooking oil — now 8L</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ CTA ═══ -->
+<div class="cta">
+  <a href="/pricing/" class="cta-btn">Know your stock. Always. →</a>
+  <div class="cta-sub">10 minute setup · Free for 7 days</div>
+</div>
+
+<script>
+// ═══ ANIMATION ENGINE ═══
+
+const $ = id => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+// Highlight an element (replaces tap circles)
+async function highlight(el, dur = 500) {
+  if (typeof el === 'string') el = $(el);
+  el.classList.remove('tap-hl');
+  void el.offsetHeight;
+  el.classList.add('tap-hl');
+  await wait(dur);
+  el.classList.remove('tap-hl');
+  await wait(100);
+}
+
+// Scene management
+function showScene(id) {
+  $$('.scene').forEach(s => { s.classList.remove('in'); s.classList.add('out-l'); });
+  const sc = $(id);
+  sc.classList.remove('out-l', 'out-r');
+  sc.style.transform = 'translateX(30px)';
+  void sc.offsetHeight;
+  sc.classList.add('in');
+  sc.scrollTop = 0;
+}
+
+// Nav pills
+function setPill(which) {
+  $$('.pill').forEach(p => p.classList.remove('on'));
+  $('pill-' + which).classList.add('on');
+}
+
+// Show/hide main nav
+function showNav(show) {
+  $('mainNav').style.display = show ? 'block' : 'none';
+}
+
+// Show/hide FAB
+function showFab(show) {
+  $('fab').style.opacity = show ? '1' : '0';
+  $('fab').style.pointerEvents = show ? 'auto' : 'none';
+}
+
+// Caption above phone
+async function label(html, dur = 2500) {
+  const c = $('caption');
+  c.classList.remove('show');
+  await wait(300);
+  c.innerHTML = html;
+  c.classList.add('show');
+  await wait(dur);
+}
+async function hideLabel() {
+  $('caption').classList.remove('show');
+  await wait(300);
+}
+
+// Count up animation
+async function countUp(el, target, dur = 600, prefix = '', suffix = '') {
+  const steps = 20;
+  const inc = target / steps;
+  const interval = dur / steps;
+  let val = 0;
+  for (let i = 0; i < steps; i++) {
+    val += inc;
+    el.textContent = prefix + Math.round(val).toLocaleString() + suffix;
+    await wait(interval);
+  }
+  el.textContent = prefix + target.toLocaleString() + suffix;
+}
+
+// Type text into element
+async function typeText(el, text, speed = 60) {
+  el.textContent = '';
+  for (let i = 0; i < text.length; i++) {
+    el.textContent = text.substring(0, i + 1);
+    await wait(speed);
+  }
+}
+
+// Generate heatmap cells
+function initHeatmap() {
+  const grid = $('hmGrid');
+  grid.innerHTML = '';
+  const items = [];
+  // 3 red/amber
+  items.push({ r: 0.35 }, { r: 0.38 }, { r: 0.65 });
+  // 109 healthy
+  for (let i = 0; i < 109; i++) {
+    items.push({ r: 1.0 + (i / 109) * 2.5 });
+  }
+  items.sort((a, b) => a.r - b.r);
+
+  items.forEach(p => {
+    const c = document.createElement('div');
+    c.className = 'hm-c';
+    let col;
+    if (p.r < 0.5) col = 'var(--red)';
+    else if (p.r < 0.8) col = 'var(--amb)';
+    else if (p.r < 1.3) col = '#7daa6b';
+    else if (p.r < 2.2) col = 'var(--grn)';
+    else col = 'var(--grn-deep)';
+    c.style.background = col;
+    grid.appendChild(c);
+  });
+  return grid.querySelectorAll('.hm-c');
+}
+
+// ═══ MAIN SEQUENCE ═══
+async function runDemo() {
+
+  // Reset state
+  showNav(true);
+  showFab(true);
+  setPill('dash');
+  showScene('sc-dash');
+
+  const cells = initHeatmap();
+
+  await wait(400);
+
+  // ── SCENE 1: Dashboard loads ──
+  label('<span class="hl">Stock Health Heatmap</span><span class="sub">Red is running low. Dark green shows overstocked.</span>');
+  await wait(200);
+
+  // Heatmap cells appear one by one
+  for (let i = 0; i < cells.length; i++) {
+    cells[i].classList.add('s');
+    if (i < 10) await wait(40);
+    else if (i < 30) await wait(20);
+    else await wait(8);
+  }
+  await wait(300);
+
+  // Count up summary numbers
+  countUp($('hm-healthy'), 109);
+  countUp($('hm-low'), 3);
+  countUp($('hm-exp'), 7);
+  await wait(800);
+
+  // Low stock items slide in
+  await label('<span class="hl">Reorder Alerts</span><span class="sub">Items below reorder level flagged instantly.</span>');
+  $('ls0').classList.add('s');
+  await wait(200);
+  $('lsf0').style.width = '40%';
+  await wait(300);
+  $('ls1').classList.add('s');
+  await wait(200);
+  $('lsf1').style.width = '37.5%';
+  await wait(300);
+  $('ls2').classList.add('s');
+  await wait(200);
+  $('lsf2').style.width = '60%';
+  await wait(600);
+
+  // Scroll down to expiry
+  $('sc-dash').scrollTo({ top: 280, behavior: 'smooth' });
+  await wait(500);
+
+  // Expiry days appear
+  await label('<span class="hl">Expiry Alerts</span><span class="sub">Know what\'s expiring days in advance. No more surprise spoilage.</span>');
+  const days = $$('.exd');
+  for (let i = 0; i < days.length; i++) {
+    days[i].classList.add('s');
+    await wait(120);
+  }
+  await wait(400);
+
+  // Show expiry items
+  $$('#exItems .exi').forEach(e => e.classList.add('s'));
+  await wait(800);
+
+  // Scroll to bottom boxes
+  $('sc-dash').scrollTo({ top: 500, behavior: 'smooth' });
+  await wait(500);
+
+  // Animate bottom boxes
+  countUp($('bx-waste'), 1824, 500);
+  await wait(200);
+  countUp($('bx-mis'), 4, 300);
+  await wait(200);
+  countUp($('bx-po'), 3, 300);
+  await wait(1000);
+
+  // ── Tap "Draft PO" on first low stock item ──
+  $('sc-dash').scrollTo({ top: 160, behavior: 'smooth' });
+  await wait(500);
+  await label('<span class="hl">One Tap Reorder</span><span class="sub">Purchase order auto-drafted from your low stock items.</span>');
+  $('lsa0').classList.add('hl');
+  await highlight('lsa0');
+  $('lsa0').classList.remove('hl');
+
+  // ── SCENE 2: PO View ──
+  showNav(false);
+  showFab(false);
+  showScene('sc-po');
+  await wait(400);
+
+  await label('<span class="hl">Ready to Send</span><span class="sub">Items, quantities, and prices auto-filled from your stock data.</span>');
+
+  // PO items slide in
+  $('pot0').classList.add('s');
+  await wait(250);
+  $('pot1').classList.add('s');
+  await wait(250);
+  $('pot2').classList.add('s');
+  await wait(600);
+
+  // Tap send
+  await label('<span class="hl">Send via WhatsApp or Email</span><span class="sub">PDF generated, shared through your preferred channel.</span>');
+  await highlight('poSend');
+  $('poSend').classList.add('press');
+  await wait(200);
+  $('poSend').classList.remove('press');
+  await wait(300);
+
+  // Share sheet rises
+  $('shareSheet').classList.add('show');
+  await wait(2000);
+  $('shareSheet').classList.remove('show');
+  await wait(500);
+
+  // ── Back to dashboard, then Full Stock ──
+  showNav(true);
+  showFab(true);
+  showScene('sc-dash');
+  await wait(600);
+
+  // ── SCENE 3: Full Stock ──
+  await label('<span class="hl">Full Stock View</span><span class="sub">Every item tracked, grouped, and searchable. Always current.</span>');
+  setPill('stock');
+  showScene('sc-stock');
+  await wait(400);
+
+  // Stock rows appear
+  for (let i = 0; i <= 24; i++) {
+    const r = $('sr' + i);
+    if (r) { r.classList.add('s'); await wait(60); }
+  }
+  await wait(800);
+
+  // Tap a product
+  await label('<span class="hl">Drill Into Any Product</span><span class="sub">Tap for the full picture — stock, value, every movement.</span>');
+  $('sr0').classList.add('hl');
+  await highlight('sr0');
+  $('sr0').classList.remove('hl');
+
+  // ── SCENE 4: Product Detail ──
+  showNav(false);
+  showFab(false);
+  showScene('sc-detail');
+  await wait(400);
+
+  await label('<span class="hl">Complete Product History</span><span class="sub">WAC, stock value, and every purchase, sale, and adjustment logged.</span>');
+
+  // Animate numbers
+  countUp($('pdQty'), 4, 400);
+  countUp($('pdWac'), 950, 400);
+  countUp($('pdVal'), 3800, 400);
+  await wait(600);
+
+  // Movement items slide in
+  for (let i = 0; i <= 3; i++) {
+    $('mv' + i).classList.add('s');
+    await wait(250);
+  }
+  await wait(1200);
+
+  // ── Back to dashboard, FAB tap ──
+  showNav(true);
+  showFab(true);
+  setPill('dash');
+  showScene('sc-dash');
+  $('sc-dash').scrollTo({ top: 0, behavior: 'instant' });
+  await wait(600);
+
+  await label('<span class="hl">Add Entries Your Way</span><span class="sub">Photo a receipt, speak it, upload a file, or type it in.</span>');
+
+  // Tap FAB
+  $('fab').classList.add('press');
+  await wait(300);
+  $('fab').classList.remove('press');
+  await wait(200);
+
+  // Open bottom sheet
+  $('bsOverlay').classList.add('show');
+  $('bsSheet').classList.add('show');
+  await wait(800);
+
+  // Highlight manual entry
+  await highlight('bso-ma');
+  await wait(300);
+
+  // Close sheet
+  $('bsOverlay').classList.remove('show');
+  $('bsSheet').classList.remove('show');
+  await wait(300);
+
+  // ── SCENE 5: Manual Entry ──
+  showNav(false);
+  showFab(false);
+  showScene('sc-entry');
+  await wait(400);
+
+  await label('<span class="hl">Record in Seconds</span><span class="sub">Product, quantity, price, supplier — done.</span>');
+
+  // Type in fields
+  await wait(400);
+  await typeText($('meQty'), '10', 100);
+  await wait(200);
+  await typeText($('mePrice'), '950', 80);
+  await wait(200);
+  await typeText($('meSup'), 'Cargills', 70);
+  await wait(300);
+
+  // Update total
+  $('meTotal').textContent = 'LKR 9,500';
+  $('meTotal').style.transition = 'color 0.3s';
+  await wait(400);
+
+  // Tap submit
+  await label('<span class="hl">Inventory Updated</span><span class="sub">One tap — stock levels adjusted, journal entry created automatically.</span>');
+  await highlight('meSubmit');
+  $('meSubmit').classList.add('press');
+  await wait(200);
+  $('meSubmit').classList.remove('press');
+  await wait(800);
+
+  // ── Loop back to dashboard ──
+  // Hide caption first
+  hideLabel();
+  await wait(400);
+
+  showNav(true);
+  showFab(true);
+  setPill('dash');
+
+  // Reset all animated states
+  $$('.hm-c').forEach(c => c.classList.remove('s'));
+  $$('.lsi').forEach(l => l.classList.remove('s'));
+  $$('.lsi-fill').forEach(f => f.style.width = '0');
+  $$('.exd').forEach(d => d.classList.remove('s'));
+  $$('.exi').forEach(e => e.classList.remove('s'));
+  $$('.po-tr').forEach(t => t.classList.remove('s'));
+  $$('.stk-row').forEach(r => { r.classList.remove('s', 'hl'); });
+  $$('.mvi').forEach(m => m.classList.remove('s'));
+  $('hm-healthy').textContent = '0';
+  $('hm-low').textContent = '0';
+  $('hm-exp').textContent = '0';
+  $('bx-waste').textContent = '—';
+  $('bx-mis').textContent = '0';
+  $('bx-po').textContent = '0';
+  $('pdQty').textContent = '0';
+  $('pdWac').textContent = '0';
+  $('pdVal').textContent = '0';
+  $('meQty').textContent = '';
+  $('mePrice').textContent = '';
+  $('meSup').textContent = '';
+  $('meTotal').textContent = 'LKR 0';
+
+  showScene('sc-dash');
+  $('sc-dash').scrollTo({ top: 0, behavior: 'instant' });
+  await wait(800);
+
+  // Loop
+  runDemo();
+}
+
+// Start on load
+window.addEventListener('load', () => {
+  setTimeout(runDemo, 500);
+});
+</script>
+<script>
+var menuOpen=false;
+function toggleMenu(){
+  menuOpen=!menuOpen;
+  document.getElementById('slideMenu').classList.toggle('open',menuOpen);
+  document.getElementById('menuBackdrop').classList.toggle('show',menuOpen);
+  document.body.style.overflow=menuOpen?'hidden':'';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&menuOpen)toggleMenu()});
+</script>
+<script>
+(function(){
+  var demoEl = document.querySelector('.demo-section');
+  var heroEl = document.querySelector('.hero') || (demoEl && demoEl.nextElementSibling);
+  var capEl  = document.getElementById('caption');
+  if (!demoEl) return;
+
+  var locked = false;
+
+  function snapDown() {
+    if (locked) return;
+    locked = true;
+    if (capEl) capEl.classList.remove('show');
+    if (heroEl) heroEl.scrollIntoView({behavior:'smooth'});
+    setTimeout(function(){locked=false;}, 800);
+  }
+
+  function snapUp() {
+    if (locked) return;
+    locked = true;
+    demoEl.scrollIntoView({behavior:'smooth'});
+    setTimeout(function(){locked=false;}, 800);
+  }
+
+  // Desktop wheel
+  window.addEventListener('wheel', function(e) {
+    var sY = window.scrollY;
+    var dT = demoEl.offsetTop;
+    var dB = dT + demoEl.offsetHeight;
+    if (e.deltaY > 0 && sY < dB - 80) {
+      e.preventDefault(); snapDown();
+    } else if (e.deltaY < 0 && sY > dT && sY <= dB + 100) {
+      e.preventDefault(); snapUp();
+    }
+  }, {passive:false});
+
+  // Mobile touch
+  var ty0 = 0;
+  window.addEventListener('touchstart', function(e) {
+    ty0 = e.touches[0].clientY;
+  }, {passive:true});
+  window.addEventListener('touchmove', function(e) {
+    if (locked) { e.preventDefault(); return; }
+    var sY = window.scrollY;
+    var dT = demoEl.offsetTop;
+    var dB = dT + demoEl.offsetHeight;
+    var dy = ty0 - e.touches[0].clientY;
+    if (dy > 40 && sY < dB - 80) {
+      e.preventDefault(); snapDown();
+    } else if (dy < -40 && sY > dT && sY <= dB + 100) {
+      e.preventDefault(); snapUp();
+    }
+  }, {passive:false});
+})();
+</script>
+
+<script>
+(function(){
+  var demoEl = document.querySelector('.demo-section');
+  if (!demoEl) return;
+  function checkScroll() {
+    var demoBottom = demoEl.offsetTop + demoEl.offsetHeight;
+    if (window.scrollY > demoBottom * 0.5) {
+      document.body.classList.add('demo-away');
+    } else {
+      document.body.classList.remove('demo-away');
+    }
+  }
+  window.addEventListener('scroll', checkScroll, {passive:true});
+  checkScroll();
+})();
+</script>
+</body>
+</html>

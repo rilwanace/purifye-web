@@ -1,10 +1,10 @@
-import { useState, type FormEvent } from 'react'
+﻿import { useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { api } from '../api'
 import { useAuth } from './useAuth'
 
 export default function SignupPage() {
-  const [form, setForm] = useState({ businessName: '', name: '', email: '', phone: '', password: '' })
+  const [form, setForm] = useState({ businessName: '', name: '', email: '', phone: '', password: '', confirmPassword: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -13,8 +13,14 @@ export default function SignupPage() {
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(f => ({ ...f, [key]: e.target.value }))
 
+  const passwordMismatch = form.confirmPassword.length > 0 && form.password !== form.confirmPassword
+
   const submit = async (e: FormEvent) => {
     e.preventDefault()
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords don't match")
+      return
+    }
     setError('')
     setLoading(true)
     try {
@@ -52,9 +58,17 @@ export default function SignupPage() {
           <input type="email" placeholder="Email" value={form.email} onChange={set('email')} required style={inputStyle} />
           <input type="tel" placeholder="Phone (optional)" value={form.phone} onChange={set('phone')} style={inputStyle} />
           <input type="password" placeholder="Password" value={form.password} onChange={set('password')} required style={inputStyle} />
+          <input type="password" placeholder="Confirm password" value={form.confirmPassword} onChange={set('confirmPassword')} required style={inputStyle} />
+          {passwordMismatch && (
+            <div style={{ fontSize: 13, color: 'var(--danger)', marginTop: -4 }}>Passwords don&#39;t match</div>
+          )}
           {error && <div style={{ fontSize: 13, color: 'var(--danger)', marginTop: 4 }}>{error}</div>}
-          <button type="submit" disabled={loading} style={btnStyle}>
-            {loading ? 'Creating account…' : 'Create account'}
+          <button
+            type="submit"
+            disabled={loading || passwordMismatch || form.confirmPassword.length === 0}
+            style={{ ...btnStyle, opacity: (loading || passwordMismatch || form.confirmPassword.length === 0) ? 0.5 : 1 }}
+          >
+            {loading ? 'Creating account?' : 'Create account'}
           </button>
         </form>
         <div style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: 'var(--text-secondary)' }}>
