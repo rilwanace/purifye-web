@@ -177,8 +177,10 @@ function PnlReport({ period, onData }: { period: Period; onData?: (d: any) => vo
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   useEffect(() => {
+    let stale = false
     setLoading(true); setErr(''); setData(null)
-    api(`/api/reports/pnl?period=${period}`).then(d => { setData(d); setLoading(false); onData?.(d) }).catch(e => { setErr(e.message); setLoading(false) })
+    api(`/api/reports/pnl?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
+    return () => { stale = true }
   }, [period])
   if (loading) return <Spinner />
   if (err) return <Err msg={err} />
@@ -208,8 +210,10 @@ function BsReport({ period, onData }: { period: Period; onData?: (d: any) => voi
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   useEffect(() => {
+    let stale = false
     setLoading(true); setErr(''); setData(null)
-    api(`/api/reports/bs?period=${period}`).then(d => { setData(d); setLoading(false); onData?.(d) }).catch(e => { setErr(e.message); setLoading(false) })
+    api(`/api/reports/bs?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
+    return () => { stale = true }
   }, [period])
   if (loading) return <Spinner />
   if (err) return <Err msg={err} />
@@ -239,8 +243,10 @@ function CfReport({ period, onData }: { period: Period; onData?: (d: any) => voi
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   useEffect(() => {
+    let stale = false
     setLoading(true); setErr(''); setData(null)
-    api(`/api/reports/cf?period=${period}`).then(d => { setData(d); setLoading(false); onData?.(d) }).catch(e => { setErr(e.message); setLoading(false) })
+    api(`/api/reports/cf?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
+    return () => { stale = true }
   }, [period])
   if (loading) return <Spinner />
   if (err) return <Err msg={err} />
@@ -280,8 +286,10 @@ function TbReport({ period }: { period: Period }) {
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   useEffect(() => {
+    let stale = false
     setLoading(true); setErr(''); setData(null)
-    api(`/api/reports/tb?period=${period}`).then(d => { setData(d); setLoading(false) }).catch(e => { setErr(e.message); setLoading(false) })
+    api(`/api/reports/tb?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
+    return () => { stale = true }
   }, [period])
   if (loading) return <Spinner />
   if (err) return <Err msg={err} />
@@ -349,10 +357,12 @@ function LedgerReport() {
 
   useEffect(() => {
     if (!account) return
+    let stale = false
     setLoading(true); setErr(''); setData(null); setOffset(0)
     api(`/api/reports/account-ledger?account=${encodeURIComponent(account)}&period=${period}&offset=0&limit=50`)
-      .then(d => { setData(d); setLoading(false) })
-      .catch(e => { setErr(e.message); setLoading(false) })
+      .then(d => { if (!stale) { setData(d); setLoading(false) } })
+      .catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
+    return () => { stale = true }
   }, [account, period])
 
   const loadMore = useCallback(async () => {

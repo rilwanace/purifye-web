@@ -509,10 +509,12 @@ export default function DashboardPage() {
   const [drillLoading, setDrillLoading] = useState(false)
 
   useEffect(()=>{
+    let stale = false
     setLoading(true); setError(null)
     api(`/api/dashboard-data?period=${period}`)
-      .then(d=>{ setSummary(d); setLoading(false) })
-      .catch(e=>{ setError(e.message); setLoading(false) })
+      .then(d=>{ if (!stale) { setSummary(d); setLoading(false) } })
+      .catch(e=>{ if (!stale) { setError(e.message); setLoading(false) } })
+    return () => { stale = true }
   }, [period])
 
   const cur = stack[stack.length-1]
@@ -541,8 +543,10 @@ export default function DashboardPage() {
 
   useEffect(()=>{
     if(!cur)return
+    let stale = false
     setDrillLoading(true); setDrillData(null)
-    fetchDrill(cur).then(d=>{ setDrillData(d); setDrillLoading(false) }).catch(e=>{ setDrillData({error:e.message}); setDrillLoading(false) })
+    fetchDrill(cur).then(d=>{ if (!stale) { setDrillData(d); setDrillLoading(false) } }).catch(e=>{ if (!stale) { setDrillData({error:e.message}); setDrillLoading(false) } })
+    return () => { stale = true }
   }, [cur?.id, JSON.stringify(cur?.params), cur?.activeTab])
 
   const push = (id:string, params:Record<string,string>={})=>{
