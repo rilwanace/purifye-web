@@ -181,15 +181,15 @@ function PnlReport({ period, onData }: { period: Period; onData?: (d: any) => vo
   return (
     <div>
       <SHead>Revenue</SHead>
-      {(d.revenue_items || []).map((r: any, i: number) => <SRow key={i} name={r.account || r.name} amount={r.amount} indent />)}
+      {(d.revenue_items || []).map((r: any, i: number) => <SRow key={i} name={r.account || r.name} amount={r.total} indent />)}
       <SRow name="Total Revenue" amount={d.total_revenue} subtotal bold accent />
       <SHead>Cost of Sales</SHead>
-      {(d.cos_items || []).map((r: any, i: number) => <SRow key={i} name={r.account || r.name} amount={r.amount} indent danger />)}
+      {(d.cos_items || []).map((r: any, i: number) => <SRow key={i} name={r.account || r.name} amount={r.total} indent danger />)}
       <SRow name="Total COS" amount={d.total_cos} subtotal bold danger />
       <SRow name="Gross Profit" amount={d.gross_profit} subtotal bold accent />
       {d.gross_margin != null && <div style={{ fontSize: 10, color: 'var(--text-muted)', textAlign: 'right', marginBottom: 4 }}>Gross Margin: {(d.gross_margin * 100 || d.gross_margin).toFixed(1)}%</div>}
       <SHead>Operating Expenses</SHead>
-      {(d.opex_items || []).map((r: any, i: number) => <SRow key={i} name={r.account || r.name} amount={r.amount} indent danger />)}
+      {(d.opex_items || []).map((r: any, i: number) => <SRow key={i} name={r.account || r.name} amount={r.total} indent danger />)}
       <SRow name="Total Opex" amount={d.total_opex} subtotal bold danger />
       <TotalRow name={`Net Profit ${d.net_margin != null ? `(${(d.net_margin * 100 || d.net_margin).toFixed(1)}%)` : ''}`} amount={d.net_profit ?? 0} positive={(d.net_profit ?? 0) >= 0} />
     </div>
