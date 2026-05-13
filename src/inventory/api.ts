@@ -5,19 +5,19 @@ const BASE = '/api/inventory'
 export const inv = {
   dashboard: () => api(`${BASE}/dashboard`),
   stock: () => api(`${BASE}/stock`),
-  product: (id: string) => api(`${BASE}/product/${id}`),
+  product: (id: string) => api(`${BASE}/product/${encodeURIComponent(id)}`),
   setReorder: (id: string, level: number) =>
-    api(`${BASE}/product/${id}/reorder`, { method: 'PUT', body: JSON.stringify({ reorder_level: level }) }),
+    api(`${BASE}/product/${encodeURIComponent(id)}/reorder`, { method: 'PUT', body: JSON.stringify({ reorder_level: level }) }),
 
   // Physical counts
   counts: () => api(`${BASE}/counts`),
   createCount: (body: any) =>
     api(`${BASE}/counts`, { method: 'POST', body: JSON.stringify(body) }),
-  getCount: (id: string) => api(`${BASE}/counts/${id}`),
+  getCount: (id: string) => api(`${BASE}/counts/${encodeURIComponent(id)}`),
   saveCountItems: (id: string, items: any[]) =>
-    api(`${BASE}/counts/${id}/items`, { method: 'PUT', body: JSON.stringify({ items }) }),
+    api(`${BASE}/counts/${encodeURIComponent(id)}/items`, { method: 'PUT', body: JSON.stringify({ items }) }),
   postCount: (id: string) =>
-    api(`${BASE}/counts/${id}/post`, { method: 'POST' }),
+    api(`${BASE}/counts/${encodeURIComponent(id)}/post`, { method: 'POST' }),
 
   // Purchase Orders
   pos: () => api(`${BASE}/pos`),
@@ -25,15 +25,15 @@ export const inv = {
     api(`${BASE}/pos`, { method: 'POST', body: JSON.stringify(body) }),
   autoGenPO: (productIds: string[]) =>
     api(`${BASE}/pos/auto-generate`, { method: 'POST', body: JSON.stringify({ product_ids: productIds }) }),
-  getPO: (id: string) => api(`${BASE}/pos/${id}`),
+  getPO: (id: string) => api(`${BASE}/pos/${encodeURIComponent(id)}`),
   updatePO: (id: string, body: any) =>
-    api(`${BASE}/pos/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+    api(`${BASE}/pos/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(body) }),
   setPOStatus: (id: string, status: string) =>
-    api(`${BASE}/pos/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) }),
+    api(`${BASE}/pos/${encodeURIComponent(id)}/status`, { method: 'PUT', body: JSON.stringify({ status }) }),
   poPdf: (id: string) =>
-    fetch(`${BASE}/pos/${id}/pdf`, { credentials: 'include' }),
+    fetch(`${BASE}/pos/${encodeURIComponent(id)}/pdf`, { credentials: 'include' }),
   deletePO: (id: string) =>
-    api(`${BASE}/pos/${id}`, { method: 'DELETE' }),
+    api(`${BASE}/pos/${encodeURIComponent(id)}`, { method: 'DELETE' }),
 
   // Wastage
   wastage: () => api(`${BASE}/wastage`),
@@ -49,9 +49,9 @@ export const inv = {
   createSupplier: (body: any) =>
     api(`${BASE}/suppliers`, { method: 'POST', body: JSON.stringify(body) }),
   updateSupplier: (id: string, body: any) =>
-    api(`${BASE}/suppliers/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+    api(`${BASE}/suppliers/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(body) }),
   deleteSupplier: (id: string) =>
-    api(`${BASE}/suppliers/${id}`, { method: 'DELETE' }),
+    api(`${BASE}/suppliers/${encodeURIComponent(id)}`, { method: 'DELETE' }),
 
   // Settings
   settings: () => api(`${BASE}/settings`),
@@ -63,7 +63,7 @@ export const inv = {
   createLocation: (body: any) =>
     api(`${BASE}/locations`, { method: 'POST', body: JSON.stringify(body) }),
   deleteLocation: (id: string) =>
-    api(`${BASE}/locations/${id}`, { method: 'DELETE' }),
+    api(`${BASE}/locations/${encodeURIComponent(id)}`, { method: 'DELETE' }),
 
   // Mismatch
   mismatch: () => api(`${BASE}/mismatch`),

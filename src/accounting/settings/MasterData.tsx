@@ -75,7 +75,7 @@ export default function MasterData() {
 
   function load(k: Kind) {
     setLoading(true)
-    api<{ items: Item[] }>(`/api/settings/master-data?kind=${k}`)
+    api<{ items: Item[] }>(`/api/settings/master-data?kind=${encodeURIComponent(k)}`)
       .then(d => setItems(d.items || []))
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -112,7 +112,7 @@ export default function MasterData() {
     setSaving(true)
     try {
       if (edit.id) {
-        await api(`/api/settings/master-data/${edit.id}`, {
+        await api(`/api/settings/master-data/${encodeURIComponent(edit.id)}`, {
           method: 'PUT',
           body: JSON.stringify({ kind, ...edit.fields }),
         })
@@ -134,7 +134,7 @@ export default function MasterData() {
 
   async function doDelete(id: string) {
     try {
-      await api(`/api/settings/master-data/${id}`, { method: 'DELETE' })
+      await api(`/api/settings/master-data/${encodeURIComponent(id)}`, { method: 'DELETE' })
       show('Deleted', 'success')
       setDeleteConfirm(null)
       load(kind)

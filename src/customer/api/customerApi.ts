@@ -5,8 +5,8 @@ const BASE = '/api/customer';
 // Contacts
 export const getContacts = () => api<any[]>(`${BASE}/contacts`);
 export const createContact = (data: any) => api(`${BASE}/contacts`, { method: 'POST', body: JSON.stringify(data) });
-export const updateContact = (id: string, data: any) => api(`${BASE}/contacts/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-export const deleteContact = (id: string) => api(`${BASE}/contacts/${id}`, { method: 'DELETE' });
+export const updateContact = (id: string, data: any) => api(`${BASE}/contacts/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) });
+export const deleteContact = (id: string) => api(`${BASE}/contacts/${encodeURIComponent(id)}`, { method: 'DELETE' });
 
 // Import
 export const bulkImport = (data: { customers: any[]; purchases: any[]; replace_mode: boolean; is_txn_level: boolean }) =>
@@ -27,12 +27,12 @@ export const getMessages = (params: { status?: string; msg_type?: string; from_d
 };
 export const createMessage = (data: any) => api(`${BASE}/messages`, { method: 'POST', body: JSON.stringify(data) });
 export const updateMessage = (id: string, data: { body?: string; status?: string }) =>
-  api(`${BASE}/messages/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  api(`${BASE}/messages/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) });
 export const bulkUpdateMessages = (ids: string[] | null, update: { status: string; sent_at?: string }) =>
   api(`${BASE}/messages/bulk`, { method: 'POST', body: JSON.stringify({ ids, ...update }) });
 
 // Purchases
-export const getPurchases = (customerId: string) => api<any[]>(`${BASE}/purchases/${customerId}`);
+export const getPurchases = (customerId: string) => api<any[]>(`${BASE}/purchases/${encodeURIComponent(customerId)}`);
 
 // Settings
 export const getSettings = () => api<any>(`${BASE}/settings`);
@@ -42,7 +42,7 @@ export const updateSettings = (data: { business_name?: string; google_review_lin
 // Templates
 export const getTemplates = () => api<any[]>(`${BASE}/templates`);
 export const updateTemplate = (id: string, data: { name?: string; body?: string; active?: boolean }) =>
-  api(`${BASE}/templates/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+  api(`${BASE}/templates/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) });
 
 // Seed
 export const seedData = () => api(`${BASE}/seed`, { method: 'POST' });

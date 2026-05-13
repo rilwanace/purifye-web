@@ -52,7 +52,7 @@ export default function TeamManagement() {
 
   async function removeMember(id: string) {
     try {
-      await api(`/api/settings/team/${id}`, { method: 'DELETE' })
+      await api(`/api/settings/team/${encodeURIComponent(id)}`, { method: 'DELETE' })
       show('Member removed', 'success')
       setDeleteConfirm(null)
       load()

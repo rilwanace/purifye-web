@@ -74,34 +74,34 @@ export interface AuditEntry {
 }
 
 // ─── Hooks ────────────────────────────────────────────────────────────
-export const useTasks = (status = 'open') => useApi<Task[]>(`/api/planner/tasks?status=${status}`);
+export const useTasks = (status = 'open') => useApi<Task[]>(`/api/planner/tasks?status=${encodeURIComponent(status)}`);
 export const useAllTasks = () => useApi<Task[]>('/api/planner/tasks?status=all');
 export const useMembers = () => useApi<Member[]>('/api/planner/members');
 export const useContacts = () => useApi<Contact[]>('/api/planner/contacts');
-export const useMessages = (taskId: string) => useApi<Message[]>(`/api/planner/tasks/${taskId}/messages`, [taskId]);
-export const useAudit = (taskId: string) => useApi<AuditEntry[]>(`/api/planner/tasks/${taskId}/audit`, [taskId]);
+export const useMessages = (taskId: string) => useApi<Message[]>(`/api/planner/tasks/${encodeURIComponent(taskId)}/messages`, [taskId]);
+export const useAudit = (taskId: string) => useApi<AuditEntry[]>(`/api/planner/tasks/${encodeURIComponent(taskId)}/audit`, [taskId]);
 
 // ─── Mutations ────────────────────────────────────────────────────────
 export const createTask = (data: { title: string; assignee_id?: string; due_date: string; recurring?: string }) =>
   api('/api/planner/tasks', { method: 'POST', body: JSON.stringify(data) });
 
 export const updateTask = (id: string, data: Partial<Task>) =>
-  api(`/api/planner/tasks/${id}`, { method: 'PATCH', body: JSON.stringify(data) });
+  api(`/api/planner/tasks/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(data) });
 
 export const deleteTask = (id: string) =>
-  api(`/api/planner/tasks/${id}`, { method: 'DELETE' });
+  api(`/api/planner/tasks/${encodeURIComponent(id)}`, { method: 'DELETE' });
 
 export const sendMessage = (taskId: string, body: string, sender = 'owner', senderMemberId?: string) =>
-  api(`/api/planner/tasks/${taskId}/messages`, { method: 'POST', body: JSON.stringify({ body, sender, sender_member_id: senderMemberId }) });
+  api(`/api/planner/tasks/${encodeURIComponent(taskId)}/messages`, { method: 'POST', body: JSON.stringify({ body, sender, sender_member_id: senderMemberId }) });
 
 export const createMember = (data: { name: string; role?: string }) =>
   api('/api/planner/members', { method: 'POST', body: JSON.stringify(data) });
 
 export const deleteMember = (id: string) =>
-  api(`/api/planner/members/${id}`, { method: 'DELETE' });
+  api(`/api/planner/members/${encodeURIComponent(id)}`, { method: 'DELETE' });
 
 export const createContact = (data: { name: string; phone: string; label?: string }) =>
   api('/api/planner/contacts', { method: 'POST', body: JSON.stringify(data) });
 
 export const deleteContact = (id: string) =>
-  api(`/api/planner/contacts/${id}`, { method: 'DELETE' });
+  api(`/api/planner/contacts/${encodeURIComponent(id)}`, { method: 'DELETE' });
