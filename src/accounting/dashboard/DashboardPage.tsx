@@ -251,9 +251,9 @@ const ViewH = ({title,sub}:{title:string;sub?:string})=><>
   <div style={{fontSize:16,fontWeight:700}}>{title}</div>
   {sub&&<div style={{fontSize:11,color:'var(--text-muted)'}}>{sub}</div>}
 </>
-const LoadMore = ({has,onLoad}:{has:boolean;onLoad:()=>void})=>!has?null:(
-  <div onClick={onLoad} style={{padding:12,textAlign:'center',background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:10,color:'var(--accent)',fontSize:12,fontWeight:600,cursor:'pointer'}}>
-    Load more
+const LoadMore = ({has,onLoad,loading}:{has:boolean;onLoad:()=>void;loading?:boolean})=>!has?null:(
+  <div onClick={loading?undefined:onLoad} style={{padding:12,textAlign:'center',background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:10,color:'var(--accent)',fontSize:12,fontWeight:600,cursor:loading?'not-allowed':'pointer',opacity:loading?0.6:1}}>
+    {loading ? 'Loading…' : 'Load more'}
   </div>
 )
 
@@ -270,7 +270,7 @@ const AccountTxnsView = ({d,onMore}:{d:any;onMore:()=>void})=>(
   <div style={{display:'flex',flexDirection:'column',gap:8}}>
     <ViewH title={d.account||''} sub={`Balance: Rs. ${fmt(d.total)}`}/>
     {(d.transactions||[]).map((tx:any,i:number)=><TxRow key={i} tx={tx}/>)}
-    <LoadMore has={!!d.has_more} onLoad={onMore}/>
+    <LoadMore has={!!d.has_more} onLoad={onMore} loading={loadingMore}/>
   </div>
 )
 
@@ -342,7 +342,7 @@ const CounterpartyLedger = ({d,ctype,onMore}:{d:any;ctype:string;onMore:()=>void
     </div>
     <SectionHead>Transactions</SectionHead>
     {(d.transactions||[]).map((tx:any,i:number)=><TxRow key={i} tx={tx}/>)}
-    <LoadMore has={!!d.has_more} onLoad={onMore}/>
+    <LoadMore has={!!d.has_more} onLoad={onMore} loading={loadingMore}/>
   </div>
 }
 
@@ -493,7 +493,7 @@ const ProductMovView = ({d,entry,onMore}:{d:any;entry:ViewEntry;onMore:()=>void}
         </div>
       </div>
     ))}
-    <LoadMore has={!!d.has_more} onLoad={onMore}/>
+    <LoadMore has={!!d.has_more} onLoad={onMore} loading={loadingMore}/>
   </div>
 )
 
@@ -507,6 +507,7 @@ export default function DashboardPage() {
   const [stack, setStack] = useState<ViewEntry[]>([])
   const [drillData, setDrillData] = useState<any>(null)
   const [drillLoading, setDrillLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
 
   useEffect(()=>{
     let stale = false
@@ -544,7 +545,7 @@ export default function DashboardPage() {
   useEffect(()=>{
     if(!cur)return
     let stale = false
-    setDrillLoading(true); setDrillData(null)
+    setDrillLoading(true); setDrillData(null); setLoadingMore(false)
     fetchDrill(cur).then(d=>{ if (!stale) { setDrillData(d); setDrillLoading(false) } }).catch(e=>{ if (!stale) { setDrillData({error:e.message}); setDrillLoading(false) } })
     return () => { stale = true }
   }, [cur?.id, JSON.stringify(cur?.params), cur?.activeTab])
@@ -556,15 +557,17 @@ export default function DashboardPage() {
   const pop = ()=>setStack(prev=>prev.slice(0,-1))
   const onTab = (tab:string)=>setStack(prev=>prev.map((v,i)=>i===prev.length-1?{...v,activeTab:tab}:v))
   const onMore = useCallback(async()=>{
-    if(!cur||!drillData?.has_more)return
+    if(!cur||!drillData?.has_more||loadingMore)return
     const next={...cur,offset:cur.offset+50}
+    setLoadingMore(true)
     try{
       const more=await fetchDrill(next)
       const k={account_txns:'transactions',customer_ledger:'transactions',supplier_ledger:'transactions',product_movement:'transactions'}[cur.id]
       if(k&&more[k])setDrillData((prev:any)=>({...prev,[k]:[...(prev[k]||[]),...more[k]],has_more:!!more.has_more}))
       setStack(prev=>prev.map((v,i)=>i===prev.length-1?next:v))
     }catch{}
-  },[cur,drillData])
+    setLoadingMore(false)
+  },[cur,drillData,loadingMore])
 
   // Summary view
   if(stack.length===0||!cur){
