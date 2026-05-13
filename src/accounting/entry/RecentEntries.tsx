@@ -22,6 +22,8 @@ const TYPE_EMOJI: Record<string, string> = {
   capital_injection: '💹', loan_disbursement: '🏦', loan_repayment: '🔄',
   asset_purchase: '🏗', inventory_adjustment: '📊', intra_transfer: '↔️',
   conversion: '⚙️',
+  sales_return: '↩️',
+  purchase_return: '↩️',
 }
 
 const TYPE_LABEL: Record<string, string> = {
@@ -32,7 +34,7 @@ const TYPE_LABEL: Record<string, string> = {
   intra_transfer: 'Transfer', conversion: 'Production',
 }
 
-const INFLOW = new Set(['sale', 'payment_received', 'capital_injection', 'loan_disbursement'])
+const INFLOW = new Set(['sale', 'payment_received', 'capital_injection', 'loan_disbursement', 'purchase_return'])
 
 function fmtDate(s: string) {
   if (!s) return ''
