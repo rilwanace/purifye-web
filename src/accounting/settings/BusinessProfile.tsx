@@ -27,7 +27,7 @@ export default function BusinessProfile() {
     try {
       await api('/api/settings/business', {
         method: 'PUT',
-        body: JSON.stringify({ name: data.name, address: data.address, phone: data.phone }),
+        body: JSON.stringify({ name: data.name, address: data.address, phone: data.phone, track_inventory: data.track_inventory }),
       })
       show('Profile saved', 'success')
     } catch (err: any) {

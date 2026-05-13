@@ -19,9 +19,10 @@ export default function InventoryToggle() {
     const next = !enabled
     setSaving(true)
     try {
+      const cur = await api<any>('/api/settings/business')
       await api('/api/settings/business', {
         method: 'PUT',
-        body: JSON.stringify({ track_inventory: next }),
+        body: JSON.stringify({ name: cur.name || '', address: cur.address || '', phone: cur.phone || '', track_inventory: next }),
       })
       setEnabled(next)
       show(`Inventory tracking turned ${next ? 'ON' : 'OFF'}`, 'success')
