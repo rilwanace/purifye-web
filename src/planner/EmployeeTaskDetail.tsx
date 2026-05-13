@@ -56,7 +56,7 @@ export function EmployeeTaskDetail({ token, task, member, onBack, onToggle, onRe
   const loadMessages = useCallback(async () => {
     try {
       const msgs = await portalFetch<Message[]>(
-        `/api/planner/portal/${token}/tasks/${task.id}/messages`
+        `/api/planner/portal/${encodeURIComponent(token)}/tasks/${encodeURIComponent(task.id)}/messages`
       );
       setMessages(msgs);
     } catch (_) {}
@@ -68,7 +68,7 @@ export function EmployeeTaskDetail({ token, task, member, onBack, onToggle, onRe
     if (!input.trim() || sending) return;
     setSending(true);
     try {
-      await portalFetch(`/api/planner/portal/${token}/tasks/${task.id}/messages`, {
+      await portalFetch(`/api/planner/portal/${encodeURIComponent(token)}/tasks/${encodeURIComponent(task.id)}/messages`, {
         method: 'POST',
         body: JSON.stringify({ body: input.trim() }),
       });

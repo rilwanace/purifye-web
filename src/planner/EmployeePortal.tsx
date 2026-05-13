@@ -55,7 +55,7 @@ export default function EmployeePortal() {
     if (!token) return;
     try {
       const data = await portalFetch<{ member: Member; tasks: Task[] }>(
-        `/api/planner/portal/${token}`
+        `/api/planner/portal/${encodeURIComponent(token!)}`
       );
       setMember(data.member);
       setTasks(data.tasks);
@@ -69,7 +69,7 @@ export default function EmployeePortal() {
   useEffect(() => { load(); }, [load]);
 
   const handleToggle = useCallback(async (taskId: string) => {
-    await portalFetch(`/api/planner/portal/${token}/tasks/${taskId}/toggle`, { method: 'POST' });
+    await portalFetch(`/api/planner/portal/${encodeURIComponent(token!)}/tasks/${encodeURIComponent(taskId)}/toggle`, { method: 'POST' });
     load();
   }, [token, load]);
 
@@ -80,7 +80,7 @@ export default function EmployeePortal() {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const due = tomorrow.toISOString().split('T')[0];
-      await portalFetch(`/api/planner/portal/${token}/tasks`, {
+      await portalFetch(`/api/planner/portal/${encodeURIComponent(token!)}/tasks`, {
         method: 'POST',
         body: JSON.stringify({ title: newTitle.trim(), due_date: due }),
       });
