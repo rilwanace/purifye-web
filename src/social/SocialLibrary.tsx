@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useRef } from 'react'
-import { api } from '../api'
+import { api, apiFormData } from '../api'
 
 const ACC = '#7068D9'
 
@@ -28,7 +28,7 @@ export default function SocialLibrary() {
     fd.append('file', file)
     fd.append('label', file.name)
     try {
-      const res = await fetch('/api/social/assets', { method: 'POST', credentials: 'include', body: fd }).then(r => r.json())
+      const res = await apiFormData<any>('/api/social/assets', fd)
       if (res.asset) setAssets(prev => [res.asset, ...prev])
     } catch (e) {}
   }

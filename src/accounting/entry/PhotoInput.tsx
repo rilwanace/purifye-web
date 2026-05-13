@@ -1,5 +1,6 @@
 ﻿import { useRef, useState } from 'react'
 import { useToast } from '../../shared/components/Toast'
+import { apiFormData } from '../../api'
 
 interface PhotoInputProps {
   onParsed: (result: any) => void
@@ -17,9 +18,7 @@ export default function PhotoInput({ onParsed, disabled }: PhotoInputProps) {
     try {
       const form = new FormData()
       form.append('image', file)
-      const res = await fetch('/api/ocr/parse', { method: 'POST', credentials: 'include', body: form })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const data = await res.json()
+      const data = await apiFormData<any>('/api/ocr/parse', form)
       setParsing(false)
       onParsed(data)
     } catch (err) {

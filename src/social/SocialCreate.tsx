@@ -1,6 +1,6 @@
 ﻿import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { api } from '../api'
+import { api, apiFormData } from '../api'
 
 const QUICK_IDEAS = [
   { emoji: '????', text: 'New product today' },
@@ -64,12 +64,7 @@ export default function SocialCreate() {
     try {
       const fd = new FormData()
       fd.append('file', file)
-      const res = await fetch('/api/social/images/process', {
-        method: 'POST',
-        credentials: 'include',
-        body: fd,
-      }).then(r => r.json())
-      if (res.detail) throw new Error(res.detail)
+      const res = await apiFormData<any>('/api/social/images/process', fd)
       await handleGenerate('photo', brief, res.image_id, res.urls)
     } catch (e: any) {
       alert('Upload failed: ' + e.message)

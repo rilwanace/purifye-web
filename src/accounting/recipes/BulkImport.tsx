@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { api } from '../../api'
+import { api, apiFormData } from '../../api'
 import { useToast } from '../../shared/components/Toast'
 import type { Product } from './RecipesPage'
 
@@ -44,16 +44,7 @@ export default function BulkImport({ onBack, onProductsChanged }: Props) {
     try {
       const form = new FormData()
       files.forEach((f, i) => form.append(`photo_${i}`, f))
-      const res = await fetch('/api/recipes/bulk-extract', {
-        method: 'POST',
-        body: form,
-        credentials: 'include',
-      })
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.error || `HTTP ${res.status}`)
-      }
-      const data = await res.json()
+      const data = await apiFormData<any>('/api/recipes/bulk-extract', form)
       const recipes: ExtractedRecipe[] = (data.recipes || []).map((r: any) => {
         const anyNew = !r.output_match_id || r.inputs.some((i: any) => !i.input_match_id)
         const hasInputs = r.inputs && r.inputs.length > 0

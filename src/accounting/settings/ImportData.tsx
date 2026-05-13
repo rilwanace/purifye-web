@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useToast } from '../../shared/components/Toast'
+import { apiFormData } from '../../api'
 
 export default function ImportData() {
   const { show } = useToast()
@@ -17,13 +18,7 @@ export default function ImportData() {
     try {
       const form = new FormData()
       form.append('file', file)
-      const res = await fetch('/api/settings/import-v4', {
-        method: 'POST',
-        body: form,
-        credentials: 'include',
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      const data = await apiFormData<any>('/api/settings/import-v4', form)
       setSummary(data.summary || {})
       show('Import complete', 'success')
       setFile(null)

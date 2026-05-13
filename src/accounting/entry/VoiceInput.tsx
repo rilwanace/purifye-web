@@ -1,5 +1,6 @@
 ﻿import { useState, useRef } from 'react'
 import { useToast } from '../../shared/components/Toast'
+import { apiFormData } from '../../api'
 
 interface VoiceInputProps {
   onParsed: (result: any) => void
@@ -56,10 +57,8 @@ export default function VoiceInput({ onParsed, disabled }: VoiceInputProps) {
     try {
       const form = new FormData()
       form.append('audio', blob, 'recording.webm')
-      const res = await fetch('/api/voice/parse', { method: 'POST', credentials: 'include', body: form })
+      const data = await apiFormData<any>('/api/voice/parse', form)
       clearTimeout(timeout)
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const data = await res.json()
       setState('idle')
       onParsed(data)
     } catch (err) {
