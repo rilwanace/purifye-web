@@ -53,7 +53,7 @@ export default function EmployeePortal() {
   const [showDone, setShowDone] = useState(false);
 
   const load = useCallback(async () => {
-    if (!token) return;
+    if (!token) { setLoading(false); setError("Invalid link"); return; }
     try {
       const data = await portalFetch<{ member: Member; tasks: Task[] }>(
         `/api/planner/portal/${encodeURIComponent(token!)}`

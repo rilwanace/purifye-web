@@ -68,6 +68,7 @@ export default function App() {
               </Route>
             </Route>
             <Route path="/t/:token" element={<Suspense fallback={null}><EmployeePortal /></Suspense>} />
+            <Route path="/portal" element={<Suspense fallback={null}><EmployeePortal /></Suspense>} />
           </Routes>
         </ToastProvider>
       </AuthProvider>
