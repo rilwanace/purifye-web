@@ -29,7 +29,7 @@ export default function EntryPage() {
   const { show } = useToast()
   const [masterData, setMasterData] = useState<MasterData | null>(null)
   const [recent, setRecent] = useState<RecentEntry[]>([])
-  const [prefill, setPrefill] = useState<{ type?: string; fields?: Record<string, any> } | null>(null)
+  const [prefill, setPrefill] = useState<{ type?: string; fields?: Record<string, any>; entryGroup?: string } | null>(null)
   const [loadingMaster, setLoadingMaster] = useState(true)
 
   const loadMaster = useCallback(async () => {
@@ -85,7 +85,7 @@ export default function EntryPage() {
   async function handleEdit(entryGroup: string) {
     try {
       const res = await api<any>(`/api/entry/by-group/${entryGroup}`)
-      setPrefill({ type: res.type, fields: res.fields || {} })
+      setPrefill({ type: res.type, fields: res.fields || {}, entryGroup: entryGroup })
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err: any) {
       show('Could not load entry for editing', 'error')
@@ -118,10 +118,10 @@ export default function EntryPage() {
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>
-          New Entry
+          {prefill?.entryGroup ? 'Edit Entry' : 'New Entry'}
         </h1>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-muted)' }}>
-          Record a transaction manually, by voice, or from a photo
+          {prefill?.entryGroup ? 'Modify and save to replace the original' : 'Record a transaction manually, by voice, or from a photo'}
         </p>
       </div>
 

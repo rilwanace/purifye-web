@@ -20,7 +20,7 @@ interface MasterData {
 
 interface Props {
   masterData: MasterData
-  prefill?: { type?: string; fields?: Record<string, any> } | null
+  prefill?: { type?: string; fields?: Record<string, any>; entryGroup?: string } | null
   onSaved?: () => void
 }
 
@@ -230,6 +230,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
   const [type, setType] = useState('sale')
   const [fields, setFieldsAll] = useState<Record<string, any>>(defaultFields('sale'))
   const [loading, setLoading] = useState(false)
+  const [editEntryGroup, setEditEntryGroup] = useState<string | null>(null)
   const [conversionPending, setConversionPending] = useState<{ token: string; details: any } | null>(null)
   const [localMaster, setLocalMaster] = useState(masterData)
 
@@ -237,6 +238,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
 
   useEffect(() => {
     if (!prefill) return
+    setEditEntryGroup(prefill.entryGroup || null)
     const t = prefill.type || type
     setType(t)
     setFieldsAll({ ...defaultFields(t), ...prefill.fields })
@@ -248,6 +250,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
   }
 
   function changeType(t: string) {
+    setEditEntryGroup(null)
     setType(t)
     setFieldsAll(defaultFields(t))
     setConversionPending(null)
@@ -256,6 +259,9 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
   async function handleSave(confirmToken?: string) {
     setLoading(true)
     try {
+      if (editEntryGroup) {
+        await api('/api/entry/undo', { method: 'POST', body: JSON.stringify({ entry_group: editEntryGroup }) })
+      }
       const body: any = { type, fields: { ...fields } }
       if (confirmToken) { body.confirm_conversion = true; body.pending_save_token = confirmToken }
       const res = await api<any>('/api/entry/save', { method: 'POST', body: JSON.stringify(body) })
@@ -263,9 +269,10 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
         setConversionPending({ token: res.pending_save_token, details: res.details })
         return
       }
-      show('Entry saved', 'success')
+      show(editEntryGroup ? 'Entry updated' : 'Entry saved', 'success')
       setFieldsAll(defaultFields(type))
       setConversionPending(null)
+      setEditEntryGroup(null)
       onSaved?.()
     } catch (err: any) {
       show(err.message || 'Save failed', 'error')
@@ -333,7 +340,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
           </Field>
           <Field name="Return Type">
             <select value={f.credit_period ?? 0} style={{ ...inp, cursor: 'pointer' }}
-              onChange={e => { sf('credit_period', e.target.value === 'cash' ? 0 : 1) }}>
+              onChange={e => { sf('credit_period', e.target.value === '0' ? 0 : 1) }}>
               <option value={0}>Cash Refund</option>
               <option value={1}>Credit (A/R)</option>
             </select>
@@ -358,7 +365,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
           </Field>
           <Field name="Return Type">
             <select value={f.credit_period ?? 0} style={{ ...inp, cursor: 'pointer' }}
-              onChange={e => { sf('credit_period', e.target.value === 'cash' ? 0 : 1) }}>
+              onChange={e => { sf('credit_period', e.target.value === '0' ? 0 : 1) }}>
               <option value={0}>Cash Refund Received</option>
               <option value={1}>Credit (A/P)</option>
             </select>
@@ -560,7 +567,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
       {!conversionPending && (
         <button onClick={() => handleSave()} disabled={loading}
           style={{ width: '100%', padding: '13px', background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: 4 }}>
-          {loading ? 'Saving...' : 'Save Entry'}
+          {loading ? 'Saving...' : editEntryGroup ? 'Update Entry' : 'Save Entry'}
         </button>
       )}
     </div>
