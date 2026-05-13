@@ -266,7 +266,7 @@ const CashAccountsView = ({d,push}:{d:any;push:Function})=>(
   </div>
 )
 
-const AccountTxnsView = ({d,onMore}:{d:any;onMore:()=>void})=>(
+const AccountTxnsView = ({d,onMore,loadingMore}:{d:any;onMore:()=>void;loadingMore?:boolean})=>(
   <div style={{display:'flex',flexDirection:'column',gap:8}}>
     <ViewH title={d.account||''} sub={`Balance: Rs. ${fmt(d.total)}`}/>
     {(d.transactions||[]).map((tx:any,i:number)=><TxRow key={i} tx={tx}/>)}
@@ -320,7 +320,7 @@ const AgingView = ({d,side,push}:{d:any;side:'ar'|'ap';push:Function})=>{
   </div>
 }
 
-const CounterpartyLedger = ({d,ctype,onMore}:{d:any;ctype:string;onMore:()=>void})=>{
+const CounterpartyLedger = ({d,ctype,onMore,loadingMore}:{d:any;ctype:string;onMore:()=>void;loadingMore?:boolean})=>{
   const outstanding=d.outstanding||0
   const outColor=outstanding>0?'#ef9f27':outstanding<0?'#3bf084':'var(--text-primary)'
   const trend=d.trend||[], maxT=Math.max(...trend.map((t:any)=>Math.abs(t.balance)),1)
@@ -472,7 +472,7 @@ const InventoryView = ({d,push}:{d:any;push:Function})=>(
   </div>
 )
 
-const ProductMovView = ({d,entry,onMore}:{d:any;entry:ViewEntry;onMore:()=>void})=>(
+const ProductMovView = ({d,entry,onMore,loadingMore}:{d:any;entry:ViewEntry;onMore:()=>void;loadingMore?:boolean})=>(
   <div style={{display:'flex',flexDirection:'column',gap:8}}>
     <ViewH title={d.sku_name||entry.params.sku_name||''}/>
     <div style={{display:'flex',gap:16,padding:'10px 14px',background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:10}}>
@@ -605,11 +605,11 @@ export default function DashboardPage() {
       {drillData&&!drillData.error&&(()=>{
         switch(cur.id){
           case 'cash_accounts': return <CashAccountsView d={drillData} push={push}/>
-          case 'account_txns': return <AccountTxnsView d={drillData} onMore={onMore}/>
+          case 'account_txns': return <AccountTxnsView d={drillData} onMore={onMore} loadingMore={loadingMore}/>
           case 'ar_aging': return <AgingView d={drillData} side="ar" push={push}/>
           case 'ap_aging': return <AgingView d={drillData} side="ap" push={push}/>
-          case 'customer_ledger': return <CounterpartyLedger d={drillData} ctype="customer" onMore={onMore}/>
-          case 'supplier_ledger': return <CounterpartyLedger d={drillData} ctype="supplier" onMore={onMore}/>
+          case 'customer_ledger': return <CounterpartyLedger d={drillData} ctype="customer" onMore={onMore} loadingMore={loadingMore}/>
+          case 'supplier_ledger': return <CounterpartyLedger d={drillData} ctype="supplier" onMore={onMore} loadingMore={loadingMore}/>
           case 'revenue': return <RevenueView d={drillData} entry={cur} onTab={onTab} push={push}/>
           case 'pnl': return <PnlView d={drillData} push={push}/>
           case 'cogs_drill': return <CogsView d={drillData}/>
@@ -618,7 +618,7 @@ export default function DashboardPage() {
           case 'vendor_txns': return <VendorLedgerView d={drillData}/>
           case 'purchases': return <PurchasesView d={drillData} push={push}/>
           case 'inventory': return <InventoryView d={drillData} push={push}/>
-          case 'product_movement': return <ProductMovView d={drillData} entry={cur} onMore={onMore}/>
+          case 'product_movement': return <ProductMovView d={drillData} entry={cur} onMore={onMore} loadingMore={loadingMore}/>
           default: return <div style={{color:'var(--text-muted)'}}>Unknown view: {cur.id}</div>
         }
       })()}
