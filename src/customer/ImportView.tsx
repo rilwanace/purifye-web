@@ -31,6 +31,7 @@ export default function ImportView({ onBack, onDone }: Props) {
     if (!allRows.length) { setError('Could not parse CSV ??? check file format'); return; }
     const h = allRows[0];
     const dataRows = allRows.slice(1).filter(r => r.some(c => c.trim()));
+    if (dataRows.length > 10000) { setError(`Too many rows (${dataRows.length}). Maximum is 10,000.`); return; }
     setHeaders(h);
     setRows(dataRows);
 
@@ -51,6 +52,7 @@ export default function ImportView({ onBack, onDone }: Props) {
 
   function handleFile(file: File) {
     if (!file.name.match(/\.(csv|txt)$/i)) { setError('Please upload a CSV file'); return; }
+    if (file.size > 5 * 1024 * 1024) { setError('File must be under 5 MB'); return; }
     const reader = new FileReader();
     reader.onload = e => processFile(e.target?.result as string, file.name);
     reader.readAsText(file);

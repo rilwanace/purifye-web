@@ -12,6 +12,8 @@ export default function ImportData() {
 
   async function doImport() {
     if (!file) return
+    if (file.size > 5 * 1024 * 1024) { show('File must be under 5 MB', 'error'); return }
+    if (!file.name.match(/\.xlsx?$/i)) { show('Please select an Excel file (.xlsx or .xls)', 'error'); return }
     setUploading(true)
     setError('')
     setSummary(null)

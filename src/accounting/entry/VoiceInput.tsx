@@ -52,6 +52,7 @@ export default function VoiceInput({ onParsed, disabled }: VoiceInputProps) {
   }
 
   async function uploadAudio(blob: Blob) {
+    if (blob.size > 5 * 1024 * 1024) { show('Recording too large (max 5 MB)', 'error'); setState('idle'); return }
     setState('parsing')
     const timeout = setTimeout(() => { setState('error'); show('Parsing timed out', 'error') }, 30000)
     try {

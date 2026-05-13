@@ -60,6 +60,8 @@ export default function SocialCreate() {
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.size > 10 * 1024 * 1024) { alert('Image must be under 10 MB'); return }
+    if (!file.type.startsWith('image/')) { alert('Please select an image file'); return }
     setLoading(true)
     try {
       const fd = new FormData()

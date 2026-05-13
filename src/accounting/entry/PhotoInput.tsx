@@ -14,6 +14,8 @@ export default function PhotoInput({ onParsed, disabled }: PhotoInputProps) {
   const { show } = useToast()
 
   async function handleFile(file: File) {
+    if (file.size > 10 * 1024 * 1024) { show('Image must be under 10 MB', 'error'); return }
+    if (!file.type.startsWith('image/')) { show('Please select an image file', 'error'); return }
     setParsing(true)
     try {
       const form = new FormData()

@@ -34,6 +34,11 @@ export default function BulkImport({ onBack, onProductsChanged }: Props) {
 
   function onPhotos(e: React.ChangeEvent<HTMLInputElement>) {
     const fs = Array.from(e.target.files || [])
+    if (fs.length > 10) { show('Maximum 10 photos at a time', 'error'); return }
+    const tooBig = fs.find(f => f.size > 10 * 1024 * 1024)
+    if (tooBig) { show(`"${tooBig.name}" exceeds 10 MB limit`, 'error'); return }
+    const badType = fs.find(f => !f.type.startsWith('image/'))
+    if (badType) { show(`"${badType.name}" is not an image`, 'error'); return }
     setFiles(fs)
     setResults([])
   }

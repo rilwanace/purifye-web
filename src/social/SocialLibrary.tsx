@@ -24,6 +24,8 @@ export default function SocialLibrary() {
   async function uploadAsset(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (file.size > 10 * 1024 * 1024) { alert('File must be under 10 MB'); return }
+    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) { alert('Please select an image or video file'); return }
     const fd = new FormData()
     fd.append('file', file)
     fd.append('label', file.name)
