@@ -388,16 +388,21 @@ function LedgerReport() {
             <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{data.total ?? 0} transactions</span>
           </div>
           {(data.transactions || []).map((tx: any, i: number) => {
-            const isCredit = (tx.credit || 0) > 0
-            const amt = isCredit ? tx.credit : tx.debit
+            const dr = tx.debit || 0
+            const cr = tx.credit || 0
             return (
               <div key={i} style={{ padding: '10px 14px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div style={{ fontSize: 12, fontWeight: 500, flex: 1, marginRight: 8, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as any }}>
                     {tx.description || '—'}
                   </div>
-                  <div style={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', color: isCredit ? '#3bf084' : 'var(--danger)' }}>
-                    {isCredit ? '+' : '−'}Rs. {fmt(amt)}
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap', color: dr > 0 ? 'var(--text-primary)' : 'var(--text-dim)', fontFamily: 'var(--font-mono)', minWidth: 60, textAlign: 'right' }}>
+                      {dr > 0 ? `Dr ${fmt(dr)}` : '—'}
+                    </div>
+                    <div style={{ fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap', color: cr > 0 ? 'var(--text-primary)' : 'var(--text-dim)', fontFamily: 'var(--font-mono)', minWidth: 60, textAlign: 'right' }}>
+                      {cr > 0 ? `Cr ${fmt(cr)}` : '—'}
+                    </div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
