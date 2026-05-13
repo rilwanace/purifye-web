@@ -119,7 +119,7 @@ export default function MasterData() {
       } else {
         await api('/api/settings/master-data', {
           method: 'POST',
-          body: JSON.stringify({ kind: kind.replace(/s$/, ''), ...edit.fields }),
+          body: JSON.stringify({ kind: kind, ...edit.fields }),
         })
       }
       show(edit.id ? 'Updated' : 'Added', 'success')
