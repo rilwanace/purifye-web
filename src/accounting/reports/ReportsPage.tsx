@@ -12,6 +12,11 @@ function fmt(n: number | null | undefined) {
 }
 function fmtDate(s: string) {
   if (!s) return ''
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (m) {
+    const d = new Date(+m[1], +m[2] - 1, +m[3])
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' })
+  }
   try { return new Date(s).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }) }
   catch { return s }
 }
