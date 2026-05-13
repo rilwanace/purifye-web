@@ -4,7 +4,7 @@ export function openWhatsApp(phone: string, message: string) {
     : cleaned.startsWith('0') ? '+94' + cleaned.slice(1)
     : '+94' + cleaned
   const encoded = encodeURIComponent(message)
-  window.open(`https://wa.me/${intl.replace('+', '')}?text=${encoded}`, '_blank')
+  window.open(`https://wa.me/${intl.replace('+', '')}?text=${encoded}`, '_blank', 'noopener,noreferrer')
 }
 
 export function promptWhatsApp(message: string) {

@@ -33,7 +33,7 @@ export default function PlannerTeamSettings() {
   }, [refresh]);
 
   const handleCopy = useCallback(async (token: string) => {
-    await navigator.clipboard.writeText(`https://purifyeai.com/t/${token}`);
+    await navigator.clipboard.writeText(`${window.location.origin}/t/${token}`);
     setCopied(token);
     setTimeout(() => setCopied(null), 2000);
   }, []);
