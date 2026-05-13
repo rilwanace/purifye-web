@@ -1,4 +1,4 @@
-import { api } from '../api'
+import { api, apiFormData } from '../api'
 
 const BASE = '/api/inventory'
 
@@ -80,27 +80,12 @@ export const inv = {
     const form = new FormData()
     form.append('file', file)
     form.append('entry_type', entryType)
-    const res = await fetch(`${BASE}/import/upload?entry_type=${entryType}`, {
-      method: 'POST',
-      credentials: 'include',
-      body: form,
-    })
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}))
-      throw new Error(err.detail || `HTTP ${res.status}`)
-    }
-    return res.json()
+    return apiFormData(`${BASE}/import/upload?entry_type=${encodeURIComponent(entryType)}`, form)
   },
 
   ocrCount: async (file: File) => {
     const form = new FormData()
     form.append('file', file)
-    const res = await fetch(`${BASE}/ocr-count`, {
-      method: 'POST',
-      credentials: 'include',
-      body: form,
-    })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    return res.json()
+    return apiFormData(`${BASE}/ocr-count`, form)
   },
 }
