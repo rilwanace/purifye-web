@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { api } from '../../api'
 import { useToast } from '../../shared/components/Toast'
 
@@ -232,8 +232,24 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
   const [loading, setLoading] = useState(false)
   const [conversionPending, setConversionPending] = useState<{ token: string; details: any } | null>(null)
   const [localMaster, setLocalMaster] = useState(masterData)
+  const typeSelectRef = useRef<HTMLSelectElement>(null)
 
   useEffect(() => { setLocalMaster(masterData) }, [masterData])
+
+  useEffect(() => {
+    const el = typeSelectRef.current
+    if (!el) return
+    const syncType = () => {
+      const v = el.value
+      if (v && v !== type) {
+        setType(v)
+        setFieldsAll(defaultFields(v))
+        setConversionPending(null)
+      }
+    }
+    el.addEventListener('change', syncType)
+    return () => el.removeEventListener('change', syncType)
+  })
 
   useEffect(() => {
     if (!prefill) return
@@ -523,7 +539,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
   return (
     <div>
       <Field name="Entry Type">
-        <select value={type} onChange={e => changeType(e.target.value)} style={{ ...inp, cursor: 'pointer' }}>
+        <select ref={typeSelectRef} value={type} onChange={e => changeType(e.target.value)} style={{ ...inp, cursor: 'pointer' }}>
           {ENTRY_GROUPS.map(g => (
             <optgroup key={g.label} label={g.label}>
               {g.types.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
