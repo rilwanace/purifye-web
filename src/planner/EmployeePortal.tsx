@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { EmployeeTaskDetail } from './EmployeeTaskDetail';
 
@@ -31,6 +31,7 @@ const daysBetween = (a: Date, b: Date) => Math.round((b.getTime() - a.getTime())
 async function portalFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     ...options,
+    referrerPolicy: 'no-referrer',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
   });
   if (!res.ok) {
@@ -66,7 +67,19 @@ export default function EmployeePortal() {
     }
   }, [token]);
 
-  useEffect(() => { load(); }, [load]);
+  const scrubbed = useRef(false);
+  useEffect(() => {
+    load().then(() => {
+      if (!scrubbed.current) {
+        scrubbed.current = true;
+        window.history.replaceState(null, '', '/portal');
+        const meta = document.createElement('meta');
+        meta.name = 'referrer';
+        meta.content = 'no-referrer';
+        document.head.appendChild(meta);
+      }
+    });
+  }, [load]);
 
   const handleToggle = useCallback(async (taskId: string) => {
     await portalFetch(`/api/planner/portal/${encodeURIComponent(token!)}/tasks/${encodeURIComponent(taskId)}/toggle`, { method: 'POST' });

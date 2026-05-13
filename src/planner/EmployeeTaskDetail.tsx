@@ -42,6 +42,7 @@ const fmtDate = (s: string) => {
 async function portalFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     ...options,
+    referrerPolicy: 'no-referrer',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
