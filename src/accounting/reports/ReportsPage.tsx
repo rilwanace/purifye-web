@@ -6,9 +6,11 @@ import { promptWhatsApp } from '../../shared/utils/whatsapp'
 type Period = 'this_month' | 'last_month' | '3m' | '6m' | 'ytd' | 'all'
 type Tab = 'pnl' | 'bs' | 'cf' | 'tb' | 'ledger'
 
-function fmt(n: number | null | undefined) {
+function fmt(n: number | string | null | undefined) {
   if (n == null) return '0'
-  return Math.round(n).toLocaleString('en-US')
+  const v = typeof n === 'string' ? Number(n) : n
+  if (!isFinite(v)) return '0'
+  return Math.round(v).toLocaleString('en-US')
 }
 function fmtDate(s: string) {
   if (!s) return ''
