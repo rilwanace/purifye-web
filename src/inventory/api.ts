@@ -1,4 +1,4 @@
-import { api, apiFormData } from '../api'
+import { api, apiFormData, apiBlob } from '../api'
 
 const BASE = '/api/inventory'
 
@@ -31,7 +31,7 @@ export const inv = {
   setPOStatus: (id: string, status: string) =>
     api(`${BASE}/pos/${encodeURIComponent(id)}/status`, { method: 'PUT', body: JSON.stringify({ status }) }),
   poPdf: (id: string) =>
-    fetch(`${BASE}/pos/${encodeURIComponent(id)}/pdf`, { credentials: 'include' }),
+    apiBlob(`${BASE}/pos/${encodeURIComponent(id)}/pdf`),
   deletePO: (id: string) =>
     api(`${BASE}/pos/${encodeURIComponent(id)}`, { method: 'DELETE' }),
 

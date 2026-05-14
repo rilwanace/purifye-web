@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { api } from '../../api'
+import { api, apiBlob } from '../../api'
 import { useAuth } from '../../auth/useAuth'
 import { promptWhatsApp } from '../../shared/utils/whatsapp'
 
@@ -63,7 +63,7 @@ const Err = ({ msg }: { msg: string }) => <div style={{ padding: 20, color: 'var
 async function downloadPdf(type: string, period: string, setPdfLoading: (v: boolean) => void) {
   setPdfLoading(true)
   try {
-    const res = await fetch(`/api/reports/pdf?type=${type}&period=${period}`, { credentials: 'include' })
+    const res = await apiBlob(`/api/reports/pdf?type=${type}&period=${period}`)
     if (!res.ok) throw new Error('PDF generation failed')
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)

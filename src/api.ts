@@ -54,3 +54,21 @@ export async function apiFormData<T = any>(path: string, body: FormData, method 
   if (res.status === 204) return undefined as T;
   return res.json();
 }
+
+
+/** Binary/blob downloads — credentials + CSRF, returns raw Response for .blob() */
+export async function apiBlob(path: string, options?: RequestInit): Promise<Response> {
+  const method = options?.method || 'GET';
+  const res = await fetch(`${BASE}${path}`, {
+    ...options,
+    credentials: 'include',
+    headers: {
+      ...csrfHeaders(method),
+      ...options?.headers,
+    },
+  });
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
+  return res;
+}
