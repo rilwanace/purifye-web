@@ -7,7 +7,6 @@ interface Member {
   name: string;
   role: string;
   color: string;
-  token: string;
 }
 
 interface Task {
@@ -69,16 +68,15 @@ export default function EmployeePortal() {
 
   const scrubbed = useRef(false);
   useEffect(() => {
-    load().then(() => {
-      if (!scrubbed.current) {
-        scrubbed.current = true;
-        window.history.replaceState(null, '', '/portal');
-        const meta = document.createElement('meta');
-        meta.name = 'referrer';
-        meta.content = 'no-referrer';
-        document.head.appendChild(meta);
-      }
-    });
+    if (!scrubbed.current) {
+      scrubbed.current = true;
+      window.history.replaceState(null, '', '/portal');
+      const meta = document.createElement('meta');
+      meta.name = 'referrer';
+      meta.content = 'no-referrer';
+      document.head.appendChild(meta);
+    }
+    load();
   }, [load]);
 
   const handleToggle = useCallback(async (taskId: string) => {
