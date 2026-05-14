@@ -5,7 +5,6 @@ interface Member {
   name: string;
   role: string;
   color: string;
-  token: string;
 }
 
 interface Task {

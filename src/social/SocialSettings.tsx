@@ -11,6 +11,28 @@ const LANG_OPTIONS = [
   { value: 'sinhala_mix', label: 'Singlish (Sinhala + English)' },
 ]
 
+function Field({ label, value, onChange, multiline = false }: any) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: '#9c9b95', marginBottom: 6, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
+      {multiline ? (
+        <textarea value={value} onChange={e => onChange(e.target.value)} style={{ width: '100%', background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '12px', fontSize: 13, color: '#e8e7e0', fontFamily: 'var(--font-sans)', outline: 'none', colorScheme: 'dark', boxSizing: 'border-box', resize: 'none', minHeight: 80 }} />
+      ) : (
+        <input value={value} onChange={e => onChange(e.target.value)} style={{ width: '100%', background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '12px', fontSize: 13, color: '#e8e7e0', fontFamily: 'var(--font-sans)', outline: 'none', colorScheme: 'dark', boxSizing: 'border-box', minHeight: 44 }} />
+      )}
+    </div>
+  )
+}
+
+function Sec({ label }: { label: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '20px 0 12px' }}>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6a6a64', whiteSpace: 'nowrap' }}>{label}</span>
+      <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
+    </div>
+  )
+}
+
 export default function SocialSettings() {
   const [profile, setProfile] = useState<any>(null)
   const [usage, setUsage] = useState<any>(null)
@@ -59,25 +81,7 @@ export default function SocialSettings() {
 
   const isConnected = (plat: string) => !!(profile?.['platform_' + plat])
 
-  const Field = ({ label, value, onChange, multiline = false }: any) => (
-    <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: '#9c9b95', marginBottom: 6, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
-      {multiline ? (
-        <textarea value={value} onChange={e => onChange(e.target.value)} style={{ width: '100%', background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '12px', fontSize: 13, color: '#e8e7e0', fontFamily: 'var(--font-sans)', outline: 'none', colorScheme: 'dark', boxSizing: 'border-box', resize: 'none', minHeight: 80 }} />
-      ) : (
-        <input value={value} onChange={e => onChange(e.target.value)} style={{ width: '100%', background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '12px', fontSize: 13, color: '#e8e7e0', fontFamily: 'var(--font-sans)', outline: 'none', colorScheme: 'dark', boxSizing: 'border-box', minHeight: 44 }} />
-      )}
-    </div>
-  )
 
-  function Sec({ label }: { label: string }) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '20px 0 12px' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#6a6a64', whiteSpace: 'nowrap' }}>{label}</span>
-        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
-      </div>
-    )
-  }
 
   return (
     <div style={{ padding: '4px 20px 120px' }}>

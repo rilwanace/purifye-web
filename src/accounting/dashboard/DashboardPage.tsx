@@ -42,15 +42,18 @@ function SvgBars({ bars, color }: { bars: {label:string;value:number}[]; color: 
 
 function Donut({ segs, size }: { segs:{pct:number;color:string}[]; size:number }) {
   const r=size/2-4,cx=size/2,cy=size/2,circ=2*Math.PI*r
-  let off=0
+  const offsets = segs.reduce<number[]>((acc, _s, i) => {
+    acc.push(i === 0 ? 0 : acc[i-1] + (segs[i-1].pct/100)*circ)
+    return acc
+  }, [])
   return <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
     {segs.map((s,i)=>{
-      const dash=(s.pct/100)*circ, el=<circle key={i} cx={cx} cy={cy} r={r} fill="none"
+      const dash=(s.pct/100)*circ
+      return <circle key={i} cx={cx} cy={cy} r={r} fill="none"
         stroke={s.color} strokeWidth="12"
         strokeDasharray={`${dash.toFixed(2)} ${(circ-dash).toFixed(2)}`}
-        strokeDashoffset={(-off).toFixed(2)}
+        strokeDashoffset={(-offsets[i]).toFixed(2)}
         transform={`rotate(-90 ${cx} ${cy})`}/>
-      off+=dash; return el
     })}
   </svg>
 }
