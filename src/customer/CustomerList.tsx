@@ -56,7 +56,7 @@ export default function CustomerList({ customers, settings, onCustomerClick, onI
     const init = c.name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
     return (
       <div key={c.id} onClick={() => onCustomerClick(c.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: 'rgba(255,255,255,.02)', borderRadius: 6, marginBottom: 2, cursor: 'pointer', minHeight: 44 }}>
-        <div style={{ width: 30, height: 30, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0, background: c._seg.bg, color: c._seg.color }}>{init}</div>
+        <div data-segment={c._seg.key} style={{ width: 30, height: 30, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0, backgroundColor: c._seg.color, color: '#fff' }}>{init}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ fontSize: 12, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</div>
@@ -105,8 +105,8 @@ export default function CustomerList({ customers, settings, onCustomerClick, onI
             const rangeStr = rangeLabel(s, th);
             return (
               <div key={s.key} style={{ marginBottom: 4 }}>
-                <div onClick={() => toggleSeg(s.key)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'var(--bg-card)', borderRadius: 10, cursor: 'pointer', border: '1px solid var(--border)', minHeight: 44 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: s.color }} />
+                <div data-segment={s.key} onClick={() => toggleSeg(s.key)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', background: 'var(--bg-card)', borderRadius: 10, cursor: 'pointer', border: '1px solid var(--border)', minHeight: 44 }}>
+                  <span data-segment-badge={s.key} style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 6, backgroundColor: s.color, color: '#fff', flexShrink: 0, fontFamily: 'var(--font-mono)' }}>{s.label}</span>
                   <div style={{ fontSize: 13, fontWeight: 500, flex: 1 }}>{rangeStr}</div>
                   <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', fontWeight: 600, color: s.color }}>{g.length}</div>
                   <div style={{ fontSize: 10, color: 'var(--text-dim)', marginLeft: 4, transition: 'transform .2s', transform: open ? 'rotate(90deg)' : 'none' }}>???</div>

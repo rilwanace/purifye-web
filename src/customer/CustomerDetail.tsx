@@ -25,6 +25,7 @@ export default function CustomerDetail({ customer: c, messages, onBack }: Props)
     .sort((a: any, b: any) => (b.sent_at || '').localeCompare(a.sent_at || ''));
 
   const spendCats = buildSpendCats(purchases, c);
+  const waPhone = (c.phone || '').replace(/[^\d+]/g, '');
 
   return (
     <>
@@ -38,11 +39,11 @@ export default function CustomerDetail({ customer: c, messages, onBack }: Props)
 
       {/* Avatar + name */}
       <div style={{ textAlign: 'center', padding: '8px 0 16px' }}>
-        <div style={{ width: 52, height: 52, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, margin: '0 auto 8px', background: c._seg.bg, color: c._seg.color }}>{init}</div>
+        <div data-segment={c._seg.key} style={{ width: 52, height: 52, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, margin: '0 auto 8px', backgroundColor: c._seg.color, color: '#fff' }}>{init}</div>
         <div style={{ fontSize: 17, fontWeight: 700 }}>{c.name}</div>
         {c.category && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#2a2a28', color: '#9c9b95', marginTop: 4, display: 'inline-block' }}>{c.category}</span>}
         <div style={{ marginTop: 4 }}>
-          <span style={{ fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '3px 10px', borderRadius: 6, background: c._seg.bg, color: c._seg.color }}>{c._seg.label} ?? {c._days}d ago</span>
+          <span data-segment-badge={c._seg.key} style={{ fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '3px 10px', borderRadius: 6, backgroundColor: c._seg.color, color: '#fff' }}>{c._seg.label} ?? {c._days}d ago</span>
         </div>
       </div>
 
@@ -85,6 +86,20 @@ export default function CustomerDetail({ customer: c, messages, onBack }: Props)
         </div>
       ))}
 
+      {/* WhatsApp button */}
+      {/\d/.test(waPhone) && (
+        <a
+          data-testid="whatsapp-link"
+          href={"https://wa.me/" + waPhone + "?text=" + encodeURIComponent("Hi " + c.name.split(" ")[0] + ", ")}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, padding: '10px 14px', background: 'rgba(37,211,102,.1)', border: '1px solid rgba(37,211,102,.25)', borderRadius: 10, color: '#25D366', fontSize: 12, fontWeight: 600, textDecoration: 'none', minHeight: 44 }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.291 0-4.412-.744-6.13-2.004l-.44-.328-3.082 1.034 1.034-3.082-.328-.44A9.955 9.955 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          Send WhatsApp
+        </a>
+      )}
+
       {/* Message history */}
       {custMsgs.length > 0 && (
         <>
@@ -116,23 +131,14 @@ function SectionLabel({ label, color = 'var(--text-muted)' }: { label: string; c
   );
 }
 
-function buildSpendCats(purchases: any[] | null, c: EnrichedCustomer) {
+function buildSpendCats(purchases: any[] | null, _c: EnrichedCustomer) {
   const COLORS = ['#CF5BA0','#5DCAA5','#B08D30','#E8894F','#9c9b95','#D85A30'];
-  if (purchases && purchases.length >= 2) {
+  if (purchases && purchases.length >= 1) {
     const catMap: Record<string, number> = {};
     for (const p of purchases) { const nm = p.product_name || 'Other'; catMap[nm] = (catMap[nm] || 0) + (p.total || 0); }
     return Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, val], i) => ({ name, value: Math.round(val), color: COLORS[i % COLORS.length] }));
   }
-  if (!c.spent) return [];
-  function hashCode(s: string) { let h = 0; for (let i = 0; i < s.length; i++) h = ((h << 5) - h) + s.charCodeAt(i) | 0; return Math.abs(h); }
-  const seed = hashCode(c.id || c.name);
-  const cats = ['Services','Products','Add-ons','Consultation'];
-  const total = c.spent;
-  const r1 = ((seed % 40) + 40) / 100;
-  const r2 = ((seed % 20) + 10) / 100;
-  const r3 = Math.max(.05, 1 - r1 - r2 - .05);
-  const r4 = Math.max(.05, 1 - r1 - r2 - r3);
-  return cats.map((name, i) => ({ name, value: Math.round(total * [r1, r2, r3, r4][i]), color: COLORS[i] }));
+  return [];
 }
 
 function DonutChart({ cats, total }: { cats: { name: string; value: number; color: string }[]; total: number }) {
@@ -159,9 +165,9 @@ function DonutChart({ cats, total }: { cats: { name: string; value: number; colo
       </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
         {valid.map((c, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div key={i} data-donut-segment={c.name} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 8, height: 8, borderRadius: 2, flexShrink: 0, background: c.color }} />
-            <div style={{ fontSize: 10, flex: 1 }}>{c.name}</div>
+            <div data-donut-label style={{ fontSize: 10, flex: 1 }}>{c.name}</div>
             <div style={{ fontSize: 10, fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{Math.round((c.value / total) * 100)}%</div>
           </div>
         ))}
