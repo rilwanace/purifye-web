@@ -540,6 +540,7 @@ function ReportsBar() {
 
 export default function DashboardPage() {
   useAuth()
+  const navigate = useNavigate()
   const [period, setPeriod] = useState<Period>('this_month')
   const [summary, setSummary] = useState<any>(null)
   const [loading, setLoading] = useState(true)
