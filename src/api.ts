@@ -38,7 +38,7 @@ export async function api<T = any>(path: string, options?: RequestInit): Promise
 }
 
 /** Multipart/FormData uploads — credentials + CSRF, no Content-Type (browser sets boundary) */
-export async function apiFormData<T = any>(path: string, body: FormData, method = 'POST'): Promise<T> {
+export async function apiFormData<T = any>(path: string, body: FormData, method = 'POST', signal?: AbortSignal): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     method,
     credentials: 'include',
@@ -46,6 +46,7 @@ export async function apiFormData<T = any>(path: string, body: FormData, method 
       ...csrfHeaders(method),
     },
     body,
+    signal,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));

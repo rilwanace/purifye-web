@@ -1,4 +1,4 @@
-﻿import { useRef, useState } from 'react'
+﻿import { useRef, useState, useEffect } from 'react'
 import { useToast } from '../../shared/components/Toast'
 import { apiFormData } from '../../api'
 
@@ -11,22 +11,31 @@ export default function PhotoInput({ onParsed, disabled }: PhotoInputProps) {
   const [parsing, setParsing] = useState(false)
   const [error, setError] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
   const { show } = useToast()
+
+  useEffect(() => {
+    return () => { abortRef.current?.abort() }
+  }, [])
 
   async function handleFile(file: File) {
     if (file.size > 10 * 1024 * 1024) { show('Image must be under 10 MB', 'error'); return }
     if (!file.type.startsWith('image/')) { show('Please select an image file', 'error'); return }
     setParsing(true)
+    const controller = new AbortController()
+    abortRef.current = controller
     try {
       const form = new FormData()
       form.append('image', file)
-      const data = await apiFormData<any>('/api/ocr/parse', form)
+      const data = await apiFormData<any>('/api/ocr/parse', form, 'POST', controller.signal)
       setParsing(false)
       onParsed(data)
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return
       setParsing(false)
       setError(true)
-      show('Photo parsing failed, try again', 'error')
+      const msg = err?.message?.includes('unavailable') ? err.message : 'Photo parsing failed, try again'
+      show(msg, 'error')
       setTimeout(() => setError(false), 2000)
     }
   }

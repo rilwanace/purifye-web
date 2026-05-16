@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useToast } from '../../shared/components/Toast'
 import { apiFormData } from '../../api'
 
@@ -13,7 +13,17 @@ export default function VoiceInput({ onParsed, disabled }: VoiceInputProps) {
   const mediaRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const timerRef = useRef<number | null>(null)
+  const parseTimeoutRef = useRef<number | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
   const { show } = useToast()
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+      if (parseTimeoutRef.current) clearTimeout(parseTimeoutRef.current)
+      abortRef.current?.abort()
+    }
+  }, [])
 
   async function startRecording() {
     try {
@@ -54,18 +64,27 @@ export default function VoiceInput({ onParsed, disabled }: VoiceInputProps) {
   async function uploadAudio(blob: Blob) {
     if (blob.size > 5 * 1024 * 1024) { show('Recording too large (max 5 MB)', 'error'); setState('idle'); return }
     setState('parsing')
-    const timeout = setTimeout(() => { setState('error'); show('Parsing timed out', 'error') }, 30000)
+    const controller = new AbortController()
+    abortRef.current = controller
+    parseTimeoutRef.current = window.setTimeout(() => {
+      controller.abort()
+      setState('error')
+      show('Parsing timed out', 'error')
+      setTimeout(() => setState('idle'), 2000)
+    }, 30000)
     try {
       const form = new FormData()
       form.append('audio', blob, 'recording.webm')
-      const data = await apiFormData<any>('/api/voice/parse', form)
-      clearTimeout(timeout)
+      const data = await apiFormData<any>('/api/voice/parse', form, 'POST', controller.signal)
+      if (parseTimeoutRef.current) { clearTimeout(parseTimeoutRef.current); parseTimeoutRef.current = null }
       setState('idle')
       onParsed(data)
-    } catch (err) {
-      clearTimeout(timeout)
+    } catch (err: any) {
+      if (parseTimeoutRef.current) { clearTimeout(parseTimeoutRef.current); parseTimeoutRef.current = null }
+      if (err?.name === 'AbortError') return
       setState('error')
-      show('Voice parsing failed, try again', 'error')
+      const msg = err?.message?.includes('unavailable') ? err.message : 'Voice parsing failed, try again'
+      show(msg, 'error')
       setTimeout(() => setState('idle'), 2000)
     }
   }

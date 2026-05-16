@@ -110,6 +110,8 @@ export default function InvoiceSettings() {
   }
 
   async function uploadLogo(file: File) {
+    if (file.size > 1048576) { show('Logo must be under 1 MB', 'error'); return }
+    if (!['image/png', 'image/jpeg'].includes(file.type)) { show('Only PNG or JPEG files allowed', 'error'); return }
     setUploading(true)
     try {
       const form = new FormData()

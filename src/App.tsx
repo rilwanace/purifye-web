@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import BotLandingPage from './bots/BotLandingPage'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, ProtectedRoute } from './auth/useAuth'
+import RequireRole from './auth/RequireRole'
 import { ToastProvider } from './shared/components/Toast'
 import LoginPage from './auth/LoginPage'
 import SignupPage from './auth/SignupPage'
@@ -44,13 +45,21 @@ export default function App() {
                 <Route path="history" element={<HistoryPage />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="recipes" element={<RecipesPage />} />
-                <Route path="settings" element={<SettingsPage />} />
+                <Route path="settings" element={
+                  <RequireRole roles={["owner"]}>
+                    <SettingsPage />
+                  </RequireRole>
+                } />
                 <Route path="*" element={<Navigate to="/accounting/dashboard" replace />} />
               </Route>
             </Route>
             <Route path="/planner" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
               <Route index element={<PlannerLayout />} />
-              <Route path="settings" element={<SettingsPage />} />
+              <Route path="settings" element={
+                <RequireRole roles={["owner"]}>
+                  <SettingsPage />
+                </RequireRole>
+              } />
             </Route>
             <Route path="/customers" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
               <Route index element={<CustomerBot />} />

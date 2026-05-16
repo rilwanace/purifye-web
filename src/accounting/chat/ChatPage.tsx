@@ -103,7 +103,10 @@ export default function ChatPage() {
       handleParsed(res)
     } catch (e: any) {
       clearTimer()
-      if (e?.name !== 'AbortError') { setChatState('error'); setErrorMsg("Couldn't process that. Try Quick Entry.") }
+      if (e?.name !== 'AbortError') {
+        const msg = e?.message?.includes('unavailable') ? e.message : "Couldn't process that. Try Quick Entry."
+        setChatState('error'); setErrorMsg(msg)
+      }
     }
   }
 
