@@ -14,8 +14,8 @@ const TYPE_TABS = [
   { id: 'purchase', label: 'Purchases' }, { id: 'expense', label: 'Expenses' }, { id: 'other', label: 'Other' },
 ]
 const DATE_FILTERS = [
-  { id: 'today', label: 'Today' }, { id: 'week', label: 'This Week' },
-  { id: 'month', label: 'This Month' }, { id: 'custom', label: 'Custom' },
+  { id: 'this_month', label: 'This Month' }, { id: 'last_month', label: 'Last Month' },
+  { id: 'all', label: 'All' }, { id: 'custom', label: 'Custom' },
 ]
 const TYPE_COLORS: Record<string, string> = { sale: '#5DCAA5', purchase: '#E86B3A', other_expense: '#D4A843', default: '#7068D9' }
 
@@ -61,9 +61,13 @@ function getRange(f: string): { from: string; to: string } | null {
   const now = new Date(), pad = (n: number) => String(n).padStart(2, '0')
   const fmt = (d: Date) => d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate())
   const today = fmt(now)
-  if (f === 'today') return { from: today, to: today }
-  if (f === 'week') { const s = new Date(now); s.setDate(now.getDate()-now.getDay()); return { from: fmt(s), to: today } }
-  if (f === 'month') return { from: fmt(new Date(now.getFullYear(), now.getMonth(), 1)), to: today }
+  if (f === 'this_month') return { from: fmt(new Date(now.getFullYear(), now.getMonth(), 1)), to: today }
+  if (f === 'last_month') {
+    const lmEnd = new Date(now.getFullYear(), now.getMonth(), 0)
+    const lmStart = new Date(lmEnd.getFullYear(), lmEnd.getMonth(), 1)
+    return { from: fmt(lmStart), to: fmt(lmEnd) }
+  }
+  if (f === 'all') return null
   return null
 }
 interface MD { customers: string[]; suppliers: string[]; staff: string[]; accounts: string[]; categories: string[]; products: string[] }
@@ -73,7 +77,7 @@ export default function HistoryPage() {
   const [entries, setEntries] = useState<Entry[]>([])
   const [loading, setLoading] = useState(true)
   const [typeTab, setTypeTab] = useState('')
-  const [dateFilter, setDateFilter] = useState('month')
+  const [dateFilter, setDateFilter] = useState('this_month')
   const [customFrom, setCustomFrom] = useState(''), [customTo, setCustomTo] = useState('')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Entry | null>(null)

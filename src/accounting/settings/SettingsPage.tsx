@@ -26,9 +26,9 @@ export default function SettingsPage() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid #232321' }}>
         <button
           onClick={() => navigate(-1)}
-          style={{ background: 'none', border: 'none', color: '#f0ede6', cursor: 'pointer', padding: '6px 0', fontSize: 20, display: 'flex', alignItems: 'center', gap: 6 }}
+          style={{ background: 'none', border: 'none', color: '#5DCAA5', cursor: 'pointer', padding: '6px 0', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'DM Mono, monospace' }}
         >
-          ?
+          ← Back
         </button>
         <span style={{ fontSize: 16, fontWeight: 600 }}>Settings</span>
         <button

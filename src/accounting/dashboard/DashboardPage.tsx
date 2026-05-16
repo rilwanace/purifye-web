@@ -4,8 +4,8 @@ import { api } from '../../api'
 import { useAuth } from '../../auth/useAuth'
 import { openWhatsApp, promptWhatsApp } from '../../shared/utils/whatsapp'
 
-type Period = 'this_month' | '3m' | '6m' | 'ytd' | 'all'
-interface ViewEntry { id: string; params: Record<string,string>; period: Period; offset: number; activeTab?: string }
+type Period = 'this_month' | 'last_month' | 'all' | 'custom'
+interface ViewEntry { id: string; params: Record<string,string>; period: Period; customFrom?: string; customTo?: string; offset: number; activeTab?: string }
 
 function fmt(n: number | null | undefined) {
   if (n == null) return '0'
@@ -59,17 +59,28 @@ function Donut({ segs, size }: { segs:{pct:number;color:string}[]; size:number }
   </svg>
 }
 
-function PeriodPills({ period, onChange }: { period:Period; onChange:(p:Period)=>void }) {
-  const opts:[Period,string][] = [['this_month','This Month'],['3m','3M'],['6m','6M'],['ytd','YTD'],['all','All']]
-  return <div style={{display:'flex',gap:6,padding:'10px 16px',overflowX:'auto',scrollbarWidth:'none'}}>
-    {opts.map(([id,label])=>(
-      <button key={id} onClick={()=>onChange(id)} style={{
-        padding:'5px 13px',borderRadius:20,border:`1px solid ${id===period?'rgba(93,202,165,0.4)':'var(--border)'}`,
-        background:id===period?'rgba(93,202,165,0.12)':'var(--bg-card)',
-        color:id===period?'var(--accent)':'var(--text-muted)',fontSize:12,fontWeight:500,
-        whiteSpace:'nowrap',cursor:'pointer',flexShrink:0,fontFamily:'var(--font-sans)',
-      }}>{label}</button>
-    ))}
+function PeriodPills({ period, customFrom, customTo, onChange, onCustom }: { period:Period; customFrom:string; customTo:string; onChange:(p:Period)=>void; onCustom:(f:string,t:string)=>void }) {
+  const [lf, setLf] = useState(customFrom), [lt, setLt] = useState(customTo)
+  const opts:[Period,string][] = [['this_month','This Month'],['last_month','Last Month'],['all','All'],['custom','Custom']]
+  return <div>
+    <div style={{display:'flex',gap:6,padding:'10px 16px',overflowX:'auto',scrollbarWidth:'none'}}>
+      {opts.map(([id,label])=>(
+        <button key={id} onClick={()=>onChange(id)} style={{
+          padding:'5px 13px',borderRadius:20,border:`1px solid ${id===period?'rgba(93,202,165,0.4)':'var(--border)'}`,
+          background:id===period?'rgba(93,202,165,0.12)':'var(--bg-card)',
+          color:id===period?'var(--accent)':'var(--text-muted)',fontSize:12,fontWeight:500,
+          whiteSpace:'nowrap',cursor:'pointer',flexShrink:0,fontFamily:'var(--font-sans)',
+        }}>{label}</button>
+      ))}
+    </div>
+    {period==='custom' && (
+      <div style={{display:'flex',gap:8,padding:'0 16px 10px',alignItems:'center'}}>
+        <input type='date' value={lf} onChange={e=>setLf(e.target.value)} style={{flex:1,background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:6,padding:'6px 8px',color:'var(--text-primary)',fontSize:12}} />
+        <span style={{color:'var(--text-muted)',fontSize:12}}>?</span>
+        <input type='date' value={lt} onChange={e=>setLt(e.target.value)} style={{flex:1,background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:6,padding:'6px 8px',color:'var(--text-primary)',fontSize:12}} />
+        <button onClick={()=>onCustom(lf,lt)} style={{padding:'6px 12px',borderRadius:6,background:'var(--accent)',border:'none',color:'#131311',fontSize:12,fontWeight:600,cursor:'pointer'}}>Apply</button>
+      </div>
+    )}
   </div>
 }
 
@@ -537,20 +548,26 @@ export default function DashboardPage() {
   const [drillData, setDrillData] = useState<any>(null)
   const [drillLoading, setDrillLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [customFrom, setCustomFrom] = useState('')
+  const [customTo, setCustomTo] = useState('')
 
   useEffect(()=>{
+    if (period === 'custom' && (!customFrom || !customTo)) return
     let stale = false
     setLoading(true); setError(null)
-    api(`/api/dashboard-data?period=${period}`)
+    const _dq = period === 'custom' ? 'period=custom&from_date='+customFrom+'&to_date='+customTo : 'period='+period
+    api('/api/dashboard-data?'+_dq)
       .then(d=>{ if (!stale) { setSummary(d); setLoading(false) } })
       .catch(e=>{ if (!stale) { setError(e.message); setLoading(false) } })
     return () => { stale = true }
-  }, [period])
+  }, [period, customFrom, customTo])
 
   const cur = stack[stack.length-1]
 
   const fetchDrill = async (entry: ViewEntry): Promise<any> => {
     const p=entry.period||period, pa=entry.params||{}, b='/api/dashboard'
+    const cf=entry.customFrom||'', ct=entry.customTo||''
+    const _pq=p==='custom'?'period=custom&from_date='+cf+'&to_date='+ct:'period='+p
     switch(entry.id){
       case 'cash_accounts': return api(`${b}/cash-accounts`)
       case 'account_txns': return api(`${b}/account-transactions?account=${encodeURIComponent(pa.account||'')}&offset=${entry.offset}&limit=50`)
@@ -558,15 +575,15 @@ export default function DashboardPage() {
       case 'ap_aging': return api(`${b}/ap-aging`)
       case 'customer_ledger': return api(`${b}/customer-ledger?customer=${encodeURIComponent(pa.customer||'')}&offset=${entry.offset}&limit=50`)
       case 'supplier_ledger': return api(`${b}/supplier-ledger?supplier=${encodeURIComponent(pa.supplier||'')}&offset=${entry.offset}&limit=50`)
-      case 'revenue': return api(`${b}/revenue-breakdown?period=${p}&dimension=${entry.activeTab||'customer'}`)
-      case 'expenses': return api(`${b}/expenses-breakdown?period=${p}`)
-      case 'category_vendors': return api(`${b}/category-vendors?category=${encodeURIComponent(pa.category||'')}&period=${p}`)
+      case 'revenue': return api(b+'/revenue-breakdown?'+_pq+'&dimension='+(entry.activeTab||'customer'))
+      case 'expenses': return api(b+'/expenses-breakdown?'+_pq)
+      case 'category_vendors': return api(b+'/category-vendors?category='+encodeURIComponent(pa.category||'')+'&'+_pq)
       case 'vendor_txns': return api(`${b}/vendor-transactions?vendor=${encodeURIComponent(pa.vendor||'')}`)
-      case 'purchases': return api(`${b}/purchases-breakdown?period=${p}`)
+      case 'purchases': return api(b+'/purchases-breakdown?'+_pq)
       case 'inventory': return api(`${b}/inventory-breakdown`)
       case 'product_movement': return api(`${b}/product-movement?sku_id=${encodeURIComponent(pa.sku_id||'')}&offset=${entry.offset}&limit=50`)
-      case 'pnl': return api(`${b}/pnl-breakdown?period=${p}`)
-      case 'cogs_drill': return api(`${b}/cogs-breakdown?period=${p}`)
+      case 'pnl': return api(b+'/pnl-breakdown?'+_pq)
+      case 'cogs_drill': return api(b+'/cogs-breakdown?'+_pq)
       default: throw new Error('Unknown view')
     }
   }
@@ -580,7 +597,7 @@ export default function DashboardPage() {
   }, [cur?.id, JSON.stringify(cur?.params), cur?.activeTab])
 
   const push = (id:string, params:Record<string,string>={})=>{
-    const entry:ViewEntry={id,params,period,offset:0,activeTab:id==='revenue'?'customer':undefined}
+    const entry:ViewEntry={id,params,period,customFrom,customTo,offset:0,activeTab:id==='revenue'?'customer':undefined}
     setStack(prev=>[...prev,entry])
   }
   const pop = ()=>setStack(prev=>prev.slice(0,-1))
@@ -602,7 +619,7 @@ export default function DashboardPage() {
   if(stack.length===0||!cur){
     return <div>
       <ReportsBar />
-      <PeriodPills period={period} onChange={p=>{ setPeriod(p); setStack([]) }}/>
+      <PeriodPills period={period} customFrom={customFrom} customTo={customTo} onChange={p=>{ setPeriod(p); setStack([]) }} onCustom={(f,t)=>{ setCustomFrom(f); setCustomTo(t); setStack([]) }}/>
       {loading&&<div style={{textAlign:'center',padding:40,color:'var(--text-muted)'}}>Loading…</div>}
       {error&&<div style={{padding:20,color:'var(--danger)',textAlign:'center'}}>{error}</div>}
       {summary&&<div style={{padding:'10px 16px',display:'flex',flexDirection:'column',gap:8}}>

@@ -4,7 +4,7 @@ import { api, apiBlob } from '../../api'
 import { useAuth } from '../../auth/useAuth'
 import { promptWhatsApp } from '../../shared/utils/whatsapp'
 
-type Period = 'this_month' | 'last_month' | '3m' | '6m' | 'ytd' | 'all'
+type Period = 'this_month' | 'last_month' | 'all'
 type Tab = 'pnl' | 'bs' | 'cf' | 'tb' | 'ledger'
 
 function fmt(n: number | string | null | undefined) {
@@ -39,20 +39,16 @@ const TabBar = ({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
   )
 }
 
-const PeriodPills = ({ period, onChange, full }: { period: Period; onChange: (p: Period) => void; full?: boolean }) => {
-  const opts: [Period, string][] = full
-    ? [['this_month', 'This Month'], ['last_month', 'Last Month'], ['3m', '3M'], ['6m', '6M'], ['ytd', 'YTD'], ['all', 'All']]
-    : [['this_month', 'This Month'], ['3m', '3M'], ['6m', '6M'], ['ytd', 'YTD'], ['all', 'All']]
+const PeriodPills = ({ period, onChange }: { period: Period; onChange: (p: Period) => void }) => {
+  const opts: [Period, string][] = [['this_month', 'This Month'], ['last_month', 'Last Month'], ['all', 'All']]
   return (
-    <div style={{ display: 'flex', gap: 6, padding: '10px 0', overflowX: 'auto', scrollbarWidth: 'none' }}>
+    <div style={{ display: 'flex', gap: 6, padding: '8px 16px', overflowX: 'auto', scrollbarWidth: 'none' }}>
       {opts.map(([id, label]) => (
         <button key={id} onClick={() => onChange(id)} style={{
-          padding: '5px 13px', borderRadius: 20,
-          border: `1px solid ${id === period ? 'rgba(93,202,165,0.4)' : 'var(--border)'}`,
+          padding: '5px 13px', borderRadius: 20, border: `1px solid ${id === period ? 'rgba(93,202,165,0.4)' : 'var(--border)'}`,
           background: id === period ? 'rgba(93,202,165,0.12)' : 'var(--bg-card)',
-          color: id === period ? 'var(--accent)' : 'var(--text-muted)',
-          fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', cursor: 'pointer',
-          flexShrink: 0, fontFamily: 'var(--font-sans)',
+          color: id === period ? 'var(--accent)' : 'var(--text-muted)', fontSize: 12, fontWeight: 500,
+          whiteSpace: 'nowrap', cursor: 'pointer', flexShrink: 0, fontFamily: 'var(--font-sans)',
         }}>{label}</button>
       ))}
     </div>
@@ -108,8 +104,7 @@ const PdfBtn = ({ type, period }: { type: string; period: string }) => {
 const WaShareBtn = ({ data, bizName, tab, period }: { data: any; bizName: string; tab: string; period: string }) => {
   const d = data?.data || {}
   function buildMsg() {
-    const p = period === 'this_month' ? 'This Month' : period === 'last_month' ? 'Last Month'
-      : period === '3m' ? 'Last 3M' : period === '6m' ? 'Last 6M' : period === 'ytd' ? 'YTD' : 'All Time'
+    const p = period === 'this_month' ? 'This Month' : period === 'last_month' ? 'Last Month' : 'All Time'
     if (tab === 'pnl') {
       const rev = Math.round(d.total_revenue ?? 0).toLocaleString('en-US')
       const np = Math.round(d.net_profit ?? 0).toLocaleString('en-US')
@@ -488,7 +483,7 @@ function LedgerReport() {
           {accounts.map(a => <option key={a} value={a}>{a}</option>)}
         </select>
       )}
-      <PeriodPills period={period} onChange={p => setPeriod(p)} full />
+      <PeriodPills period={period} onChange={p => setPeriod(p)} />
       {loading && <ReportSkeleton />}
       {err && <Err msg={err} />}
       {data && !loading && (
@@ -558,7 +553,7 @@ export default function ReportsPage() {
       <div style={{ padding: '12px 16px' }}>
         {tab !== 'ledger' && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <PeriodPills period={period} onChange={p => { setPeriod(p); setReportData(null) }} full={tab === 'tb'} />
+            <PeriodPills period={period} onChange={p => { setPeriod(p); setReportData(null) }} />
             <div style={{ display: 'flex', gap: 6 }}>
               {showWa && reportData && <WaShareBtn data={reportData} bizName={bizName} tab={tab} period={period} />}
               {showPdf && <PdfBtn type={pdfType} period={period} />}

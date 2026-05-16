@@ -25,6 +25,8 @@ function RemindersTab() {
   const [showForm, setShowForm] = useState(false)
   const [desc, setDesc] = useState(''), [amt, setAmt] = useState(''), [dueDate, setDueDate] = useState('')
   const [saving, setSaving] = useState(false), [swipeId, setSwipeId] = useState<string | null>(null)
+  const [editId, setEditId] = useState<string | null>(null), [editDesc, setEditDesc] = useState(''), [editAmt, setEditAmt] = useState(''), [editDue, setEditDue] = useState('')
+  const [actionLoading, setActionLoading] = useState(false)
   const { show } = useToast()
   const load = () => api<any>('/api/reminders').then(r => setReminders(r.reminders || [])).catch(() => {})
   useEffect(() => { load() }, [])
@@ -36,12 +38,37 @@ function RemindersTab() {
     catch { show('Failed to save', 'error') }
     finally { setSaving(false) }
   }
-  const markDone = (r: Reminder) => api('/api/reminders/' + r.id, { method: 'PUT', body: JSON.stringify({ completed_at: new Date().toISOString() }) }).then(() => load())
-  const del = (id: string) => api('/api/reminders/' + id, { method: 'DELETE' }).then(() => load())
+
+  async function markDone(r: Reminder) {
+    setActionLoading(true)
+    try { await api('/api/reminders/' + r.id, { method: 'PUT', body: JSON.stringify({ completed_at: new Date().toISOString() }) }); load(); show('Marked done', 'success') }
+    catch { show('Failed to update', 'error') }
+    finally { setActionLoading(false) }
+  }
+
+  async function del(id: string) {
+    setActionLoading(true)
+    try { await api('/api/reminders/' + id, { method: 'DELETE' }); load(); show('Deleted', 'success') }
+    catch { show('Failed to delete', 'error') }
+    finally { setActionLoading(false) }
+  }
+
+  function startEdit(r: Reminder) {
+    setEditId(r.id); setEditDesc(r.description); setEditAmt(r.amount != null ? String(r.amount) : ''); setEditDue(r.due_date ? r.due_date.slice(0, 10) : '')
+  }
+
+  async function saveEdit() {
+    if (!editDesc.trim()) { show('Description required', 'error'); return }
+    setActionLoading(true)
+    try { await api('/api/reminders/' + editId, { method: 'PUT', body: JSON.stringify({ description: editDesc.trim(), amount: editAmt ? parseFloat(editAmt) : null, due_date: editDue || null }) }); setEditId(null); load(); show('Updated', 'success') }
+    catch { show('Failed to update', 'error') }
+    finally { setActionLoading(false) }
+  }
 
   const active = reminders.filter(r => r.status === 'active')
   const done = reminders.filter(r => r.status === 'completed')
   const inp: React.CSSProperties = { width: '100%', background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '9px 12px', color: '#e8e7e0', fontSize: 13, boxSizing: 'border-box', fontFamily: 'var(--font-sans)' }
+  const dsInp: React.CSSProperties = { ...inp, fontSize: 12, padding: '7px 10px', marginBottom: 6 }
 
   return (
     <div style={{ padding: '0 16px 16px' }}>
@@ -61,24 +88,39 @@ function RemindersTab() {
       )}
       {active.map(r => (
         <div key={r.id} style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: '12px 14px', marginBottom: 8 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, color: '#e8e7e0' }}>{r.description}</div>
-              <div style={{ display: 'flex', gap: 10, marginTop: 4, alignItems: 'center' }}>
-                {r.amount != null && <span style={{ fontSize: 13, color: '#5DCAA5', fontFamily: 'var(--font-mono)' }}>Rs. {Math.round(r.amount).toLocaleString()}</span>}
-                {r.due_date && <span style={{ fontSize: 11, color: urgencyColor(r.due_date), fontFamily: 'var(--font-mono)' }}>{fmtDate(r.due_date)}</span>}
+          {editId === r.id ? (
+            <div>
+              <input value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="Description" style={dsInp} />
+              <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+                <input type="number" value={editAmt} onChange={e => setEditAmt(e.target.value)} placeholder="Amount" style={{ ...dsInp, flex: 1, marginBottom: 0 }} />
+                <input type="date" value={editDue} onChange={e => setEditDue(e.target.value)} style={{ ...dsInp, flex: 1, marginBottom: 0 }} />
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => setEditId(null)} style={{ flex: 1, padding: '7px', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, color: '#6a6a64', fontSize: 11, cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>Cancel</button>
+                <button onClick={saveEdit} disabled={actionLoading} style={{ flex: 2, padding: '7px', background: '#5DCAA5', border: 'none', borderRadius: 6, color: '#131311', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>{actionLoading ? 'Saving...' : 'Save'}</button>
               </div>
             </div>
-            {swipeId === r.id ? (
-              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                <button onClick={() => { markDone(r); setSwipeId(null) }} style={{ padding: '5px 10px', borderRadius: 6, background: 'rgba(93,202,165,0.1)', border: '1px solid rgba(93,202,165,0.3)', color: '#5DCAA5', fontSize: 11, cursor: 'pointer' }}>Done</button>
-                <button onClick={() => { del(r.id); setSwipeId(null) }} style={{ padding: '5px 10px', borderRadius: 6, background: 'rgba(232,84,84,0.1)', border: '1px solid rgba(232,84,84,0.25)', color: '#e85454', fontSize: 11, cursor: 'pointer' }}>Del</button>
-                <button onClick={() => setSwipeId(null)} style={{ padding: '5px 8px', borderRadius: 6, background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', color: '#6a6a64', fontSize: 11, cursor: 'pointer' }}>&#215;</button>
+          ) : (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, color: '#e8e7e0' }}>{r.description}</div>
+                <div style={{ display: 'flex', gap: 10, marginTop: 4, alignItems: 'center' }}>
+                  {r.amount != null && <span style={{ fontSize: 13, color: '#5DCAA5', fontFamily: 'var(--font-mono)' }}>Rs. {Math.round(r.amount).toLocaleString()}</span>}
+                  {r.due_date && <span style={{ fontSize: 11, color: urgencyColor(r.due_date), fontFamily: 'var(--font-mono)' }}>{fmtDate(r.due_date)}</span>}
+                </div>
               </div>
-            ) : (
-              <button onClick={() => setSwipeId(r.id)} style={{ background: 'none', border: 'none', color: '#6a6a64', cursor: 'pointer', fontSize: 16, padding: '0 0 0 8px' }}>&#183;&#183;&#183;</button>
-            )}
-          </div>
+              {swipeId === r.id ? (
+                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                  <button onClick={() => { startEdit(r); setSwipeId(null) }} style={{ padding: '5px 10px', borderRadius: 6, background: 'rgba(93,202,165,0.08)', border: '1px solid rgba(93,202,165,0.2)', color: '#5DCAA5', fontSize: 11, cursor: 'pointer' }}>Edit</button>
+                  <button onClick={() => { markDone(r); setSwipeId(null) }} disabled={actionLoading} style={{ padding: '5px 10px', borderRadius: 6, background: 'rgba(93,202,165,0.1)', border: '1px solid rgba(93,202,165,0.3)', color: '#5DCAA5', fontSize: 11, cursor: 'pointer' }}>Done</button>
+                  <button onClick={() => { del(r.id); setSwipeId(null) }} disabled={actionLoading} style={{ padding: '5px 10px', borderRadius: 6, background: 'rgba(232,84,84,0.1)', border: '1px solid rgba(232,84,84,0.25)', color: '#e85454', fontSize: 11, cursor: 'pointer' }}>Del</button>
+                  <button onClick={() => setSwipeId(null)} style={{ padding: '5px 8px', borderRadius: 6, background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', color: '#6a6a64', fontSize: 11, cursor: 'pointer' }}>&#215;</button>
+                </div>
+              ) : (
+                <button onClick={() => setSwipeId(r.id)} style={{ background: 'none', border: 'none', color: '#6a6a64', cursor: 'pointer', fontSize: 16, padding: '0 0 0 8px' }}>&#183;&#183;&#183;</button>
+              )}
+            </div>
+          )}
         </div>
       ))}
       {active.length === 0 && !showForm && <div style={{ textAlign: 'center', padding: 20, color: '#6a6a64', fontSize: 13 }}>No upcoming reminders</div>}

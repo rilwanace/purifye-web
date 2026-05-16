@@ -234,6 +234,7 @@ function validate(type: string, f: Record<string, any>): Set<string> {
   const err = new Set<string>()
   const empty = (v: any) => !v || String(v).trim() === ''
   const noAmt = (v: any) => !v || parseFloat(String(v)) <= 0
+  if (empty(f.date) || isNaN(new Date(f.date).getTime())) err.add('date')
   const noItems = (items: any[]) =>
     !items || items.length === 0 ||
     items.every(it => empty(it.product) || (it.qty || 0) <= 0)
@@ -311,6 +312,16 @@ function validate(type: string, f: Record<string, any>): Set<string> {
       if (empty(f.from_account)) err.add('from_account')
       if (empty(f.to_account)) err.add('to_account')
       if (noAmt(f.amount)) err.add('amount')
+      break
+    case 'inventory_adjustment':
+      if (empty(f.product)) err.add('product')
+      if (!f.qty || parseFloat(String(f.qty)) <= 0) err.add('qty')
+      if (empty(f.direction)) err.add('direction')
+      if (empty(f.reason)) err.add('reason')
+      break
+    case 'conversion':
+      if (empty(f.product)) err.add('product')
+      if (!f.qty || parseFloat(String(f.qty)) <= 0) err.add('qty')
       break
   }
   return err
@@ -570,13 +581,13 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
 
       case 'inventory_adjustment': return (
         <>
-          <Field name="Product">
+          <Field name="Product" error={errors.has('product')}>
             <select value={f.product || ''} onChange={e => sf('product', e.target.value)} style={inp}>
               <option value="">Select product</option>
               {localMaster.products.map(p => <option key={p} value={p}>{p}</option>)}
             </select>
           </Field>
-          <Field name="Quantity"><TextInput type="number" value={f.qty || ''} onChange={v => sf('qty', v)} placeholder="0" /></Field>
+          <Field name="Quantity" error={errors.has('qty')}><TextInput type="number" value={f.qty || ''} onChange={v => sf('qty', v)} placeholder="0" /></Field>
           <Field name="Direction">
             <div style={{ display: 'flex', gap: 8 }}>
               {['add', 'remove'].map(d => (
@@ -591,7 +602,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
               ))}
             </div>
           </Field>
-          <Field name="Reason"><TextInput value={f.reason || ''} onChange={v => sf('reason', v)} placeholder="e.g. Damaged goods, stock count" /></Field>
+          <Field name="Reason" error={errors.has('reason')}><TextInput value={f.reason || ''} onChange={v => sf('reason', v)} placeholder="e.g. Damaged goods, stock count" /></Field>
         </>
       )
 
@@ -605,13 +616,13 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
 
       case 'conversion': return (
         <>
-          <Field name="Finished Good">
+          <Field name="Finished Good" error={errors.has('product')}>
             <select value={f.product || ''} onChange={e => sf('product', e.target.value)} style={inp}>
               <option value="">Select finished good</option>
               {localMaster.products.map(p => <option key={p} value={p}>{p}</option>)}
             </select>
           </Field>
-          <Field name="Quantity to Produce"><TextInput type="number" value={f.qty || ''} onChange={v => sf('qty', v)} placeholder="0" /></Field>
+          <Field name="Quantity to Produce" error={errors.has('qty')}><TextInput type="number" value={f.qty || ''} onChange={v => sf('qty', v)} placeholder="0" /></Field>
         </>
       )
 
@@ -631,7 +642,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
         </select>
       </Field>
 
-      <Field name="Date">
+      <Field name="Date" error={errors.has('date')}>
         <input type="date" value={f.date || ''} onChange={e => sf('date', e.target.value)} style={inp} />
       </Field>
 

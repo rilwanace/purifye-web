@@ -31,6 +31,8 @@ const AccountingIcon = () => (
 export default function ChatPage() {
   const { show } = useToast()
   const [masterData, setMasterData] = useState<MasterData | null>(null)
+  const [masterDataLoading, setMasterDataLoading] = useState(true)
+  const [masterDataError, setMasterDataError] = useState(false)
   const [text, setText] = useState('')
   const [panelOpen, setPanelOpen] = useState(false)
   const [chatState, setChatState] = useState<ChatState>('idle')
@@ -42,8 +44,11 @@ export default function ChatPage() {
   const [prefill, setPrefill] = useState<{ type?: string; fields?: Record<string, any> } | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const confirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => {
+  function fetchMasterData() {
+    setMasterDataLoading(true)
+    setMasterDataError(false)
     api<any>('/api/entry/master-data').then(res => {
       setMasterData({
         customers: (res.customers || []).map((c: any) => c.name ?? c),
@@ -53,10 +58,23 @@ export default function ChatPage() {
         categories: res.expense_categories || [],
         products: (res.products || []).map((p: any) => p.name ?? p),
       })
-    }).catch(() => {})
-  }, [])
+      setMasterDataLoading(false)
+    }).catch(() => {
+      setMasterDataError(true)
+      setMasterDataLoading(false)
+    })
+  }
+
+  useEffect(() => { fetchMasterData() }, [])
 
   const clearTimer = () => { if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null } }
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current)
+    }
+  }, [])
 
   function handleParsed(result: any) {
     clearTimer()
@@ -75,13 +93,18 @@ export default function ChatPage() {
     if (!val) return
     setText('')
     setChatState('processing'); setProcessingMsg('Parsing entry...'); setPanelOpen(false)
+    const controller = new AbortController()
     timeoutRef.current = setTimeout(() => {
+      controller.abort()
       setChatState('error'); setErrorMsg("Couldn't process that. Try Quick Entry.")
     }, 15000)
     try {
-      const res = await api<any>('/api/text/parse', { method: 'POST', body: JSON.stringify({ text: val }), headers: { 'Content-Type': 'application/json' } })
+      const res = await api<any>('/api/text/parse', { method: 'POST', body: JSON.stringify({ text: val }), headers: { 'Content-Type': 'application/json' }, signal: controller.signal })
       handleParsed(res)
-    } catch { clearTimer(); setChatState('error'); setErrorMsg("Couldn't process that. Try Quick Entry.") }
+    } catch (e: any) {
+      clearTimer()
+      if (e?.name !== 'AbortError') { setChatState('error'); setErrorMsg("Couldn't process that. Try Quick Entry.") }
+    }
   }
 
   function openQuickEntry(type: string) {
@@ -101,7 +124,8 @@ export default function ChatPage() {
   function handleSaved() {
     setConfirmData({ type: (prefill?.type || 'entry').replace(/_/g, ' ') })
     setSheetOpen(false); setPrefill(null); setChatState('confirmed')
-    setTimeout(() => setChatState('idle'), 3000)
+    if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current)
+    confirmTimeoutRef.current = setTimeout(() => setChatState('idle'), 3000)
   }
 
   const isBusy = chatState === 'processing'
@@ -192,14 +216,25 @@ export default function ChatPage() {
         <button onClick={() => { if (!isBusy) setPanelOpen(v => !v) }} disabled={isBusy} style={{ width: 40, height: 40, borderRadius: 10, cursor: isBusy ? 'not-allowed' : 'pointer', border: panelOpen ? '1px solid #5DCAA5' : '1px solid rgba(255,255,255,0.06)', background: panelOpen ? 'rgba(93,202,165,0.1)' : 'transparent', color: panelOpen ? '#5DCAA5' : '#6a6a64', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: isBusy ? 0.5 : 1, alignSelf: 'flex-start' }}>+</button>
       </div>
 
-      {sheetOpen && masterData && (
+      {sheetOpen && (
         <>
           <div onClick={() => { setSheetOpen(false); setPrefill(null) }} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 400 }} />
           <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, background: '#1a1a18', borderTop: '1px solid rgba(255,255,255,0.06)', borderRadius: '20px 20px 0 0', maxHeight: '78vh', display: 'flex', flexDirection: 'column', zIndex: 401 }}>
             <div style={{ width: 36, height: 4, background: 'rgba(106,106,100,0.3)', borderRadius: 2, margin: '12px auto 4px' }} />
-            <div style={{ overflowY: 'auto', flex: 1, padding: '12px 16px 0' }}>
-              <EntryForm masterData={masterData} prefill={prefill} onSaved={handleSaved} />
-            </div>
+            {masterDataLoading && (
+              <div style={{ padding: '32px 16px', textAlign: 'center', color: '#6a6a64', fontSize: 12, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Loading form...</div>
+            )}
+            {masterDataError && !masterDataLoading && (
+              <div style={{ padding: '32px 16px', textAlign: 'center' }}>
+                <div style={{ fontSize: 13, color: '#9c9b95', marginBottom: 12, fontFamily: 'var(--font-sans)' }}>Couldn&#39;t load form data</div>
+                <button onClick={fetchMasterData} style={{ padding: '8px 18px', background: 'transparent', border: '1px solid rgba(93,202,165,0.3)', borderRadius: 8, color: '#5DCAA5', cursor: 'pointer', fontSize: 11, fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>Tap to retry</button>
+              </div>
+            )}
+            {!masterDataLoading && !masterDataError && masterData && (
+              <div style={{ overflowY: 'auto', flex: 1, padding: '12px 16px 0' }}>
+                <EntryForm masterData={masterData} prefill={prefill} onSaved={handleSaved} />
+              </div>
+            )}
             <div style={{ padding: '10px 16px 82px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <button onClick={() => { setSheetOpen(false); setPrefill(null) }} style={{ width: '100%', padding: '12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', background: 'transparent', color: '#6a6a64', fontSize: 12, cursor: 'pointer', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>Cancel</button>
             </div>
