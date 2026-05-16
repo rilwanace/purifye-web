@@ -361,13 +361,12 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
   async function handleSave(confirmToken?: string, withInvoice = false) {
     setLoading(true)
     try {
-      if (editEntryGroup) {
-        await api('/api/entry/undo', { method: 'POST', body: JSON.stringify({ entry_group: editEntryGroup }) })
-      }
       const body: any = { type, fields: { ...fields } }
       if (confirmToken) { body.confirm_conversion = true; body.pending_save_token = confirmToken }
       if (withInvoice) body.generate_invoice = true
-      const res = await api<any>('/api/entry/save', { method: 'POST', body: JSON.stringify(body) })
+      const endpoint = editEntryGroup ? '/api/entry/replace' : '/api/entry/save'
+      if (editEntryGroup) body.original_entry_group = editEntryGroup
+      const res = await api<any>(endpoint, { method: 'POST', body: JSON.stringify(body) })
       if (res.status === 'needs_conversion_confirmation') {
         setConversionPending({ token: res.pending_save_token, details: res.details })
         return
