@@ -25,6 +25,7 @@ export default function CustomerDetail({ customer: c, messages, onBack }: Props)
     .sort((a: any, b: any) => (b.sent_at || '').localeCompare(a.sent_at || ''));
 
   const spendCats = buildSpendCats(purchases, c);
+  const waPhone = (c.phone || '').replace(/[^\d+]/g, '');
 
   return (
     <>
@@ -86,10 +87,10 @@ export default function CustomerDetail({ customer: c, messages, onBack }: Props)
       ))}
 
       {/* WhatsApp button */}
-      {c.phone && (
+      {/\d/.test(waPhone) && (
         <a
           data-testid="whatsapp-link"
-          href={"https://wa.me/" + c.phone.replace(/[^\d+]/g, "") + "?text=" + encodeURIComponent("Hi " + c.name.split(" ")[0] + ", ")}
+          href={"https://wa.me/" + waPhone + "?text=" + encodeURIComponent("Hi " + c.name.split(" ")[0] + ", ")}
           target="_blank"
           rel="noopener noreferrer"
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 8, padding: '10px 14px', background: 'rgba(37,211,102,.1)', border: '1px solid rgba(37,211,102,.25)', borderRadius: 10, color: '#25D366', fontSize: 12, fontWeight: 600, textDecoration: 'none', minHeight: 44 }}
