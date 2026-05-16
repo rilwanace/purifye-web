@@ -12,6 +12,22 @@ interface MasterData {
 
 type ChatState = 'idle' | 'processing' | 'confirmed' | 'import_done' | 'error'
 
+const AccountingIcon = () => (
+  <div style={{
+    width: 48, height: 48, borderRadius: 14,
+    background: 'linear-gradient(145deg, #28997A, #13654C)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  }}>
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/>
+      <rect x="14" y="14" width="7" height="7" rx="1"/>
+    </svg>
+  </div>
+)
+
 export default function ChatPage() {
   const { show } = useToast()
   const [masterData, setMasterData] = useState<MasterData | null>(null)
@@ -51,7 +67,7 @@ export default function ChatPage() {
     const first = entries[0]
     setPrefill({ type: first.type, fields: first.fields || first })
     setChatState('idle'); setSheetOpen(true)
-    if (entries.length > 1) show(entries.length + ' entries detected ? showing first', 'info')
+    if (entries.length > 1) show(entries.length + ' entries detected — showing first', 'info')
   }
 
   async function handleTextSubmit() {
@@ -94,10 +110,14 @@ export default function ChatPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 56px)', position: 'relative', background: '#131311' }}>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px', overflowY: 'auto' }}>
         {chatState === 'idle' && (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 40, opacity: 0.45, marginBottom: 16 }}>&#127897;</div>
-            <div style={{ fontSize: 13, fontFamily: 'var(--font-mono)', color: '#6a6a64', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Entry Assistant</div>
-            <div style={{ fontSize: 14, color: '#6a6a64', maxWidth: 260, lineHeight: 1.6, fontFamily: 'var(--font-sans)' }}>Type, speak, or snap a photo to record an entry</div>
+          <div style={{ textAlign: 'center', opacity: 0.5 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+              <AccountingIcon />
+            </div>
+            <div style={{ fontSize: 13, fontFamily: 'var(--font-mono)', color: '#6a6a64', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Entry Assistant</div>
+            <div style={{ fontSize: 14, color: '#6a6a64', maxWidth: 280, lineHeight: 1.5, fontFamily: 'var(--font-sans)', margin: '0 auto' }}>
+              Record entries using text, voice, camera, or file upload
+            </div>
           </div>
         )}
         {chatState === 'processing' && (

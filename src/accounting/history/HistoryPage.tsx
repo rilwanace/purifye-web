@@ -22,11 +22,41 @@ const TYPE_COLORS: Record<string, string> = { sale: '#5DCAA5', purchase: '#E86B3
 function typeColor(t: string) { return TYPE_COLORS[t] || TYPE_COLORS.default }
 function typeLabel(t: string) { return (t || 'other').replace(/_/g, ' ') }
 function fmtAmt(n: number) { return Math.round(n).toLocaleString('en-US') }
-function fmtDate(s: string | null) {
+
+function fmtTime(s: string | null): string {
   if (!s) return ''
-  try { return new Date(s).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }) }
-  catch { return s }
+  try { return new Date(s).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) }
+  catch { return '' }
 }
+
+function getDateKey(e: Entry): string {
+  const raw = e.date || (e.created_at ? e.created_at.slice(0, 10) : null)
+  return raw || '1970-01-01'
+}
+
+function dateLabel(key: string): string {
+  const today = new Date()
+  const todayStr = today.toISOString().slice(0, 10)
+  const yest = new Date(today); yest.setDate(today.getDate() - 1)
+  const yesterdayStr = yest.toISOString().slice(0, 10)
+  if (key === todayStr) return 'TODAY'
+  if (key === yesterdayStr) return 'YESTERDAY'
+  const [y, m, d] = key.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()
+}
+
+function groupByDate(entries: Entry[]): { key: string; label: string; entries: Entry[] }[] {
+  const map = new Map<string, Entry[]>()
+  for (const e of entries) {
+    const k = getDateKey(e)
+    if (!map.has(k)) map.set(k, [])
+    map.get(k)!.push(e)
+  }
+  return Array.from(map.entries())
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([key, ents]) => ({ key, label: dateLabel(key), entries: ents }))
+}
+
 function getRange(f: string): { from: string; to: string } | null {
   const now = new Date(), pad = (n: number) => String(n).padStart(2, '0')
   const fmt = (d: Date) => d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate())
@@ -102,16 +132,16 @@ export default function HistoryPage() {
           <div style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <span style={{ padding: '4px 10px', borderRadius: 20, background: typeColor(selected.type) + '18', border: '1px solid ' + typeColor(selected.type) + '40', fontSize: 10, fontFamily: 'var(--font-mono)', color: typeColor(selected.type), textTransform: 'uppercase' }}>{typeLabel(selected.type)}</span>
-              <span style={{ fontSize: 11, color: '#6a6a64', fontFamily: 'var(--font-mono)' }}>{fmtDate(selected.date)}</span>
+              <span style={{ fontSize: 11, color: '#6a6a64', fontFamily: 'var(--font-mono)' }}>{dateLabel(getDateKey(selected))}</span>
             </div>
-            {[['Description', selected.description || '&#8212;'], ['Party', selected.party_name || '&#8212;'], ['Account', selected.account || '&#8212;']].map(([l, v]) => (
+            {([['Description', selected.description || '—'], ['Party', selected.party_name || '—'], ['Account', selected.account || '—']] as [string,string][]).map(([l, v]) => (
               <div key={l} style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: 9, fontFamily: 'var(--font-mono)', color: '#6a6a64', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{l}</div>
-                <div style={{ fontSize: 13, color: '#e8e7e0' }} dangerouslySetInnerHTML={{ __html: v }} />
+                <div style={{ fontSize: 13, color: '#e8e7e0' }}>{v}</div>
               </div>
             ))}
             <div style={{ textAlign: 'right', marginTop: 8 }}>
-              <span style={{ fontSize: 20, fontFamily: 'var(--font-mono)', fontWeight: 700, color: isSale ? '#5DCAA5' : '#e8e7e0' }}>{isSale ? '+' : '&#8722;'}Rs. {fmtAmt(selected.amount)}</span>
+              <span style={{ fontSize: 20, fontFamily: 'var(--font-mono)', fontWeight: 700, color: isSale ? '#5DCAA5' : '#e8e7e0' }}>{isSale ? '+' : '−'}Rs. {fmtAmt(selected.amount)}</span>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
               <button onClick={() => handleEdit(selected.entry_group)} style={{ flex: 1, padding: '11px', borderRadius: 9, border: '1px solid rgba(255,255,255,0.06)', background: 'transparent', color: '#e8e7e0', fontSize: 11, cursor: 'pointer', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>Edit</button>
@@ -147,6 +177,8 @@ export default function HistoryPage() {
     )
   }
 
+  const groups = groupByDate(entries)
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 56px)', background: '#131311' }}>
       <div style={{ display: 'flex', gap: 6, padding: '12px 12px 0', overflowX: 'auto', scrollbarWidth: 'none', flexShrink: 0 }}>
@@ -157,24 +189,47 @@ export default function HistoryPage() {
       </div>
       {dateFilter === 'custom' && (
         <div style={{ display: 'flex', gap: 8, padding: '4px 12px 8px', flexShrink: 0 }}>
-          <input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)} style={{ flex: 1, background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 7, padding: '7px 10px', color: '#e8e7e0', fontSize: 12 }} />
-          <input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)} style={{ flex: 1, background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 7, padding: '7px 10px', color: '#e8e7e0', fontSize: 12 }} />
+          <input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)} style={{ flex: 1, background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 7, padding: '7px 10px', color: '#e8e7e0', fontSize: 12 }} />
+          <input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)} style={{ flex: 1, background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 7, padding: '7px 10px', color: '#e8e7e0', fontSize: 12 }} />
         </div>
       )}
       <div style={{ padding: '4px 12px 8px', flexShrink: 0 }}>
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search transactions..." style={{ width: '100%', background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '8px 12px', color: '#e8e7e0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search transactions..." style={{ width: '100%', background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '8px 12px', color: '#e8e7e0', fontSize: 13, fontFamily: 'var(--font-sans)', outline: 'none', boxSizing: 'border-box' }} />
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 12px 80px' }}>
-        {loading && <div style={{ textAlign: 'center', padding: 30, color: '#6a6a64', fontSize: 13 }}>Loading...</div>}
+        {loading && (
+          <div style={{ paddingTop: 12 }}>
+            {[75, 50, 80, 55, 70].map((w, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ height: 11, borderRadius: 4, background: 'rgba(255,255,255,0.06)', width: w + '%', marginBottom: 7 }} />
+                  <div style={{ height: 10, borderRadius: 4, background: 'rgba(255,255,255,0.04)', width: '38%' }} />
+                </div>
+                <div style={{ height: 13, borderRadius: 4, background: 'rgba(255,255,255,0.06)', width: 64 }} />
+              </div>
+            ))}
+          </div>
+        )}
         {!loading && entries.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: '#6a6a64', fontSize: 13 }}>No entries found</div>}
-        {entries.map(e => (
-          <div key={e.entry_group} onClick={() => setSelected(e)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: typeColor(e.type), flexShrink: 0 }} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 14, color: '#e8e7e0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.description || typeLabel(e.type)}</div>
-              <div style={{ fontSize: 12, color: '#6a6a64', marginTop: 2 }}>{[e.party_name, fmtDate(e.date)].filter(Boolean).join(' ? ')}</div>
+        {!loading && groups.map(group => (
+          <div key={group.key}>
+            <div style={{ position: 'sticky', top: 0, zIndex: 10, background: '#131311', padding: '12px 0 6px', fontSize: 11, fontFamily: 'var(--font-mono)', color: '#6a6a64', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
+              {group.label}
             </div>
-            <span style={{ fontSize: 13, fontFamily: 'var(--font-mono)', fontWeight: 500, color: e.type === 'sale' ? '#5DCAA5' : '#e8e7e0', flexShrink: 0 }}>{e.type === 'sale' ? '+' : '?'}Rs. {fmtAmt(e.amount)}</span>
+            {group.entries.map(e => (
+              <div key={e.entry_group} onClick={() => setSelected(e)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: typeColor(e.type), opacity: 0.6, flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, color: '#e8e7e0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-sans)' }}>{e.description || typeLabel(e.type)}</div>
+                  {e.party_name && <div style={{ fontSize: 12, color: '#9c9b95', marginTop: 2, fontFamily: 'var(--font-sans)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.party_name}</div>}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flexShrink: 0 }}>
+                  <span style={{ fontSize: 13, fontFamily: 'var(--font-mono)', fontWeight: 500, color: e.type === 'sale' ? '#5DCAA5' : '#e8e7e0' }}>{e.type === 'sale' ? '+' : '−'}Rs. {fmtAmt(e.amount)}</span>
+                  {e.created_at && <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: '#6a6a64', marginTop: 2 }}>{fmtTime(e.created_at)}</span>}
+                </div>
+              </div>
+            ))}
           </div>
         ))}
       </div>

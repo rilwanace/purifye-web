@@ -33,7 +33,6 @@ const TabBar = ({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
           padding: '6px 14px', borderRadius: 20, background: id === active ? 'rgba(93,202,165,0.1)' : 'transparent', border: id === active ? '1px solid rgba(93,202,165,0.2)' : 'none',
           color: id === active ? '#5DCAA5' : '#6a6a64', fontSize: 11, fontWeight: 600, flexShrink: 0,
           cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)',
-          
         }}>{label}</button>
       ))}
     </div>
@@ -60,7 +59,17 @@ const PeriodPills = ({ period, onChange, full }: { period: Period; onChange: (p:
   )
 }
 
-const Spinner = () => <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Loading…</div>
+const ReportSkeleton = () => (
+  <div style={{ paddingTop: 16 }}>
+    {[60, 80, 45, 70, 55, 80, 40].map((w, i) => (
+      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+        <div style={{ height: 11, borderRadius: 4, background: 'rgba(255,255,255,0.06)', width: w + '%' }} />
+        <div style={{ height: 11, borderRadius: 4, background: 'rgba(255,255,255,0.05)', width: '18%' }} />
+      </div>
+    ))}
+  </div>
+)
+
 const Err = ({ msg }: { msg: string }) => <div style={{ padding: 20, color: 'var(--danger)', textAlign: 'center' }}>{msg}</div>
 
 async function downloadPdf(type: string, period: string, setPdfLoading: (v: boolean) => void) {
@@ -125,11 +134,11 @@ const WaShareBtn = ({ data, bizName, tab, period }: { data: any; bizName: string
       background: 'rgba(37,211,102,0.08)', color: '#25d366',
       fontSize: 12, fontWeight: 600, cursor: 'pointer',
       fontFamily: 'var(--font-sans)',
-    }}>💬 Share</button>
+    }}>Share</button>
   )
 }
 
-// ─── Statement display primitives ───────────────────────────────────────────
+// ─── Statement primitives ────────────────────────────────────────────────────
 
 const SHead = ({ children }: { children: React.ReactNode }) => (
   <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--text-muted)', padding: '14px 0 6px', fontFamily: 'var(--font-mono)' }}>
@@ -173,6 +182,84 @@ const TotalRow = ({ name, amount, positive }: { name: string; amount: number; po
   </div>
 )
 
+// ─── Collapsible category row (for BS / P&L sub-items) ──────────────────────
+
+function groupItemsByCategory(items: { name: string; total: number }[]): {
+  category: string; total: number; children: { name: string; total: number }[]
+}[] {
+  const map = new Map<string, { total: number; children: { name: string; total: number }[] }>()
+  for (const item of items) {
+    const sep = item.name.indexOf(' : ')
+    const cat = sep !== -1 ? item.name.slice(0, sep) : item.name
+    const child = sep !== -1 ? item.name.slice(sep + 3) : null
+    if (!map.has(cat)) map.set(cat, { total: 0, children: [] })
+    const g = map.get(cat)!
+    g.total += item.total
+    if (child) g.children.push({ name: child, total: item.total })
+  }
+  return Array.from(map.entries()).map(([category, g]) => ({
+    category,
+    total: Math.round(g.total * 100) / 100,
+    children: g.children,
+  }))
+}
+
+function CollapsibleSection({ groups, accent, danger }: {
+  groups: { category: string; total: number; children: { name: string; total: number }[] }[]
+  accent?: boolean; danger?: boolean
+}) {
+  const [open, setOpen] = useState<Set<string>>(new Set())
+  const toggle = (cat: string) => setOpen(prev => {
+    const next = new Set(prev)
+    next.has(cat) ? next.delete(cat) : next.add(cat)
+    return next
+  })
+  return (
+    <>
+      {groups.map(g => {
+        const isOpen = open.has(g.category)
+        const hasChildren = g.children.length > 0
+        return (
+          <div key={g.category}>
+            <div
+              onClick={() => hasChildren && toggle(g.category)}
+              style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '6px 0', cursor: hasChildren ? 'pointer' : 'default',
+              }}
+            >
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>
+                {g.category}
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{
+                  fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-mono)',
+                  color: accent ? '#3bf084' : danger ? 'var(--danger)' : 'var(--text-primary)',
+                }}>Rs. {fmt(g.total)}</span>
+                {hasChildren && (
+                  <span style={{ fontSize: 14, color: '#6a6a64', fontFamily: 'var(--font-mono)', minWidth: 12, textAlign: 'center' }}>
+                    {isOpen ? '−' : '+'}
+                  </span>
+                )}
+              </div>
+            </div>
+            {isOpen && hasChildren && (
+              <div style={{ borderLeft: '2px solid rgba(255,255,255,0.04)', marginLeft: 4, paddingLeft: 16, marginBottom: 4 }}>
+                {g.children.map((child, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
+                    <span style={{ fontSize: 13, color: '#9c9b95', fontFamily: 'var(--font-sans)', flex: 1, marginRight: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{child.name}</span>
+                    <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: '#9c9b95', flexShrink: 0 }}>Rs. {fmt(child.total)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
 // ─── P&L ────────────────────────────────────────────────────────────────────
 
 function PnlReport({ period, onData }: { period: Period; onData?: (d: any) => void }) {
@@ -185,7 +272,7 @@ function PnlReport({ period, onData }: { period: Period; onData?: (d: any) => vo
     api(`/api/reports/pnl?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
     return () => { stale = true }
   }, [period])
-  if (loading) return <Spinner />
+  if (loading) return <ReportSkeleton />
   if (err) return <Err msg={err} />
   const d = data?.data || {}
   return (
@@ -218,23 +305,32 @@ function BsReport({ period, onData }: { period: Period; onData?: (d: any) => voi
     api(`/api/reports/bs?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
     return () => { stale = true }
   }, [period])
-  if (loading) return <Spinner />
+  if (loading) return <ReportSkeleton />
   if (err) return <Err msg={err} />
   const d = data?.data || {}
   const totalLE = d.total_liab_plus_equity ?? 0
+
+  const assetGroups = groupItemsByCategory(d.asset_items || [])
+  const liabGroups = groupItemsByCategory(d.liab_items || [])
+
   return (
     <div>
       <SHead>Assets</SHead>
-      {(d.asset_items || []).map((r: any, i: number) => <SRow key={i} name={r.name} amount={r.total} indent />)}
+      <CollapsibleSection groups={assetGroups} />
       <SRow name="Total Assets" amount={d.total_assets} subtotal bold accent />
       <Divider />
       <SHead>Liabilities</SHead>
-      {(d.liab_items || []).map((r: any, i: number) => <SRow key={i} name={r.name} amount={r.total} indent />)}
+      <CollapsibleSection groups={liabGroups} />
       <SRow name="Total Liabilities" amount={d.total_liab} subtotal bold />
       <SHead>Equity</SHead>
       {(d.equity_items || []).map((r: any, i: number) => <SRow key={i} name={r.name} amount={r.total} indent />)}
       <SRow name="Total Equity" amount={d.total_equity} subtotal bold />
       <TotalRow name="Total Liabilities + Equity" amount={totalLE} positive={totalLE >= 0} />
+      {d.balance_status?.warning && (
+        <div style={{ marginTop: 10, padding: '10px 14px', background: 'rgba(212,168,67,0.08)', border: '1px solid rgba(212,168,67,0.25)', borderRadius: 8, fontSize: 11, color: '#D4A843' }}>
+          {d.balance_status.warning}
+        </div>
+      )}
     </div>
   )
 }
@@ -251,7 +347,7 @@ function CfReport({ period, onData }: { period: Period; onData?: (d: any) => voi
     api(`/api/reports/cf?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
     return () => { stale = true }
   }, [period])
-  if (loading) return <Spinner />
+  if (loading) return <ReportSkeleton />
   if (err) return <Err msg={err} />
   const d = data?.data || {}
   const renderItems = (items: any[], label: string, net: number) => {
@@ -294,7 +390,7 @@ function TbReport({ period }: { period: Period }) {
     api(`/api/reports/tb?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
     return () => { stale = true }
   }, [period])
-  if (loading) return <Spinner />
+  if (loading) return <ReportSkeleton />
   if (err) return <Err msg={err} />
   const d = data?.data || {}
   const sections: any = d.sections || {}
@@ -393,7 +489,7 @@ function LedgerReport() {
         </select>
       )}
       <PeriodPills period={period} onChange={p => setPeriod(p)} full />
-      {loading && <Spinner />}
+      {loading && <ReportSkeleton />}
       {err && <Err msg={err} />}
       {data && !loading && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
