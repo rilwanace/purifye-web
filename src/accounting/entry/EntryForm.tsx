@@ -89,11 +89,15 @@ const lbl: React.CSSProperties = {
   letterSpacing: '0.1em', marginBottom: 4, display: 'block', fontFamily: 'var(--font-mono)',
 }
 
-function Field({ name, children }: { name: string; children: React.ReactNode }) {
+function Field({ name, children, error }: { name: string; children: React.ReactNode; error?: boolean }) {
   return (
     <div style={{ marginBottom: 14 }}>
-      <label style={lbl}>{name}</label>
-      {children}
+      <label style={{ ...lbl, ...(error ? { color: '#D4A843' } : {}) }}>
+        {name}{error ? ' *' : ''}
+      </label>
+      <div style={error ? { borderRadius: 11, outline: '1.5px solid #D4A843' } : {}}>
+        {children}
+      </div>
     </div>
   )
 }
@@ -225,6 +229,93 @@ function LineItemsEditor({ items, isSale, onChange, products }: {
   )
 }
 
+
+function validate(type: string, f: Record<string, any>): Set<string> {
+  const err = new Set<string>()
+  const empty = (v: any) => !v || String(v).trim() === ''
+  const noAmt = (v: any) => !v || parseFloat(String(v)) <= 0
+  const noItems = (items: any[]) =>
+    !items || items.length === 0 ||
+    items.every(it => empty(it.product) || (it.qty || 0) <= 0)
+
+  switch (type) {
+    case 'sale':
+      if (empty(f.customer)) err.add('customer')
+      if (noItems(f.line_items)) err.add('line_items')
+      if ((f.credit_period ?? 0) === 0 && empty(f.account)) err.add('account')
+      break
+    case 'purchase':
+      if (empty(f.supplier)) err.add('supplier')
+      if (noItems(f.line_items)) err.add('line_items')
+      if ((f.credit_period ?? 0) === 0 && empty(f.account)) err.add('account')
+      break
+    case 'sales_return':
+      if (empty(f.customer)) err.add('customer')
+      if (noItems(f.line_items)) err.add('line_items')
+      if ((f.credit_period ?? 0) === 0 && empty(f.account)) err.add('account')
+      break
+    case 'purchase_return':
+      if (empty(f.supplier)) err.add('supplier')
+      if (noItems(f.line_items)) err.add('line_items')
+      if ((f.credit_period ?? 0) === 0 && empty(f.account)) err.add('account')
+      break
+    case 'other_expense':
+      if (empty(f.category)) err.add('category')
+      if (noAmt(f.amount)) err.add('amount')
+      if (empty(f.account)) err.add('account')
+      break
+    case 'payment_received':
+      if (empty(f.customer)) err.add('customer')
+      if (noAmt(f.amount)) err.add('amount')
+      if (empty(f.account)) err.add('account')
+      break
+    case 'payment_made':
+      if (empty(f.payee)) err.add('payee')
+      if (noAmt(f.amount)) err.add('amount')
+      if (empty(f.account)) err.add('account')
+      break
+    case 'payroll':
+      if (noAmt(f.amount)) err.add('amount')
+      if (empty(f.account)) err.add('account')
+      break
+    case 'salary_advance':
+      if (empty(f.employee)) err.add('employee')
+      if (noAmt(f.amount)) err.add('amount')
+      if (empty(f.account)) err.add('account')
+      break
+    case 'owner_drawing':
+      if (noAmt(f.amount)) err.add('amount')
+      if (empty(f.account)) err.add('account')
+      break
+    case 'capital_injection':
+      if (empty(f.source)) err.add('source')
+      if (noAmt(f.amount)) err.add('amount')
+      if (empty(f.account)) err.add('account')
+      break
+    case 'loan_disbursement':
+      if (empty(f.lender)) err.add('lender')
+      if (noAmt(f.amount)) err.add('amount')
+      if (empty(f.account)) err.add('account')
+      break
+    case 'loan_repayment':
+      if (empty(f.lender)) err.add('lender')
+      if (noAmt(f.amount)) err.add('amount')
+      if (empty(f.account)) err.add('account')
+      break
+    case 'asset_purchase':
+      if (empty(f.asset_name)) err.add('asset_name')
+      if (noAmt(f.amount)) err.add('amount')
+      if (empty(f.account)) err.add('account')
+      break
+    case 'intra_transfer':
+      if (empty(f.from_account)) err.add('from_account')
+      if (empty(f.to_account)) err.add('to_account')
+      if (noAmt(f.amount)) err.add('amount')
+      break
+  }
+  return err
+}
+
 export default function EntryForm({ masterData, prefill, onSaved }: Props) {
   const { show } = useToast()
   const [type, setType] = useState('sale')
@@ -284,17 +375,18 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
   const f = fields
   const sf = setField
   const accts = localMaster.accounts
+  const errors = validate(type, f)
 
   function renderTypeFields() {
     switch (type) {
       case 'sale': return (
         <>
-          <Field name="Customer">
+          <Field name="Customer" error={errors.has('customer')}>
             <EntityPicker value={f.customer || ''} onChange={v => sf('customer', v)}
               options={localMaster.customers} placeholder="Select customer"
               onAddNew={v => setLocalMaster(m => ({ ...m, customers: [...m.customers, v] }))} />
           </Field>
-          <Field name="Items">
+          <Field name="Items" error={errors.has('line_items')}>
             <LineItemsEditor items={f.line_items || [emptyItem(true)]} isSale={true}
               onChange={v => sf('line_items', v)} products={localMaster.products} />
           </Field>
@@ -302,19 +394,19 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
             <Pill value={f.credit_period ?? 0} options={[0, 7, 14, 30]} onChange={v => sf('credit_period', v)} />
           </Field>
           {(f.credit_period ?? 0) === 0 && (
-            <Field name="Cash Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+            <Field name="Cash Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
           )}
         </>
       )
 
       case 'purchase': return (
         <>
-          <Field name="Supplier">
+          <Field name="Supplier" error={errors.has('supplier')}>
             <EntityPicker value={f.supplier || ''} onChange={v => sf('supplier', v)}
               options={localMaster.suppliers} placeholder="Select supplier"
               onAddNew={v => setLocalMaster(m => ({ ...m, suppliers: [...m.suppliers, v] }))} />
           </Field>
-          <Field name="Items">
+          <Field name="Items" error={errors.has('line_items')}>
             <LineItemsEditor items={f.line_items || [emptyItem(false)]} isSale={false}
               onChange={v => sf('line_items', v)} products={localMaster.products} />
           </Field>
@@ -322,14 +414,14 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
             <Pill value={f.credit_period ?? 0} options={[0, 7, 14, 30]} onChange={v => sf('credit_period', v)} />
           </Field>
           {(f.credit_period ?? 0) === 0 && (
-            <Field name="Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+            <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
           )}
         </>
       )
 
       case 'sales_return': return (
         <>
-          <Field name="Customer">
+          <Field name="Customer" error={errors.has('customer')}>
             <EntityPicker value={f.customer || ''} onChange={v => sf('customer', v)}
               options={localMaster.customers} placeholder="Select customer"
               onAddNew={v => setLocalMaster(m => ({ ...m, customers: [...m.customers, v] }))} />
@@ -346,7 +438,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
             </select>
           </Field>
           {(f.credit_period ?? 0) === 0 && (
-            <Field name="Refund Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+            <Field name="Refund Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
           )}
           <Field name="Discount (Rs.)"><TextInput type="number" value={f.discount || ''} onChange={v => sf('discount', v)} placeholder="0" /></Field>
         </>
@@ -354,7 +446,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
 
       case 'purchase_return': return (
         <>
-          <Field name="Supplier">
+          <Field name="Supplier" error={errors.has('supplier')}>
             <EntityPicker value={f.supplier || ''} onChange={v => sf('supplier', v)}
               options={localMaster.suppliers} placeholder="Select supplier"
               onAddNew={v => setLocalMaster(m => ({ ...m, suppliers: [...m.suppliers, v] }))} />
@@ -371,7 +463,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
             </select>
           </Field>
           {(f.credit_period ?? 0) === 0 && (
-            <Field name="Refund Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+            <Field name="Refund Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
           )}
         </>
       )
@@ -383,96 +475,96 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
               options={localMaster.suppliers} placeholder="Select vendor"
               onAddNew={v => setLocalMaster(m => ({ ...m, suppliers: [...m.suppliers, v] }))} />
           </Field>
-          <Field name="Category">
+          <Field name="Category" error={errors.has('category')}>
             <select value={f.category || ''} onChange={e => sf('category', e.target.value)} style={inp}>
               <option value="">Select category</option>
               {localMaster.categories.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </Field>
-          <Field name="Amount"><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
-          <Field name="Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+          <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
+          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
         </>
       )
 
       case 'payment_received': return (
         <>
-          <Field name="Customer">
+          <Field name="Customer" error={errors.has('customer')}>
             <EntityPicker value={f.customer || ''} onChange={v => sf('customer', v)}
               options={localMaster.customers} placeholder="Select customer"
               onAddNew={v => setLocalMaster(m => ({ ...m, customers: [...m.customers, v] }))} />
           </Field>
-          <Field name="Amount"><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
-          <Field name="Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+          <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
+          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
         </>
       )
 
       case 'payment_made': return (
         <>
-          <Field name="Payee">
+          <Field name="Payee" error={errors.has('payee')}>
             <EntityPicker value={f.payee || ''} onChange={v => sf('payee', v)}
               options={[...localMaster.suppliers, ...localMaster.staff]} placeholder="Select payee"
               onAddNew={v => setLocalMaster(m => ({ ...m, suppliers: [...m.suppliers, v] }))} />
           </Field>
-          <Field name="Amount"><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
-          <Field name="Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+          <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
+          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
         </>
       )
 
       case 'payroll': return (
         <>
-          <Field name="Total Amount"><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="Total payroll" /></Field>
-          <Field name="Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+          <Field name="Total Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="Total payroll" /></Field>
+          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
         </>
       )
 
       case 'salary_advance': return (
         <>
-          <Field name="Employee">
+          <Field name="Employee" error={errors.has('employee')}>
             <EntityPicker value={f.employee || ''} onChange={v => sf('employee', v)}
               options={localMaster.staff} placeholder="Select employee"
               onAddNew={v => setLocalMaster(m => ({ ...m, staff: [...m.staff, v] }))} />
           </Field>
-          <Field name="Amount"><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
-          <Field name="Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+          <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
+          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
         </>
       )
 
       case 'owner_drawing': return (
         <>
-          <Field name="Amount"><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
-          <Field name="Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+          <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
+          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
         </>
       )
 
       case 'capital_injection': return (
         <>
-          <Field name="Source / Description"><TextInput value={f.source || ''} onChange={v => sf('source', v)} placeholder="e.g. Owner investment" /></Field>
-          <Field name="Amount"><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
-          <Field name="Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+          <Field name="Source / Description" error={errors.has('source')}><TextInput value={f.source || ''} onChange={v => sf('source', v)} placeholder="e.g. Owner investment" /></Field>
+          <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
+          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
         </>
       )
 
       case 'loan_disbursement': return (
         <>
-          <Field name="Lender"><TextInput value={f.lender || ''} onChange={v => sf('lender', v)} placeholder="Lender name" /></Field>
-          <Field name="Amount"><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
-          <Field name="Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+          <Field name="Lender" error={errors.has('lender')}><TextInput value={f.lender || ''} onChange={v => sf('lender', v)} placeholder="Lender name" /></Field>
+          <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
+          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
         </>
       )
 
       case 'loan_repayment': return (
         <>
-          <Field name="Lender"><TextInput value={f.lender || ''} onChange={v => sf('lender', v)} placeholder="Lender name" /></Field>
-          <Field name="Amount"><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
-          <Field name="Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+          <Field name="Lender" error={errors.has('lender')}><TextInput value={f.lender || ''} onChange={v => sf('lender', v)} placeholder="Lender name" /></Field>
+          <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
+          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
         </>
       )
 
       case 'asset_purchase': return (
         <>
-          <Field name="Asset Name"><TextInput value={f.asset_name || ''} onChange={v => sf('asset_name', v)} placeholder="e.g. Laptop, Vehicle" /></Field>
-          <Field name="Amount"><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
-          <Field name="Account"><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+          <Field name="Asset Name" error={errors.has('asset_name')}><TextInput value={f.asset_name || ''} onChange={v => sf('asset_name', v)} placeholder="e.g. Laptop, Vehicle" /></Field>
+          <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
+          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
         </>
       )
 
@@ -505,9 +597,9 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
 
       case 'intra_transfer': return (
         <>
-          <Field name="From Account"><AccountSelect value={f.from_account || ''} onChange={v => sf('from_account', v)} accounts={accts} /></Field>
-          <Field name="To Account"><AccountSelect value={f.to_account || ''} onChange={v => sf('to_account', v)} accounts={accts} /></Field>
-          <Field name="Amount"><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
+          <Field name="From Account" error={errors.has('from_account')}><AccountSelect value={f.from_account || ''} onChange={v => sf('from_account', v)} accounts={accts} /></Field>
+          <Field name="To Account" error={errors.has('to_account')}><AccountSelect value={f.to_account || ''} onChange={v => sf('to_account', v)} accounts={accts} /></Field>
+          <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
         </>
       )
 
@@ -565,8 +657,8 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
       )}
 
       {!conversionPending && (
-        <button onClick={() => handleSave()} disabled={loading}
-          style={{ width: '100%', padding: '13px', background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: 4 }}>
+        <button onClick={() => handleSave()} disabled={loading || errors.size > 0}
+          style={{ width: '100%', padding: '13px', background: errors.size > 0 ? '#3a3a38' : 'var(--accent)', color: errors.size > 0 ? '#6a6a64' : '#000', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: (loading || errors.size > 0) ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: 4 }}>
           {loading ? 'Saving...' : editEntryGroup ? 'Update Entry' : 'Save Entry'}
         </button>
       )}
