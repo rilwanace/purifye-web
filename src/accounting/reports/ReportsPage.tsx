@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api, apiBlob } from '../../api'
 import { useAuth } from '../../auth/useAuth'
 import { promptWhatsApp } from '../../shared/utils/whatsapp'
@@ -439,7 +440,10 @@ function LedgerReport() {
 
 export default function ReportsPage() {
   const { business } = useAuth()
-  const [tab, setTab] = useState<Tab>('pnl')
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const initTab = (searchParams.get('tab') as Tab) || 'pnl'
+  const [tab, setTab] = useState<Tab>(initTab)
   const [period, setPeriod] = useState<Period>('this_month')
   const [reportData, setReportData] = useState<any>(null)
 
@@ -449,7 +453,11 @@ export default function ReportsPage() {
   const bizName = business?.name || 'Business'
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', paddingBottom: 80 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderBottom: '1px solid var(--border)' }}>
+        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 18, padding: 0, display: 'flex', alignItems: 'center' }}>&#8592;</button>
+        <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>REPORTS</span>
+      </div>
       <TabBar active={tab} onChange={t => { setTab(t); setReportData(null) }} />
       <div style={{ padding: '12px 16px' }}>
         {tab !== 'ledger' && (

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../../api'
 import { useAuth } from '../../auth/useAuth'
 import { openWhatsApp, promptWhatsApp } from '../../shared/utils/whatsapp'
@@ -501,6 +502,31 @@ const ProductMovView = ({d,entry,onMore,loadingMore}:{d:any;entry:ViewEntry;onMo
 )
 
 // === Main Component ===
+
+function ReportsBar() {
+  const navigate = useNavigate()
+  const REPORTS = [
+    { label: 'P&L', tab: 'pnl' },
+    { label: 'Balance Sheet', tab: 'bs' },
+    { label: 'Cash Flow', tab: 'cf' },
+    { label: 'Trial Balance', tab: 'tb' },
+    { label: 'Ledger', tab: 'ledger' },
+  ]
+  const btn: React.CSSProperties = {
+    padding: '6px 12px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.06)',
+    background: 'transparent', color: '#6a6a64', cursor: 'pointer', flexShrink: 0,
+    fontSize: 10, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.5px',
+    whiteSpace: 'nowrap',
+  }
+  return (
+    <div style={{ display: 'flex', overflowX: 'auto', gap: 6, padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', scrollbarWidth: 'none' }}>
+      {REPORTS.map(r => (
+        <button key={r.tab} onClick={() => navigate('/accounting/reports?tab=' + r.tab)} style={btn}>{r.label}</button>
+      ))}
+    </div>
+  )
+}
+
 export default function DashboardPage() {
   useAuth()
   const [period, setPeriod] = useState<Period>('this_month')
@@ -575,6 +601,7 @@ export default function DashboardPage() {
   // Summary view
   if(stack.length===0||!cur){
     return <div>
+      <ReportsBar />
       <PeriodPills period={period} onChange={p=>{ setPeriod(p); setStack([]) }}/>
       {loading&&<div style={{textAlign:'center',padding:40,color:'var(--text-muted)'}}>Loading…</div>}
       {error&&<div style={{padding:20,color:'var(--danger)',textAlign:'center'}}>{error}</div>}

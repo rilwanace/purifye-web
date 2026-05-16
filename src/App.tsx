@@ -1,4 +1,4 @@
-﻿import { lazy, Suspense } from 'react'
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, ProtectedRoute } from './auth/useAuth'
 import { ToastProvider } from './shared/components/Toast'
@@ -7,10 +7,11 @@ import SignupPage from './auth/SignupPage'
 import AppShell from './shell/AppShell'
 import AccountingLayout from './accounting/AccountingLayout'
 import DashboardPage from './accounting/dashboard/DashboardPage'
-import EntryPage from './accounting/entry/EntryPage'
 import RecipesPage from './accounting/recipes/RecipesPage'
 import ReportsPage from './accounting/reports/ReportsPage'
 import SettingsPage from './accounting/settings/SettingsPage'
+import ChatPage from './accounting/chat/ChatPage'
+import HistoryPage from './accounting/history/HistoryPage'
 import PlannerLayout from './planner/PlannerLayout'
 import CustomerBot from './customer/CustomerBot'
 import InventoryBot from './inventory/InventoryBot'
@@ -38,10 +39,12 @@ export default function App() {
               <Route element={<AccountingLayout />}>
                 <Route index element={<Navigate to="/accounting/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
-                <Route path="entry" element={<EntryPage />} />
-                <Route path="recipes" element={<RecipesPage />} />
+                <Route path="chat" element={<ChatPage />} />
+                <Route path="history" element={<HistoryPage />} />
                 <Route path="reports" element={<ReportsPage />} />
+                <Route path="recipes" element={<RecipesPage />} />
                 <Route path="settings" element={<SettingsPage />} />
+                <Route path="*" element={<Navigate to="/accounting/dashboard" replace />} />
               </Route>
             </Route>
             <Route path="/planner" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
