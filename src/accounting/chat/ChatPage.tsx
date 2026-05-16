@@ -63,7 +63,7 @@ export default function ChatPage() {
       setChatState('error'); setErrorMsg("Couldn't process that. Try Quick Entry.")
     }, 15000)
     try {
-      const res = await api<any>('/api/voice/parse', { method: 'POST', body: JSON.stringify({ text: val }), headers: { 'Content-Type': 'application/json' } })
+      const res = await api<any>('/api/text/parse', { method: 'POST', body: JSON.stringify({ text: val }), headers: { 'Content-Type': 'application/json' } })
       handleParsed(res)
     } catch { clearTimer(); setChatState('error'); setErrorMsg("Couldn't process that. Try Quick Entry.") }
   }

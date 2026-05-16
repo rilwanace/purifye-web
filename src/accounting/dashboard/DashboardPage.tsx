@@ -507,9 +507,9 @@ function ReportsBar() {
   const navigate = useNavigate()
   const REPORTS = [
     { label: 'P&L', tab: 'pnl' },
-    { label: 'Balance Sheet', tab: 'bs' },
-    { label: 'Cash Flow', tab: 'cf' },
-    { label: 'Trial Balance', tab: 'tb' },
+    { label: 'B/S', tab: 'bs' },
+    { label: 'C/F', tab: 'cf' },
+    { label: 'T/B', tab: 'tb' },
     { label: 'Ledger', tab: 'ledger' },
   ]
   const btn: React.CSSProperties = {
