@@ -202,7 +202,7 @@ export default function ChatPage() {
         </div>
       )}
 
-      <div style={{ padding: '10px 12px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 8, background: '#131311', paddingBottom: 82 }}>
+      <div style={{ padding: '10px 12px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 8, background: '#131311' }}>
         <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
           <input
             value={text}
@@ -238,7 +238,7 @@ export default function ChatPage() {
                 <EntryForm masterData={masterData} prefill={prefill} onSaved={handleSaved} />
               </div>
             )}
-            <div style={{ padding: '10px 16px 82px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ padding: '10px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               <button onClick={() => { setSheetOpen(false); setPrefill(null) }} style={{ width: '100%', padding: '12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', background: 'transparent', color: '#6a6a64', fontSize: 12, cursor: 'pointer', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>Cancel</button>
             </div>
           </div>
