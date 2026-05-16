@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-
-const API = import.meta.env.VITE_API_BASE || ''
+import { api } from '../../api'
 
 interface BriefConfig {
   morning_brief_enabled: boolean
@@ -12,8 +11,7 @@ export default function BriefSettings() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`${API}/api/briefs/settings`, { credentials: 'include' })
-      .then(r => r.json())
+    api('/api/briefs/settings')
       .then(d => { if (d.ok) setConfig(d.settings) })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -26,13 +24,7 @@ export default function BriefSettings() {
       const body: any = {}
       if (key === 'morning_brief_enabled') body.morning = !prev
       else body.evening = !prev
-      const r = await fetch(`${API}/api/briefs/settings`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-      if (!r.ok) throw new Error()
+      await api('/api/briefs/settings', { method: 'PUT', body: JSON.stringify(body) })
     } catch {
       setConfig(c => ({ ...c, [key]: prev }))
     }

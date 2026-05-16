@@ -5,6 +5,7 @@ import BusinessProfile from './BusinessProfile'
 import MasterData from './MasterData'
 import TeamManagement from './TeamManagement'
 import InvoiceSettings from './InvoiceSettings'
+import { api } from '../../api'
 
 type SectionKey = 'account' | 'briefs' | 'profile' | 'master' | 'team' | 'invoice' | 'inventory'
 
@@ -84,12 +85,10 @@ function AccountSection({ user }: { user: any }) {
 }
 
 function BriefSection() {
-  const API = (import.meta as any).env?.VITE_API_BASE || ''
   const [cfg, setCfg] = useState<{ morning_brief_enabled: boolean; evening_focus_enabled: boolean } | null>(null)
 
   useEffect(() => {
-    fetch(`${API}/api/briefs/settings`, { credentials: 'include' })
-      .then(r => r.json())
+    api('/api/briefs/settings')
       .then(d => { if (d.ok) setCfg(d.settings) })
       .catch(() => {})
   }, [])
@@ -100,8 +99,7 @@ function BriefSection() {
     setCfg(c => c ? { ...c, [key]: !prev } : c)
     try {
       const body: any = key === 'morning_brief_enabled' ? { morning: !prev } : { evening: !prev }
-      const r = await fetch(`${API}/api/briefs/settings`, { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      if (!r.ok) throw new Error()
+      await api('/api/briefs/settings', { method: 'PUT', body: JSON.stringify(body) })
     } catch {
       setCfg(c => c ? { ...c, [key]: prev } : c)
     }
@@ -131,13 +129,11 @@ function BriefSection() {
 }
 
 function InventorySection() {
-  const API = (import.meta as any).env?.VITE_API_BASE || ''
   const [trackInventory, setTrackInventory] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`${API}/api/settings/business`, { credentials: 'include' })
-      .then(r => r.json())
+    api('/api/settings/business')
       .then(d => { setTrackInventory(!!d.track_inventory) })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -147,10 +143,9 @@ function InventorySection() {
     const next = !trackInventory
     setTrackInventory(next)
     try {
-      const cur = await fetch(`${API}/api/settings/business`, { credentials: 'include' }).then(r => r.json())
-      await fetch(`${API}/api/settings/business`, {
-        method: 'PUT', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+      const cur = await api('/api/settings/business')
+      await api('/api/settings/business', {
+        method: 'PUT',
         body: JSON.stringify({ name: cur.name || '', address: cur.address || '', phone: cur.phone || '', track_inventory: next }),
       })
     } catch {
