@@ -155,24 +155,58 @@ function MorningTab() {
   )
 }
 
+
+
 function EveningTab() {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  useEffect(() => { api<any>('/api/briefs/evening').then(r => { setData(r); setLoading(false) }).catch(() => setLoading(false)) }, [])
+  const [generating, setGenerating] = useState(false)
+
+  const load = () => {
+    setLoading(true)
+    api<any>('/api/briefs/evening').then(r => { setData(r); setLoading(false) }).catch(() => setLoading(false))
+  }
+  useEffect(() => { load() }, [])
+
+  const generate = () => {
+    setGenerating(true)
+    api<any>('/api/briefs/evening').then(r => { setData(r); setGenerating(false) }).catch(() => setGenerating(false))
+  }
+
   if (loading) return <div style={{ textAlign: 'center', padding: 30, color: '#6a6a64', fontSize: 13 }}>Loading...</div>
   const briefs = data?.briefs || []
-  if (!briefs.length) return <div style={{ textAlign: 'center', padding: 24, color: '#6a6a64', fontSize: 13 }}>{data?.message || 'Evening Focus briefs will appear here once enabled.'}</div>
+  if (!briefs.length) return (
+    <div style={{ padding: '16px' }}>
+      <div style={{ textAlign: 'center', padding: '20px 0', color: '#6a6a64', fontSize: 13, marginBottom: 12 }}>Evening Focus insights will appear here. Tap to generate today&apos;s.</div>
+      <button onClick={generate} disabled={generating} style={{ width: '100%', padding: '11px', borderRadius: 8, border: '1px solid rgba(112,104,217,0.3)', background: 'rgba(112,104,217,0.1)', color: '#7068D9', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', opacity: generating ? 0.6 : 1 }}>{generating ? 'Generating...' : 'Generate Evening Focus'}</button>
+    </div>
+  )
   return (
     <div style={{ padding: '0 16px 16px' }}>
-      {briefs.map((b: any) => (
-        <div key={b.id} style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '3px solid #7068D9', borderRadius: 10, padding: '14px 16px', marginBottom: 10 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-            <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: '#7068D9', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Evening Focus</span>
-            <span style={{ fontSize: 10, color: '#6a6a64', fontFamily: 'var(--font-mono)' }}>{fmtDate(b.date)}</span>
+      {briefs.map((b: any) => {
+        const newsItems: any[] = b.content?.news_items || []
+        const insight: string = b.content?.insight || ''
+        const dayLabel = b.date ? new Date(b.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''
+        return (
+          <div key={b.id} style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '3px solid #7068D9', borderRadius: 10, padding: '14px 16px', marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+              <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: '#7068D9', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Evening Focus{dayLabel ? ` ? ${dayLabel}` : ''}</span>
+              <span style={{ fontSize: 10, color: '#6a6a64', fontFamily: 'var(--font-mono)' }}>{fmtDate(b.generated_at)}</span>
+            </div>
+            {newsItems.length > 0 && (
+              <div style={{ marginBottom: 10, padding: '8px 10px', background: 'rgba(112,104,217,0.06)', borderRadius: 6 }}>
+                {newsItems.map((n: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'flex-start', marginBottom: i < newsItems.length - 1 ? 5 : 0 }}>
+                    <span style={{ fontSize: 10, color: '#7068D9', fontFamily: 'var(--font-mono)', flexShrink: 0, marginTop: 1 }}>&#9658;</span>
+                    <span style={{ fontSize: 12, color: '#c8c7c0', lineHeight: 1.4 }}>{n.headline}{n.source && <span style={{ color: '#6a6a64', fontSize: 10, marginLeft: 4 }}>? {n.source}</span>}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {insight && <p style={{ margin: 0, fontSize: 12, color: '#9c9b95', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{insight}</p>}
           </div>
-          <p style={{ margin: 0, fontSize: 12, color: '#9c9b95' }}>Brief sent to WhatsApp</p>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
