@@ -130,23 +130,14 @@ function SectionLabel({ label, color = 'var(--text-muted)' }: { label: string; c
   );
 }
 
-function buildSpendCats(purchases: any[] | null, c: EnrichedCustomer) {
+function buildSpendCats(purchases: any[] | null, _c: EnrichedCustomer) {
   const COLORS = ['#CF5BA0','#5DCAA5','#B08D30','#E8894F','#9c9b95','#D85A30'];
-  if (purchases && purchases.length >= 2) {
+  if (purchases && purchases.length >= 1) {
     const catMap: Record<string, number> = {};
     for (const p of purchases) { const nm = p.product_name || 'Other'; catMap[nm] = (catMap[nm] || 0) + (p.total || 0); }
     return Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, val], i) => ({ name, value: Math.round(val), color: COLORS[i % COLORS.length] }));
   }
-  if (!c.spent) return [];
-  function hashCode(s: string) { let h = 0; for (let i = 0; i < s.length; i++) h = ((h << 5) - h) + s.charCodeAt(i) | 0; return Math.abs(h); }
-  const seed = hashCode(c.id || c.name);
-  const cats = ['Services','Products','Add-ons','Consultation'];
-  const total = c.spent;
-  const r1 = ((seed % 40) + 40) / 100;
-  const r2 = ((seed % 20) + 10) / 100;
-  const r3 = Math.max(.05, 1 - r1 - r2 - .05);
-  const r4 = Math.max(.05, 1 - r1 - r2 - r3);
-  return cats.map((name, i) => ({ name, value: Math.round(total * [r1, r2, r3, r4][i]), color: COLORS[i] }));
+  return [];
 }
 
 function DonutChart({ cats, total }: { cats: { name: string; value: number; color: string }[]; total: number }) {
@@ -173,9 +164,9 @@ function DonutChart({ cats, total }: { cats: { name: string; value: number; colo
       </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
         {valid.map((c, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div key={i} data-donut-segment={c.name} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 8, height: 8, borderRadius: 2, flexShrink: 0, background: c.color }} />
-            <div style={{ fontSize: 10, flex: 1 }}>{c.name}</div>
+            <div data-donut-label style={{ fontSize: 10, flex: 1 }}>{c.name}</div>
             <div style={{ fontSize: 10, fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{Math.round((c.value / total) * 100)}%</div>
           </div>
         ))}
