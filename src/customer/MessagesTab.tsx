@@ -77,20 +77,26 @@ export default function MessagesTab({ customers, messages, onRefresh, onOpenBuil
     if (!selected.size) return;
     setSending(true);
     const ids = [...selected];
-    setDismissedIds(prev => { const next = new Set(prev); ids.forEach(id => next.add(id)); return next; });
-    setSelected(new Set());
     try {
       await bulkUpdateMessages(ids, { status: 'sent', sent_at: new Date().toISOString() });
+      setDismissedIds(prev => { const next = new Set(prev); ids.forEach(id => next.add(id)); return next; });
+      setSelected(new Set());
       onRefresh();
+    } catch {
+      // Items remain in queue — API did not process them
     } finally {
       setSending(false);
     }
   }
 
   async function deleteMsg(id: string) {
-    setDismissedIds(prev => { const next = new Set(prev); next.add(id); return next; });
-    await updateMessage(id, { status: 'deleted' });
-    onRefresh();
+    try {
+      await updateMessage(id, { status: 'deleted' });
+      setDismissedIds(prev => { const next = new Set(prev); next.add(id); return next; });
+      onRefresh();
+    } catch {
+      // Item remains in queue on failure
+    }
   }
 
   return (
