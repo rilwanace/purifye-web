@@ -43,7 +43,7 @@ export default function AppShell() {
     <div style={{ maxWidth: 430, margin: '0 auto', minHeight: '100dvh', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       {isOffline && (
         <div style={{ background: '#2a1a00', borderBottom: '1px solid #5a3a00', padding: '6px 16px', fontSize: 12, color: '#ef9f27', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-          <span>&#9888;</span> You&#39;re offline &#8212; data may be outdated
+          <span>&#9888;</span> You're offline &#8212; data may be outdated
         </div>
       )}
       {showBanner && !isOffline && (
@@ -54,7 +54,7 @@ export default function AppShell() {
         </div>
       )}
       <TopBar />
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: isAccounting ? 0 : 72 }}>
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 72 }}>
         <Outlet />
       </div>
       {!isAccounting && <BotTabBar />}

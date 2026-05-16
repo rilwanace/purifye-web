@@ -514,33 +514,25 @@ const ProductMovView = ({d,entry,onMore,loadingMore}:{d:any;entry:ViewEntry;onMo
 
 // === Main Component ===
 
-const GRAD_GREEN = 'linear-gradient(135deg, #28997A, #13654C)'
-const REPORT_BTNS = [
-  { label: 'P&L',    emoji: '📊', tab: 'pnl' },
-  { label: 'BS',     emoji: '⚖️',  tab: 'bs' },
-  { label: 'CF',     emoji: '💰', tab: 'cf' },
-  { label: 'TB',     emoji: '✅', tab: 'tb' },
-  { label: 'Ledger', emoji: '📖', tab: 'ledger' },
-]
-
 function ReportsBar() {
   const navigate = useNavigate()
+  const REPORTS = [
+    { label: 'P&L', tab: 'pnl' },
+    { label: 'B/S', tab: 'bs' },
+    { label: 'C/F', tab: 'cf' },
+    { label: 'T/B', tab: 'tb' },
+    { label: 'Ledger', tab: 'ledger' },
+  ]
+  const btn: React.CSSProperties = {
+    padding: '6px 12px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.06)',
+    background: 'transparent', color: '#6a6a64', cursor: 'pointer', flexShrink: 0,
+    fontSize: 10, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.5px',
+    whiteSpace: 'nowrap',
+  }
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 12px 8px' }}>
-      {REPORT_BTNS.map(r => (
-        <button
-          key={r.tab}
-          onClick={() => navigate('/accounting/reports?tab=' + r.tab)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '0 4px' }}
-        >
-          <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: GRAD_GREEN,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 16,
-          }}>{r.emoji}</div>
-          <span style={{ fontSize: 10, fontFamily: 'var(--font-sans)', color: '#6a6a64', fontWeight: 500 }}>{r.label}</span>
-        </button>
+    <div style={{ display: 'flex', overflowX: 'auto', gap: 6, padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', scrollbarWidth: 'none' }}>
+      {REPORTS.map(r => (
+        <button key={r.tab} onClick={() => navigate('/accounting/reports?tab=' + r.tab)} style={btn}>{r.label}</button>
       ))}
     </div>
   )
