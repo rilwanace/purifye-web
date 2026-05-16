@@ -41,7 +41,7 @@ function RemindersTab() {
 
   async function markDone(r: Reminder) {
     setActionLoading(true)
-    try { await api('/api/reminders/' + r.id, { method: 'PUT', body: JSON.stringify({ completed_at: new Date().toISOString() }) }); load(); show('Marked done', 'success') }
+    try { await api('/api/reminders/' + r.id, { method: 'PUT', body: JSON.stringify({ status: 'completed' }) }); load(); show('Marked done', 'success') }
     catch { show('Failed to update', 'error') }
     finally { setActionLoading(false) }
   }
@@ -78,7 +78,7 @@ function RemindersTab() {
           <input value={desc} onChange={e => setDesc(e.target.value)} placeholder="Reminder description" style={{ ...inp, marginBottom: 8 }} />
           <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
             <input type="number" value={amt} onChange={e => setAmt(e.target.value)} placeholder="Amount (optional)" style={{ ...inp, flex: 1 }} />
-            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} style={{ ...inp, flex: 1 }} />
+            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} style={{ ...inp, flex: 1, colorScheme: 'dark' }} />
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setShowForm(false)} style={{ flex: 1, padding: '9px', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, color: '#6a6a64', fontSize: 12, cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>Cancel</button>
@@ -93,7 +93,7 @@ function RemindersTab() {
               <input value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="Description" style={dsInp} />
               <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
                 <input type="number" value={editAmt} onChange={e => setEditAmt(e.target.value)} placeholder="Amount" style={{ ...dsInp, flex: 1, marginBottom: 0 }} />
-                <input type="date" value={editDue} onChange={e => setEditDue(e.target.value)} style={{ ...dsInp, flex: 1, marginBottom: 0 }} />
+                <input type="date" value={editDue} onChange={e => setEditDue(e.target.value)} style={{ ...dsInp, flex: 1, marginBottom: 0, colorScheme: 'dark' }} />
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => setEditId(null)} style={{ flex: 1, padding: '7px', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, color: '#6a6a64', fontSize: 11, cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>Cancel</button>

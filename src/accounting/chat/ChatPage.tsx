@@ -131,7 +131,7 @@ export default function ChatPage() {
   const isBusy = chatState === 'processing'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 56px)', position: 'relative', background: '#131311' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 128px)', position: 'relative', background: '#131311' }}>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px', overflowY: 'auto' }}>
         {chatState === 'idle' && (
           <div style={{ textAlign: 'center', opacity: 0.5 }}>
