@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react';
+﻿import { useState, useMemo, useEffect } from 'react';
 import type { EnrichedCustomer } from './utils/segmentation';
 import { MSG_TYPES } from './utils/templates';
 import { timeAgo, parseDateFmt, detectDateFormat } from './utils/dateParser';
@@ -25,9 +25,13 @@ const ACTION_TYPES = [
 ];
 
 export default function MessagesTab({ customers, messages, onRefresh, onOpenBuilder, onCustomerClick }: Props) {
-  const drafts = useMemo(() => messages.filter((m: any) => m.status === 'draft'), [messages]);
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+  const drafts = useMemo(() => messages.filter((m: any) => m.status === 'draft' && !dismissedIds.has(m.id)), [messages, dismissedIds]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [sending, setSending] = useState(false);
+
+  // Reset dismissed set when fresh message data arrives from parent
+  useEffect(() => { setDismissedIds(new Set()); }, [messages]);
 
   // History state
   const [fromDate, setFromDate] = useState('');
@@ -72,9 +76,11 @@ export default function MessagesTab({ customers, messages, onRefresh, onOpenBuil
   async function sendSelected() {
     if (!selected.size) return;
     setSending(true);
+    const ids = [...selected];
+    setDismissedIds(prev => { const next = new Set(prev); ids.forEach(id => next.add(id)); return next; });
+    setSelected(new Set());
     try {
-      await bulkUpdateMessages([...selected], { status: 'sent', sent_at: new Date().toISOString() });
-      setSelected(new Set());
+      await bulkUpdateMessages(ids, { status: 'sent', sent_at: new Date().toISOString() });
       onRefresh();
     } finally {
       setSending(false);
@@ -82,6 +88,7 @@ export default function MessagesTab({ customers, messages, onRefresh, onOpenBuil
   }
 
   async function deleteMsg(id: string) {
+    setDismissedIds(prev => { const next = new Set(prev); next.add(id); return next; });
     await updateMessage(id, { status: 'deleted' });
     onRefresh();
   }
