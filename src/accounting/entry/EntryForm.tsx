@@ -358,7 +358,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
     setConversionPending(null)
   }
 
-  async function handleSave(confirmToken?: string) {
+  async function handleSave(confirmToken?: string, withInvoice = false) {
     setLoading(true)
     try {
       if (editEntryGroup) {
@@ -366,12 +366,17 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
       }
       const body: any = { type, fields: { ...fields } }
       if (confirmToken) { body.confirm_conversion = true; body.pending_save_token = confirmToken }
+      if (withInvoice) body.generate_invoice = true
       const res = await api<any>('/api/entry/save', { method: 'POST', body: JSON.stringify(body) })
       if (res.status === 'needs_conversion_confirmation') {
         setConversionPending({ token: res.pending_save_token, details: res.details })
         return
       }
       show(editEntryGroup ? 'Entry updated' : 'Entry saved', 'success')
+      if (res.invoice_no) {
+        const apiBase = (import.meta as any).env?.VITE_API_BASE || ''
+        window.open(`${apiBase}/api/settings/invoice/${encodeURIComponent(res.invoice_no)}/pdf`, '_blank')
+      }
       setFieldsAll(defaultFields(type))
       setConversionPending(null)
       setEditEntryGroup(null)
@@ -668,10 +673,18 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
       )}
 
       {!conversionPending && (
-        <button onClick={() => handleSave()} disabled={loading || errors.size > 0}
-          style={{ width: '100%', padding: '13px', background: errors.size > 0 ? '#3a3a38' : 'var(--accent)', color: errors.size > 0 ? '#6a6a64' : '#000', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: (loading || errors.size > 0) ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: 4 }}>
-          {loading ? 'Saving...' : editEntryGroup ? 'Update Entry' : 'Save Entry'}
-        </button>
+        <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+          <button onClick={() => handleSave()} disabled={loading || errors.size > 0}
+            style={{ flex: 1, padding: '13px', background: errors.size > 0 ? '#3a3a38' : 'var(--accent)', color: errors.size > 0 ? '#6a6a64' : '#000', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: (loading || errors.size > 0) ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
+            {loading ? 'Saving...' : editEntryGroup ? 'Update Entry' : 'Save Entry'}
+          </button>
+          {type === 'sale' && !editEntryGroup && (
+            <button onClick={() => handleSave(undefined, true)} disabled={loading || errors.size > 0}
+              style={{ flex: 1, padding: '13px', background: errors.size > 0 ? '#3a3a38' : 'rgba(93,202,165,0.12)', color: errors.size > 0 ? '#6a6a64' : '#5DCAA5', border: errors.size > 0 ? 'none' : '1px solid rgba(93,202,165,0.3)', borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: (loading || errors.size > 0) ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
+              {loading ? '\u2026' : '+ Invoice'}
+            </button>
+          )}
+        </div>
       )}
     </div>
   )
