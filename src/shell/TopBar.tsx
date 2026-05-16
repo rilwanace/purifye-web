@@ -44,7 +44,7 @@ export default function TopBar() {
   return (
     <>
       <div style={{ height: 56, display: 'flex', alignItems: 'center', padding: '0 16px', gap: 8, borderBottom: '1px solid var(--border)', position: 'relative', flexShrink: 0 }}>
-        <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.4px', flexShrink: 0 }}>
+        <div onClick={() => navigate('/')} style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.4px', flexShrink: 0, cursor: 'pointer' }}>
           <span style={{ color: 'var(--accent)' }}>P</span>urifye
         </div>
         <div style={{ flex: 1, minWidth: 0, textAlign: 'center', fontSize: 14, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -64,7 +64,8 @@ export default function TopBar() {
         </div>
         {!isAccounting && open && (
           <div style={{ position: 'absolute', top: 50, right: 12, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', zIndex: 200, minWidth: 140 }}>
-            <button onClick={() => { navigate(settingsPath); setOpen(false) }} style={menuItemStyle}>Settings</button>
+            <button onClick={() => { navigate('/'); setOpen(false) }} style={menuItemStyle}>Switch bot</button>
+          <button onClick={() => { navigate(settingsPath); setOpen(false) }} style={menuItemStyle}>Settings</button>
             <button onClick={() => { logout(); setOpen(false) }} style={{ ...menuItemStyle, color: 'var(--danger)' }}>Logout</button>
           </div>
         )}

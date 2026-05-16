@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import BotLandingPage from './bots/BotLandingPage'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, ProtectedRoute } from './auth/useAuth'
 import { ToastProvider } from './shared/components/Toast'
@@ -34,7 +35,7 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/" element={<Navigate to="/accounting/dashboard" replace />} />
+            <Route path="/" element={<ProtectedRoute><BotLandingPage /></ProtectedRoute>} />
             <Route path="/accounting" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
               <Route element={<AccountingLayout />}>
                 <Route index element={<Navigate to="/accounting/dashboard" replace />} />

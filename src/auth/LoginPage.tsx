@@ -21,7 +21,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       })
       setAuth(data.user, data.business)
-      navigate('/accounting/dashboard', { replace: true })
+      navigate('/', { replace: true })
     } catch (err: any) {
       setError(err.message || 'Login failed')
     } finally {
