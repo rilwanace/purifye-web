@@ -38,11 +38,11 @@ export default function CustomerDetail({ customer: c, messages, onBack }: Props)
 
       {/* Avatar + name */}
       <div style={{ textAlign: 'center', padding: '8px 0 16px' }}>
-        <div style={{ width: 52, height: 52, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, margin: '0 auto 8px', background: c._seg.bg, color: c._seg.color }}>{init}</div>
+        <div data-segment={c._seg.key} style={{ width: 52, height: 52, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, margin: '0 auto 8px', backgroundColor: c._seg.color, color: '#fff' }}>{init}</div>
         <div style={{ fontSize: 17, fontWeight: 700 }}>{c.name}</div>
         {c.category && <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 6, background: '#2a2a28', color: '#9c9b95', marginTop: 4, display: 'inline-block' }}>{c.category}</span>}
         <div style={{ marginTop: 4 }}>
-          <span style={{ fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '3px 10px', borderRadius: 6, background: c._seg.bg, color: c._seg.color }}>{c._seg.label} ?? {c._days}d ago</span>
+          <span data-segment-badge={c._seg.key} style={{ fontSize: 9, fontFamily: 'var(--font-mono)', fontWeight: 700, padding: '3px 10px', borderRadius: 6, backgroundColor: c._seg.color, color: '#fff' }}>{c._seg.label} ?? {c._days}d ago</span>
         </div>
       </div>
 
