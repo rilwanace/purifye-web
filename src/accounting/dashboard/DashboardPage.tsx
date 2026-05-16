@@ -622,21 +622,43 @@ export default function DashboardPage() {
       <PeriodPills period={period} customFrom={customFrom} customTo={customTo} onChange={p=>{ setPeriod(p); setStack([]) }} onCustom={(f,t)=>{ setCustomFrom(f); setCustomTo(t); setStack([]) }}/>
       {loading&&<div style={{textAlign:'center',padding:40,color:'var(--text-muted)'}}>Loading…</div>}
       {error&&<div style={{padding:20,color:'var(--danger)',textAlign:'center'}}>{error}</div>}
-      {summary&&<div style={{padding:'10px 16px',display:'flex',flexDirection:'column',gap:8}}>
-        <div style={{fontSize:11,color:'var(--text-muted)',marginBottom:2}}>{summary.business_name} · {summary.as_of_date}</div>
-        <RevenueCard d={summary.revenue} push={push}/>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-          <MarginCard d={summary.net_margin} push={push}/>
-          <ExpCard d={summary.expenses} push={push}/>
-        </div>
-        <CashCard d={summary.cash} push={push}/>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-          <AgingCard side="ar" d={summary.ar_aging} push={push}/>
-          <AgingCard side="ap" d={summary.ap_aging} push={push}/>
-        </div>
-        <PurchCard d={summary.purchases} push={push}/>
-        {summary.track_inventory&&summary.inventory&&<InvCard d={summary.inventory} push={push}/>}
-      </div>}
+      {summary&&(()=>{
+        const isEmpty = (summary.revenue?.total??0)===0 && (summary.expenses?.total??0)===0
+        if (isEmpty) return (
+          <div style={{display:'flex',justifyContent:'center',alignItems:'center',minHeight:320,padding:'24px 16px'}}>
+            <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:14,padding:'32px 24px',textAlign:'center',maxWidth:320,width:'100%'}}>
+              <div style={{fontSize:36,marginBottom:16}}>📊</div>
+              <div style={{fontFamily:'var(--font-mono)',fontSize:14,color:'#e8e7e0',fontWeight:600,marginBottom:10}}>Get Started</div>
+              <div style={{fontFamily:'var(--font-sans)',fontSize:14,color:'#9c9b95',maxWidth:280,margin:'0 auto 20px',lineHeight:1.5}}>
+                Head to Chat to record your first entry or upload your books
+              </div>
+              <button onClick={()=>navigate('/accounting/chat')} style={{
+                background:'#5DCAA5',color:'#131311',fontFamily:'var(--font-mono)',
+                fontSize:12,textTransform:'uppercase',letterSpacing:'.05em',
+                fontWeight:600,border:'none',borderRadius:8,
+                padding:'12px 24px',cursor:'pointer'
+              }}>Go to Chat →</button>
+            </div>
+          </div>
+        )
+        return (
+          <div style={{padding:'10px 16px',display:'flex',flexDirection:'column',gap:8}}>
+            <div style={{fontSize:11,color:'var(--text-muted)',marginBottom:2}}>{summary.business_name} · {summary.as_of_date}</div>
+            <RevenueCard d={summary.revenue} push={push}/>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+              <MarginCard d={summary.net_margin} push={push}/>
+              <ExpCard d={summary.expenses} push={push}/>
+            </div>
+            <CashCard d={summary.cash} push={push}/>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+              <AgingCard side="ar" d={summary.ar_aging} push={push}/>
+              <AgingCard side="ap" d={summary.ap_aging} push={push}/>
+            </div>
+            <PurchCard d={summary.purchases} push={push}/>
+            {summary.track_inventory&&summary.inventory&&<InvCard d={summary.inventory} push={push}/>}
+          </div>
+        )
+      })()}
     </div>
   }
 
