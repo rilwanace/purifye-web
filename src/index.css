@@ -30,6 +30,22 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+*,
+*::before,
+*::after {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 /* Android text selection / tap-highlight fix */
 * {
   -webkit-tap-highlight-color: transparent;

@@ -158,7 +158,7 @@ function BriefDayCard({ brief }: { brief: any }) {
         <span style={{ fontSize: 11, color: "#6a6a64", fontFamily: "var(--font-mono)" }}>{dateStr}</span>
       </div>
       {BRIEF_SECTIONS.map(sec => {
-        const data = content[sec.key] || { total: 0, count: 0, top_5: [], remaining_count: 0 }
+        const data = content[sec.key] || { total: 0, count: 0, items: [] }
         const isOpen = openSection === sec.key
         const canExpand = data.count > 0
         return (
@@ -195,8 +195,8 @@ function BriefDayCard({ brief }: { brief: any }) {
             </div>
             {isOpen && (
               <div style={{ padding: "0 16px 12px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-                {(data.top_5 || []).map((item: any, i: number) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 0", borderBottom: i < (data.top_5.length - 1) ? "1px solid rgba(255,255,255,0.03)" : "none" }}>
+                {(data.items || []).map((item: any, i: number) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 0", borderBottom: i < ((data.items || []).length - 1) ? "1px solid rgba(255,255,255,0.03)" : "none" }}>
                     <div style={{ flex: 1, marginRight: 12 }}>
                       <div style={{ fontSize: 12, color: "#e8e7e0", fontFamily: "var(--font-sans)" }}>{item.name}</div>
                       <div style={{ fontSize: 10, color: "#6a6a64", fontFamily: "var(--font-sans)", marginTop: 2 }}>
@@ -211,11 +211,6 @@ function BriefDayCard({ brief }: { brief: any }) {
                     </span>
                   </div>
                 ))}
-                {data.remaining_count > 0 && (
-                  <div style={{ fontSize: 11, color: "#6a6a64", fontFamily: "var(--font-sans)", paddingTop: 8 }}>
-                    +{fmtNum(data.remaining_count)} more {sec.party}
-                  </div>
-                )}
               </div>
             )}
           </div>
