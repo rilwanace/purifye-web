@@ -41,6 +41,22 @@ export default function SettingsPage() {
       </div>
 
       <div style={{ padding: '16px 0' }}>
+        <div
+          onClick={() => navigate('/')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            margin: '0 16px 12px', padding: '12px 16px',
+            background: '#1c1c1a', borderRadius: 12,
+            border: '1px solid rgba(255,255,255,0.06)',
+            cursor: 'pointer',
+            WebkitUserSelect: 'none', userSelect: 'none',
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation',
+          }}
+        >
+          <span style={{ fontSize: 13, color: '#5DCAA5', fontFamily: 'DM Mono, monospace' }}>&#8592;</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#5DCAA5', fontFamily: 'DM Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Switch Bot</span>
+        </div>
         {SECTIONS.map(sec => (
           <div key={sec.key} style={{ background: '#1c1c1a', borderRadius: 12, margin: '0 16px 10px', overflow: 'hidden' }}>
             <button

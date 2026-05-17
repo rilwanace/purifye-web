@@ -72,7 +72,7 @@ function getRange(f: string): { from: string; to: string } | null {
 }
 interface MD { customers: string[]; suppliers: string[]; staff: string[]; accounts: string[]; categories: string[]; products: string[] }
 
-export default function HistoryPage() {
+export default function HistoryPage({ containerHeight = 'calc(100dvh - 60px)' }: { containerHeight?: string }) {
   const { show } = useToast()
   const [entries, setEntries] = useState<Entry[]>([])
   const [loading, setLoading] = useState(true)
@@ -127,7 +127,7 @@ export default function HistoryPage() {
   if (selected) {
     const isSale = selected.type === 'sale'
     return (
-      <div style={{ minHeight: '100vh', background: '#131311', paddingBottom: 80 }}>
+      <div style={{ height: containerHeight, background: '#131311', overflowY: 'auto', paddingBottom: 80 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', color: '#5DCAA5', cursor: 'pointer', fontSize: 18 }}>&#8592;</button>
           <span style={{ fontSize: 12, color: '#6a6a64', fontFamily: 'var(--font-mono)' }}>ENTRY DETAIL</span>
@@ -184,7 +184,7 @@ export default function HistoryPage() {
   const groups = groupByDate(entries)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 56px)', background: '#131311' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: containerHeight, background: '#131311' }}>
       <div style={{ display: 'flex', gap: 6, padding: '12px 12px 0', overflowX: 'auto', scrollbarWidth: 'none', flexShrink: 0 }}>
         {TYPE_TABS.map(t => <button key={t.id} onClick={() => setTypeTab(t.id)} style={tabSt(typeTab === t.id)}>{t.label}</button>)}
       </div>

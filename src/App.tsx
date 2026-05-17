@@ -13,7 +13,7 @@ import RecipesPage from './accounting/recipes/RecipesPage'
 import ReportsPage from './accounting/reports/ReportsPage'
 import SettingsPage from './accounting/settings/SettingsPage'
 import ChatPage from './accounting/chat/ChatPage'
-import HistoryPage from './accounting/history/HistoryPage'
+import NotificationsPage from './accounting/notifications/NotificationsPage'
 import PlannerLayout from './planner/PlannerLayout'
 import CustomerBot from './customer/CustomerBot'
 import InventoryBot from './inventory/InventoryBot'
@@ -41,8 +41,10 @@ export default function App() {
               <Route element={<AccountingLayout />}>
                 <Route index element={<Navigate to="/accounting/dashboard" replace />} />
                 <Route path="dashboard" element={<DashboardPage />} />
-                <Route path="chat" element={<ChatPage />} />
-                <Route path="history" element={<HistoryPage />} />
+                <Route path="entry" element={<ChatPage />} />
+                <Route path="chat" element={<Navigate to="/accounting/entry" replace />} />
+                <Route path="history" element={<Navigate to="/accounting/entry" replace />} />
+                <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="recipes" element={<RecipesPage />} />
                 <Route path="settings" element={

@@ -53,8 +53,8 @@ export default function AppShell() {
           <button onClick={dismissBanner} style={{ background: 'none', border: 'none', color: 'var(--text-dim)', fontSize: 16, cursor: 'pointer', padding: '0 4px', lineHeight: 1 }}>&#215;</button>
         </div>
       )}
-      <TopBar />
-      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 72 }}>
+      {!isAccounting && <TopBar />}
+      <div style={{ flex: 1, overflowY: isAccounting ? 'visible' : 'auto', paddingBottom: isAccounting ? 0 : 72 }}>
         <Outlet />
       </div>
       {!isAccounting && <BotTabBar />}
