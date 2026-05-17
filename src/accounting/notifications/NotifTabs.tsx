@@ -8,13 +8,6 @@ export function fmtDate(s: string | null | undefined) {
   catch { return '' }
 }
 
-function urgencyColor(due: string | null) {
-  if (!due) return '#6a6a64'
-  const diff = (new Date(due).getTime() - Date.now()) / 86400000
-  if (diff < 0) return '#e85454'
-  if (diff <= 3) return '#D4A843'
-  return '#6a6a64'
-}
 
 interface Reminder { id: string; description: string; amount: number | null; due_date: string | null; status: string; completed_at: string | null }
 
@@ -65,12 +58,16 @@ export function RemindersTab() {
 
   const active = reminders.filter(r => r.status === 'active')
   const done = reminders.filter(r => r.status === 'completed')
+  const sorted = [...active].sort((a, b) => {
+    if (!a.due_date) return 1
+    if (!b.due_date) return -1
+    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+  })
   const inp: React.CSSProperties = { width: '100%', background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '9px 12px', color: '#e8e7e0', fontSize: 13, boxSizing: 'border-box', fontFamily: 'var(--font-sans)' }
   const dsInp: React.CSSProperties = { ...inp, fontSize: 12, padding: '7px 10px', marginBottom: 6 }
 
   return (
-    <div style={{ padding: '0 16px 16px' }}>
-      <button onClick={() => setShowForm(v => !v)} style={{ width: '100%', padding: '10px', borderRadius: 8, marginBottom: 12, border: '1px solid rgba(93,202,165,0.2)', background: 'rgba(93,202,165,0.08)', color: '#5DCAA5', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>+ Add Reminder</button>
+    <div style={{ padding: '0 16px 80px', position: 'relative' }}>
       {showForm && (
         <div style={{ background: '#212120', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: 14, marginBottom: 12 }}>
           <input value={desc} onChange={e => setDesc(e.target.value)} placeholder="Reminder description" style={{ ...inp, marginBottom: 8 }} />
@@ -84,54 +81,77 @@ export function RemindersTab() {
           </div>
         </div>
       )}
-      {active.map(r => (
-        <div key={r.id} style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: '12px 14px', marginBottom: 8 }}>
-          {editId === r.id ? (
-            <div>
-              <input value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="Description" style={dsInp} />
-              <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-                <input type="number" value={editAmt} onChange={e => setEditAmt(e.target.value)} placeholder="Amount" style={{ ...dsInp, flex: 1, marginBottom: 0 }} />
-                <input type="date" value={editDue} onChange={e => setEditDue(e.target.value)} style={{ ...dsInp, flex: 1, marginBottom: 0, colorScheme: 'dark' }} />
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => setEditId(null)} style={{ flex: 1, padding: '7px', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, color: '#6a6a64', fontSize: 11, cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>Cancel</button>
-                <button onClick={saveEdit} disabled={actionLoading} style={{ flex: 2, padding: '7px', background: '#5DCAA5', border: 'none', borderRadius: 6, color: '#131311', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>{actionLoading ? 'Saving...' : 'Save'}</button>
-              </div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, color: '#e8e7e0' }}>{r.description}</div>
-                <div style={{ display: 'flex', gap: 10, marginTop: 4, alignItems: 'center' }}>
-                  {r.amount != null && <span style={{ fontSize: 13, color: '#5DCAA5', fontFamily: 'var(--font-mono)' }}>Rs. {Math.round(r.amount).toLocaleString()}</span>}
-                  {r.due_date && <span style={{ fontSize: 11, color: urgencyColor(r.due_date), fontFamily: 'var(--font-mono)' }}>{fmtDate(r.due_date)}</span>}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {sorted.map(r => {
+          const d = r.due_date ? new Date(r.due_date + 'T00:00:00') : null
+          const day = d ? String(d.getDate()).padStart(2, '0') : '—'
+          const month = d ? d.toLocaleDateString('en-US', { month: 'short' }) : ''
+          return (
+            <div key={r.id} style={{ background: '#1a1a18', borderRadius: 10, padding: 10 }}>
+              {editId === r.id ? (
+                <div>
+                  <input value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="Description" style={dsInp} />
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+                    <input type="number" value={editAmt} onChange={e => setEditAmt(e.target.value)} placeholder="Amount" style={{ ...dsInp, flex: 1, marginBottom: 0 }} />
+                    <input type="date" value={editDue} onChange={e => setEditDue(e.target.value)} style={{ ...dsInp, flex: 1, marginBottom: 0, colorScheme: 'dark' }} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => setEditId(null)} style={{ flex: 1, padding: '7px', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, color: '#6a6a64', fontSize: 11, cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>Cancel</button>
+                    <button onClick={saveEdit} disabled={actionLoading} style={{ flex: 2, padding: '7px', background: '#5DCAA5', border: 'none', borderRadius: 6, color: '#131311', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-mono)' }}>{actionLoading ? 'Saving...' : 'Save'}</button>
+                  </div>
                 </div>
-              </div>
-              {swipeId === r.id ? (
-                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+              ) : swipeId === r.id ? (
+                <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', alignItems: 'center' }}>
                   <button onClick={() => { startEdit(r); setSwipeId(null) }} style={{ padding: '5px 10px', borderRadius: 6, background: 'rgba(93,202,165,0.08)', border: '1px solid rgba(93,202,165,0.2)', color: '#5DCAA5', fontSize: 11, cursor: 'pointer' }}>Edit</button>
                   <button onClick={() => { markDone(r); setSwipeId(null) }} disabled={actionLoading} style={{ padding: '5px 10px', borderRadius: 6, background: 'rgba(93,202,165,0.1)', border: '1px solid rgba(93,202,165,0.3)', color: '#5DCAA5', fontSize: 11, cursor: 'pointer' }}>Done</button>
                   <button onClick={() => { del(r.id); setSwipeId(null) }} disabled={actionLoading} style={{ padding: '5px 10px', borderRadius: 6, background: 'rgba(232,84,84,0.1)', border: '1px solid rgba(232,84,84,0.25)', color: '#e85454', fontSize: 11, cursor: 'pointer' }}>Del</button>
                   <button onClick={() => setSwipeId(null)} style={{ padding: '5px 8px', borderRadius: 6, background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', color: '#6a6a64', fontSize: 11, cursor: 'pointer' }}>&#215;</button>
                 </div>
               ) : (
-                <button onClick={() => setSwipeId(r.id)} style={{ background: 'none', border: 'none', color: '#6a6a64', cursor: 'pointer', fontSize: 16, padding: '0 0 0 8px' }}>&#183;&#183;&#183;</button>
+                <div onClick={() => setSwipeId(r.id)} style={{ display: 'grid', gridTemplateColumns: '44px minmax(0,1fr) auto', gap: 10, alignItems: 'center', cursor: 'pointer' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 10, background: 'linear-gradient(135deg, #28997A, #13654C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                    <span style={{ fontSize: 15, fontWeight: 500, color: '#fff', lineHeight: 1.1 }}>{day}</span>
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{month}</span>
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{r.description}</div>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: r.amount != null ? '#fff' : 'rgba(255,255,255,0.2)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                    {r.amount != null ? Math.round(r.amount).toLocaleString() : '—'}
+                  </div>
+                </div>
               )}
             </div>
-          )}
-        </div>
-      ))}
+          )
+        })}
+      </div>
       {active.length === 0 && !showForm && <div style={{ textAlign: 'center', padding: 20, color: '#6a6a64', fontSize: 13 }}>No upcoming reminders</div>}
       {done.length > 0 && (
         <div style={{ marginTop: 16 }}>
           <div style={{ fontSize: 9, color: '#6a6a64', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Completed</div>
-          {done.slice(0, 5).map(r => <div key={r.id} style={{ padding: '8px 0', opacity: 0.5 }}><div style={{ fontSize: 13, color: '#6a6a64', textDecoration: 'line-through' }}>{r.description}</div></div>)}
+          {done.slice(0, 5).map(r => {
+            const d = r.due_date ? new Date(r.due_date + 'T00:00:00') : null
+            const day = d ? String(d.getDate()).padStart(2, '0') : '—'
+            const month = d ? d.toLocaleDateString('en-US', { month: 'short' }) : ''
+            return (
+              <div key={r.id} style={{ background: '#1a1a18', borderRadius: 10, padding: 10, marginBottom: 6, opacity: 0.4 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '44px minmax(0,1fr) auto', gap: 10, alignItems: 'center' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 10, background: 'linear-gradient(135deg, #28997A, #13654C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                    <span style={{ fontSize: 15, fontWeight: 500, color: '#fff', lineHeight: 1.1 }}>{day}</span>
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{month}</span>
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, textDecoration: 'line-through' }}>{r.description}</div>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: r.amount != null ? '#fff' : 'rgba(255,255,255,0.2)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                    {r.amount != null ? Math.round(r.amount).toLocaleString() : '—'}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
+      <button onClick={() => setShowForm(v => !v)} style={{ position: 'fixed', bottom: 68, right: 16, width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #28997A, #13654C)', boxShadow: '0 4px 12px rgba(0,0,0,0.4)', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>+</button>
     </div>
   )
 }
-
 const BRIEF_SECTIONS = [
   { key: "overdue_receivables",  emoji: "🔥", title: "Overdue Receivables",  color: "#E85454", isOverdue: true,  party: "customers" },
   { key: "upcoming_receivables", emoji: "📥", title: "Upcoming Collections", color: "#5DCAA5", isOverdue: false, party: "customers" },

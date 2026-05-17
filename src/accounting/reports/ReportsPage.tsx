@@ -25,44 +25,43 @@ function fmtDate(s: string) {
 }
 
 const REPORT_TABS = [
-  { id: 'pnl' as Tab, label: 'P&L', emoji: '📊' },
-  { id: 'bs' as Tab, label: 'B/S', emoji: '⚖️' },
-  { id: 'cf' as Tab, label: 'C/F', emoji: '💰' },
-  { id: 'tb' as Tab, label: 'T/B', emoji: '✅' },
-  { id: 'ledger' as Tab, label: 'Ledger', emoji: '📖' },
+  { id: 'pnl' as Tab, label: 'PL', emoji: '📊' },
+  { id: 'bs'  as Tab, label: 'BS', emoji: '⚖️' },
+  { id: 'cf'  as Tab, label: 'CF', emoji: '💰' },
+  { id: 'tb'  as Tab, label: 'TB', emoji: '✅' },
+  { id: 'ledger' as Tab, label: 'GL', emoji: '📖' },
 ]
 
 const TabBar = ({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) => (
-  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 20px 10px', borderBottom: '1px solid var(--border)', background: 'var(--bg-primary)' }}>
-    {REPORT_TABS.map(t => (
-      <button
-        key={t.id}
-        onClick={() => onChange(t.id)}
-        onContextMenu={e => e.preventDefault()}
-        style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-          WebkitUserSelect: 'none' as any, userSelect: 'none' as any,
-          WebkitTapHighlightColor: 'transparent',
-        }}
-      >
-        <div style={{
-          width: 36, height: 36, borderRadius: 10,
-          background: 'linear-gradient(135deg, #28997A, #13654C)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 16,
-          boxShadow: t.id === active ? '0 0 12px rgba(93,202,165,0.45)' : 'none',
-          transition: 'box-shadow 0.15s',
-        }}>
-          {t.emoji}
-        </div>
-        <span style={{
-          fontFamily: 'DM Sans, sans-serif', fontSize: 10,
-          color: t.id === active ? '#e8e7e0' : '#6a6a64',
-          fontWeight: t.id === active ? 600 : 400,
-        }}>{t.label}</span>
-      </button>
-    ))}
+  <div style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border)', paddingBottom: 12 }}>
+    <div style={{ display: 'flex', gap: 2, margin: '12px 12px 0', background: '#1a1a18', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', height: 44, padding: 3 }}>
+      {REPORT_TABS.map(t => {
+        const isActive = t.id === active
+        return (
+          <button
+            key={t.id}
+            onClick={() => onChange(t.id)}
+            onContextMenu={e => e.preventDefault()}
+            style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+              border: 'none', cursor: 'pointer', borderRadius: 10,
+              background: isActive ? 'linear-gradient(135deg, #28997A, #13654C)' : 'transparent',
+              boxShadow: isActive ? '0 0 10px rgba(93,202,165,0.25)' : 'none',
+              WebkitUserSelect: 'none' as any, userSelect: 'none' as any,
+              WebkitTapHighlightColor: 'transparent',
+              transition: 'background 0.15s',
+            }}
+          >
+            <span style={{ fontSize: 14, opacity: isActive ? 1 : 0.35 }}>{t.emoji}</span>
+            <span style={{
+              fontSize: 12, fontWeight: isActive ? 500 : 400,
+              color: isActive ? '#fff' : 'rgba(255,255,255,0.35)',
+              fontFamily: 'DM Sans, sans-serif',
+            }}>{t.label}</span>
+          </button>
+        )
+      })}
+    </div>
   </div>
 )
 

@@ -517,36 +517,28 @@ const ProductMovView = ({d,entry,onMore,loadingMore}:{d:any;entry:ViewEntry;onMo
 function ReportsBar() {
   const navigate = useNavigate()
   const REPORTS = [
-    { label: 'P&L',    emoji: '📊', tab: 'pnl' },
-    { label: 'BS',     emoji: '⚖️', tab: 'bs' },
-    { label: 'CF',     emoji: '💰', tab: 'cf' },
-    { label: 'TB',     emoji: '✅', tab: 'tb' },
-    { label: 'Ledger', emoji: '📖', tab: 'ledger' },
+    { label: 'PL', emoji: '📊', tab: 'pnl' },
+    { label: 'BS', emoji: '⚖️', tab: 'bs' },
+    { label: 'CF', emoji: '💰', tab: 'cf' },
+    { label: 'TB', emoji: '✅', tab: 'tb' },
+    { label: 'GL', emoji: '📖', tab: 'ledger' },
   ]
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 12px 8px' }}>
+    <div style={{ display: 'flex', gap: 2, margin: '12px 12px 0', background: '#1a1a18', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', height: 44, padding: 3 }}>
       {REPORTS.map(r => (
         <button
           key={r.tab}
           onClick={() => navigate('/accounting/reports?tab=' + r.tab)}
+          onContextMenu={e => e.preventDefault()}
           style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+            flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+            background: 'transparent', border: 'none', cursor: 'pointer', borderRadius: 10,
             WebkitUserSelect: 'none' as any, userSelect: 'none' as any,
             WebkitTapHighlightColor: 'transparent',
           }}
         >
-          <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: 'linear-gradient(135deg, #28997A, #13654C)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 16,
-          }}>
-            {r.emoji}
-          </div>
-          <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, color: '#6a6a64' }}>
-            {r.label}
-          </span>
+          <span style={{ fontSize: 14, opacity: 0.35 }}>{r.emoji}</span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontFamily: 'DM Sans, sans-serif' }}>{r.label}</span>
         </button>
       ))}
     </div>
