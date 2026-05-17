@@ -24,20 +24,47 @@ function fmtDate(s: string) {
   catch { return s }
 }
 
-const TabBar = ({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) => {
-  const tabs: [Tab, string][] = [['pnl', 'P&L'], ['bs', 'B/S'], ['cf', 'C/F'], ['tb', 'T/B'], ['ledger', 'Ledger']]
-  return (
-    <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', background: 'var(--bg-primary)', overflowX: 'auto', scrollbarWidth: 'none', padding: '6px 12px', gap: 4 }}>
-      {tabs.map(([id, label]) => (
-        <button key={id} onClick={() => onChange(id)} style={{
-          padding: '6px 14px', borderRadius: 20, background: id === active ? 'rgba(93,202,165,0.1)' : 'transparent', border: id === active ? '1px solid rgba(93,202,165,0.2)' : 'none',
-          color: id === active ? '#5DCAA5' : '#6a6a64', fontSize: 11, fontWeight: 600, flexShrink: 0,
-          cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)',
-        }}>{label}</button>
-      ))}
-    </div>
-  )
-}
+const REPORT_TABS = [
+  { id: 'pnl' as Tab, label: 'P&L', emoji: '📊' },
+  { id: 'bs' as Tab, label: 'B/S', emoji: '⚖️' },
+  { id: 'cf' as Tab, label: 'C/F', emoji: '💰' },
+  { id: 'tb' as Tab, label: 'T/B', emoji: '✅' },
+  { id: 'ledger' as Tab, label: 'Ledger', emoji: '📖' },
+]
+
+const TabBar = ({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) => (
+  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 20px 10px', borderBottom: '1px solid var(--border)', background: 'var(--bg-primary)' }}>
+    {REPORT_TABS.map(t => (
+      <button
+        key={t.id}
+        onClick={() => onChange(t.id)}
+        onContextMenu={e => e.preventDefault()}
+        style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+          WebkitUserSelect: 'none' as any, userSelect: 'none' as any,
+          WebkitTapHighlightColor: 'transparent',
+        }}
+      >
+        <div style={{
+          width: 36, height: 36, borderRadius: 10,
+          background: 'linear-gradient(135deg, #28997A, #13654C)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 16,
+          boxShadow: t.id === active ? '0 0 12px rgba(93,202,165,0.45)' : 'none',
+          transition: 'box-shadow 0.15s',
+        }}>
+          {t.emoji}
+        </div>
+        <span style={{
+          fontFamily: 'DM Sans, sans-serif', fontSize: 10,
+          color: t.id === active ? '#e8e7e0' : '#6a6a64',
+          fontWeight: t.id === active ? 600 : 400,
+        }}>{t.label}</span>
+      </button>
+    ))}
+  </div>
+)
 
 const PeriodPills = ({ period, onChange }: { period: Period; onChange: (p: Period) => void }) => {
   const opts: [Period, string][] = [['this_month', 'This Month'], ['last_month', 'Last Month'], ['all', 'All']]

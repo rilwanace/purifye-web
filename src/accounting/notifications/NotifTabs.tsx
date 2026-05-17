@@ -132,23 +132,112 @@ export function RemindersTab() {
   )
 }
 
+const BRIEF_SECTIONS = [
+  { key: "overdue_receivables",  emoji: "🔥", title: "Overdue Receivables",  color: "#E85454", isOverdue: true,  party: "customers" },
+  { key: "upcoming_receivables", emoji: "📥", title: "Upcoming Collections", color: "#5DCAA5", isOverdue: false, party: "customers" },
+  { key: "overdue_payables",     emoji: "💸", title: "Overdue Payables",     color: "#D4A843", isOverdue: true,  party: "suppliers" },
+  { key: "upcoming_payables",    emoji: "📤", title: "Upcoming Payments",    color: "#D4A843", isOverdue: false, party: "suppliers" },
+]
+
+function fmtNum(n: number) { return Math.round(n).toLocaleString("en-US") }
+
+function BriefDayCard({ brief }: { brief: any }) {
+  const [openSection, setOpenSection] = useState<string | null>(null)
+  const content = brief.content || {}
+  const toggle = (key: string) => {
+    const sec = content[key]
+    if (!sec || sec.count === 0) return
+    setOpenSection(prev => prev === key ? null : key)
+  }
+  const d = new Date(brief.date + "T00:00:00")
+  const dateStr = d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <span style={{ fontSize: 15, fontWeight: 500, color: "#e8e7e0", fontFamily: "var(--font-sans)" }}>Morning Brief</span>
+        <span style={{ fontSize: 11, color: "#6a6a64", fontFamily: "var(--font-mono)" }}>{dateStr}</span>
+      </div>
+      {BRIEF_SECTIONS.map(sec => {
+        const data = content[sec.key] || { total: 0, count: 0, top_5: [], remaining_count: 0 }
+        const isOpen = openSection === sec.key
+        const canExpand = data.count > 0
+        return (
+          <div key={sec.key} style={{
+            background: "#1a1a18", borderRadius: 14,
+            border: "1px solid rgba(255,255,255,0.06)",
+            marginBottom: 8, overflow: "hidden",
+          }}>
+            <div
+              onClick={() => toggle(sec.key)}
+              onContextMenu={(e: any) => e.preventDefault()}
+              style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                padding: "14px 16px", cursor: canExpand ? "pointer" : "default",
+                WebkitUserSelect: "none" as any, userSelect: "none" as any,
+                WebkitTapHighlightColor: "transparent",
+              }}
+            >
+              <span style={{ fontSize: 13, fontWeight: 500, color: "#e8e7e0", fontFamily: "var(--font-sans)" }}>
+                {sec.emoji} {sec.title}
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 14, fontWeight: 500, color: sec.color, fontFamily: "var(--font-mono)" }}>
+                  {fmtNum(data.total)}
+                </span>
+                {canExpand && (
+                  <span style={{
+                    fontSize: 12, color: "#6a6a64", display: "inline-block",
+                    transform: isOpen ? "rotate(90deg)" : "none",
+                    transition: "transform 0.15s",
+                  }}>&#9658;</span>
+                )}
+              </div>
+            </div>
+            {isOpen && (
+              <div style={{ padding: "0 16px 12px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                {(data.top_5 || []).map((item: any, i: number) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 0", borderBottom: i < (data.top_5.length - 1) ? "1px solid rgba(255,255,255,0.03)" : "none" }}>
+                    <div style={{ flex: 1, marginRight: 12 }}>
+                      <div style={{ fontSize: 12, color: "#e8e7e0", fontFamily: "var(--font-sans)" }}>{item.name}</div>
+                      <div style={{ fontSize: 10, color: "#6a6a64", fontFamily: "var(--font-sans)", marginTop: 2 }}>
+                        {sec.isOverdue
+                          ? `${item.days_overdue}d overdue`
+                          : `Due ${item.due_date ? new Date(item.due_date + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : ""} · ${item.days_until}d`
+                        }
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: sec.color, flexShrink: 0 }}>
+                      {fmtNum(item.amount)}
+                    </span>
+                  </div>
+                ))}
+                {data.remaining_count > 0 && (
+                  <div style={{ fontSize: 11, color: "#6a6a64", fontFamily: "var(--font-sans)", paddingTop: 8 }}>
+                    +{fmtNum(data.remaining_count)} more {sec.party}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export function MorningTab() {
   const [briefs, setBriefs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  useEffect(() => { api<any>('/api/briefs/morning').then(r => { setBriefs(r.briefs || []); setLoading(false) }).catch(() => setLoading(false)) }, [])
-  if (loading) return <div style={{ textAlign: 'center', padding: 30, color: '#6a6a64', fontSize: 13 }}>Loading...</div>
-  if (!briefs.length) return <div style={{ textAlign: 'center', padding: 24, color: '#6a6a64', fontSize: 13 }}>No morning brief available yet</div>
+  useEffect(() => {
+    api<any>("/api/briefs/morning?format=json")
+      .then((r: any) => { setBriefs(r.briefs || []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [])
+  if (loading) return <div style={{ textAlign: "center", padding: 30, color: "#6a6a64", fontSize: 13 }}>Loading...</div>
+  if (!briefs.length) return <div style={{ textAlign: "center", padding: 24, color: "#6a6a64", fontSize: 13 }}>No morning brief available yet</div>
   return (
-    <div style={{ padding: '0 16px 16px' }}>
-      {briefs.map(b => (
-        <div key={b.id} style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '3px solid #5DCAA5', borderRadius: 10, padding: '14px 16px', marginBottom: 10 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-            <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: '#5DCAA5', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Morning Brief</span>
-            <span style={{ fontSize: 10, color: '#6a6a64', fontFamily: 'var(--font-mono)' }}>{fmtDate(b.date)}</span>
-          </div>
-          <pre style={{ margin: 0, fontSize: 12, color: '#9c9b95', fontFamily: 'var(--font-sans)', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{b.content}</pre>
-        </div>
-      ))}
+    <div style={{ padding: "0 16px 16px" }}>
+      {briefs.map((b: any) => <BriefDayCard key={b.id} brief={b} />)}
     </div>
   )
 }
@@ -156,50 +245,41 @@ export function MorningTab() {
 export function EveningTab() {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [generating, setGenerating] = useState(false)
-
-  const load = () => {
+  useEffect(() => {
     setLoading(true)
-    api<any>('/api/briefs/evening').then(r => { setData(r); setLoading(false) }).catch(() => setLoading(false))
-  }
-  useEffect(() => { load() }, [])
-
-  const generate = () => {
-    setGenerating(true)
-    api<any>('/api/briefs/evening').then(r => { setData(r); setGenerating(false) }).catch(() => setGenerating(false))
-  }
-
-  if (loading) return <div style={{ textAlign: 'center', padding: 30, color: '#6a6a64', fontSize: 13 }}>Loading...</div>
+    api<any>("/api/briefs/evening").then((r: any) => { setData(r); setLoading(false) }).catch(() => setLoading(false))
+  }, [])
+  if (loading) return <div style={{ textAlign: "center", padding: 30, color: "#6a6a64", fontSize: 13 }}>Loading...</div>
   const briefs = data?.briefs || []
+  const msg = data?.message || ""
   if (!briefs.length) return (
-    <div style={{ padding: '16px' }}>
-      <div style={{ textAlign: 'center', padding: '20px 0', color: '#6a6a64', fontSize: 13, marginBottom: 12 }}>Evening Focus insights will appear here. Tap to generate today&apos;s.</div>
-      <button onClick={generate} disabled={generating} style={{ width: '100%', padding: '11px', borderRadius: 8, border: '1px solid rgba(112,104,217,0.3)', background: 'rgba(112,104,217,0.1)', color: '#7068D9', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', opacity: generating ? 0.6 : 1 }}>{generating ? 'Generating...' : 'Generate Evening Focus'}</button>
+    <div style={{ padding: 20, textAlign: "center", color: "#6a6a64", fontSize: 13 }}>
+      {msg || "🌙 Evening Focus will be available at 7:00 PM"}
     </div>
   )
   return (
-    <div style={{ padding: '0 16px 16px' }}>
+    <div style={{ padding: "0 16px 16px" }}>
       {briefs.map((b: any) => {
         const newsItems: any[] = b.content?.news_items || []
-        const insight: string = b.content?.insight || ''
-        const dayLabel = b.date ? new Date(b.date + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''
+        const insight: string = b.content?.insight || ""
+        const dayLabel = b.date ? new Date(b.date + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : ""
         return (
-          <div key={b.id} style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '3px solid #7068D9', borderRadius: 10, padding: '14px 16px', marginBottom: 10 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-              <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: '#7068D9', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Evening Focus{dayLabel ? ` - ${dayLabel}` : ''}</span>
-              <span style={{ fontSize: 10, color: '#6a6a64', fontFamily: 'var(--font-mono)' }}>{fmtDate(b.generated_at)}</span>
+          <div key={b.id} style={{ background: "#1a1a18", border: "1px solid rgba(255,255,255,0.06)", borderLeft: "3px solid #7068D9", borderRadius: 10, padding: "14px 16px", marginBottom: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+              <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "#7068D9", textTransform: "uppercase", letterSpacing: "0.1em" }}>Evening Focus{dayLabel ? ` - ${dayLabel}` : ""}</span>
+              <span style={{ fontSize: 10, color: "#6a6a64", fontFamily: "var(--font-mono)" }}>{fmtDate(b.generated_at)}</span>
             </div>
             {newsItems.length > 0 && (
-              <div style={{ marginBottom: 10, padding: '8px 10px', background: 'rgba(112,104,217,0.06)', borderRadius: 6 }}>
+              <div style={{ marginBottom: 10, padding: "8px 10px", background: "rgba(112,104,217,0.06)", borderRadius: 6 }}>
                 {newsItems.map((n: any, i: number) => (
-                  <div key={i} style={{ display: 'flex', gap: 6, alignItems: 'flex-start', marginBottom: i < newsItems.length - 1 ? 5 : 0 }}>
-                    <span style={{ fontSize: 10, color: '#7068D9', fontFamily: 'var(--font-mono)', flexShrink: 0, marginTop: 1 }}>&#9658;</span>
-                    <span style={{ fontSize: 12, color: '#c8c7c0', lineHeight: 1.4 }}>{n.headline}{n.source && <span style={{ color: '#6a6a64', fontSize: 10, marginLeft: 4 }}>- {n.source}</span>}</span>
+                  <div key={i} style={{ display: "flex", gap: 6, alignItems: "flex-start", marginBottom: i < newsItems.length - 1 ? 5 : 0 }}>
+                    <span style={{ fontSize: 10, color: "#7068D9", fontFamily: "var(--font-mono)", flexShrink: 0, marginTop: 1 }}>&#9658;</span>
+                    <span style={{ fontSize: 12, color: "#c8c7c0", lineHeight: 1.4 }}>{n.headline}{n.source && <span style={{ color: "#6a6a64", fontSize: 10, marginLeft: 4 }}>- {n.source}</span>}</span>
                   </div>
                 ))}
               </div>
             )}
-            {insight && <p style={{ margin: 0, fontSize: 12, color: '#9c9b95', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{insight}</p>}
+            {insight && <p style={{ margin: 0, fontSize: 12, color: "#9c9b95", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{insight}</p>}
           </div>
         )
       })}
