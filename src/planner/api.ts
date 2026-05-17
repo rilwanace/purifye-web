@@ -45,7 +45,7 @@ export interface Member {
   name: string;
   role: string;
   color: string;
-  token: string;
+  has_portal_access: boolean;
 }
 
 export interface Contact {
@@ -96,6 +96,9 @@ export const sendMessage = (taskId: string, body: string, sender = 'owner', send
 
 export const createMember = (data: { name: string; role?: string }) =>
   api('/api/planner/members', { method: 'POST', body: JSON.stringify(data) });
+
+export const inviteMember = (data: { name: string; job_title?: string; email: string; web_role?: string }) =>
+  api('/api/planner/members/invite', { method: 'POST', body: JSON.stringify(data) });
 
 export const deleteMember = (id: string) =>
   api(`/api/planner/members/${encodeURIComponent(id)}`, { method: 'DELETE' });

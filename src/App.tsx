@@ -6,6 +6,7 @@ import RequireRole from './auth/RequireRole'
 import { ToastProvider } from './shared/components/Toast'
 import LoginPage from './auth/LoginPage'
 import SignupPage from './auth/SignupPage'
+import AcceptInvitePage from './auth/AcceptInvitePage'
 import AppShell from './shell/AppShell'
 import AccountingLayout from './accounting/AccountingLayout'
 import DashboardPage from './accounting/dashboard/DashboardPage'
@@ -82,8 +83,9 @@ export default function App() {
                 <Route path="settings" element={<SocialSettings />} />
               </Route>
             </Route>
-            <Route path="/t/:token" element={<Suspense fallback={null}><EmployeePortal /></Suspense>} />
-            <Route path="/portal" element={<Suspense fallback={null}><EmployeePortal /></Suspense>} />
+            <Route path="/invite/:token" element={<AcceptInvitePage />} />
+            <Route path="/t/:token" element={<Navigate to="/login" replace />} />
+            <Route path="/portal" element={<ProtectedRoute><Suspense fallback={null}><EmployeePortal /></Suspense></ProtectedRoute>} />
           </Routes>
         </ToastProvider>
       </AuthProvider>

@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { api } from '../api';
 
 interface Member {
   id: string;
@@ -24,7 +25,6 @@ interface Message {
 }
 
 interface Props {
-  token: string;
   task: Task;
   member: Member;
   onBack: () => void;
@@ -38,29 +38,21 @@ const fmtDate = (s: string) => {
   return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
 };
 
-async function portalFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
-    ...options,
-    referrerPolicy: 'no-referrer',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
 
-export function EmployeeTaskDetail({ token, task, member, onBack, onToggle, onRefresh }: Props) {
+
+export function EmployeeTaskDetail({ task, member, onBack, onToggle, onRefresh }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
 
   const loadMessages = useCallback(async () => {
     try {
-      const msgs = await portalFetch<Message[]>(
-        `/api/planner/portal/${encodeURIComponent(token)}/tasks/${encodeURIComponent(task.id)}/messages`
-      );
+      const msgs = await api(
+        '/api/planner/portal/tasks/' + encodeURIComponent(task.id) + '/messages'
+      ) as Message[];
       setMessages(msgs);
     } catch (_) {}
-  }, [token, task.id]);
+  }, [task.id]);
 
   useEffect(() => { loadMessages(); }, [loadMessages]);
 
@@ -68,7 +60,7 @@ export function EmployeeTaskDetail({ token, task, member, onBack, onToggle, onRe
     if (!input.trim() || sending) return;
     setSending(true);
     try {
-      await portalFetch(`/api/planner/portal/${encodeURIComponent(token)}/tasks/${encodeURIComponent(task.id)}/messages`, {
+      await api('/api/planner/portal/tasks/' + encodeURIComponent(task.id) + '/messages', {
         method: 'POST',
         body: JSON.stringify({ body: input.trim() }),
       });
@@ -77,7 +69,7 @@ export function EmployeeTaskDetail({ token, task, member, onBack, onToggle, onRe
     } finally {
       setSending(false);
     }
-  }, [input, sending, token, task.id, loadMessages]);
+  }, [input, sending, task.id, loadMessages]);
 
   const color = member.color;
   const today = new Date(); today.setHours(0, 0, 0, 0);

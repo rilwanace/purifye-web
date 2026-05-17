@@ -21,7 +21,8 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       })
       setAuth(data.user, data.business)
-      navigate('/', { replace: true })
+      const dest = (data.user.role === 'staff' || data.user.role === 'accountant') ? '/portal' : '/'
+      navigate(dest, { replace: true })
     } catch (err: any) {
       setError(err.message || 'Login failed')
     } finally {
