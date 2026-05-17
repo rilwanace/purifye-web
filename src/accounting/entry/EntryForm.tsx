@@ -374,7 +374,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
       show(editEntryGroup ? 'Entry updated' : 'Entry saved', 'success')
       if (res.invoice_no) {
         const apiBase = (import.meta as any).env?.VITE_API_BASE || ''
-        window.open(`${apiBase}/api/settings/invoice/${encodeURIComponent(res.invoice_no)}/pdf`, '_blank')
+        window.open(`${apiBase}/api/settings/invoice/${encodeURIComponent(res.invoice_no)}/pdf`, '_blank', 'noopener,noreferrer')
       }
       setFieldsAll(defaultFields(type))
       setConversionPending(null)

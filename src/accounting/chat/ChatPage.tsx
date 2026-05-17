@@ -126,6 +126,17 @@ export default function ChatPage() {
   }
 
   async function handleFile(file: File) {
+    const MAX_IMPORT_SIZE = 5 * 1024 * 1024;
+    const ALLOWED_EXTENSIONS = ['.xlsx', '.xls', '.csv'];
+    const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      setChatState('error'); setErrorMsg('Only .xlsx, .xls, and .csv files are supported.');
+      return;
+    }
+    if (file.size > MAX_IMPORT_SIZE) {
+      setChatState('error'); setErrorMsg('File too large. Maximum 5 MB.');
+      return;
+    }
     setPanelOpen(false); setChatState('processing'); setProcessingMsg('Importing file...')
     try {
       const form = new FormData()
