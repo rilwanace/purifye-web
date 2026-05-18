@@ -338,38 +338,44 @@ function finish() {
       bot_interest: data.bot,
       message: ''
     })
-  }).catch(function() {});
-
-  addBot("Got it! We'll be in touch within 24 hours. 🚀", 1200).then(function() {
-    var done = document.createElement('div');
-    done.className = 'done-card';
-    var checkDiv = document.createElement('div');
-    checkDiv.className = 'done-check';
-    checkDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#5DCAA5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    var titleDiv = document.createElement('div');
-    titleDiv.className = 'done-title';
-    titleDiv.textContent = "You're on the list, " + data.name;
-    var subDiv = document.createElement('div');
-    subDiv.className = 'done-sub';
-    var botStrong = document.createElement('strong');
-    botStrong.textContent = data.bot;
-    var br = document.createElement('br');
-    var contactStrong = document.createElement('strong');
-    contactStrong.textContent = data.contact;
-    subDiv.appendChild(botStrong);
-    subDiv.appendChild(br);
-    subDiv.appendChild(document.createTextNode("We'll reach you at "));
-    subDiv.appendChild(contactStrong);
-    var backLink = document.createElement('a');
-    backLink.href = '/';
-    backLink.className = 'done-back';
-    backLink.textContent = '← Back to home';
-    done.appendChild(checkDiv);
-    done.appendChild(titleDiv);
-    done.appendChild(subDiv);
-    done.appendChild(backLink);
-    chat.appendChild(done);
-    setTimeout(function() { done.classList.add('show'); scrollDown(); }, 200);
+  }).then(function(response) {
+    if (response.ok) {
+      addBot("Got it! We'll be in touch within 24 hours. 🚀", 1200).then(function() {
+        var done = document.createElement('div');
+        done.className = 'done-card';
+        var checkDiv = document.createElement('div');
+        checkDiv.className = 'done-check';
+        checkDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#5DCAA5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        var titleDiv = document.createElement('div');
+        titleDiv.className = 'done-title';
+        titleDiv.textContent = "You're on the list, " + data.name;
+        var subDiv = document.createElement('div');
+        subDiv.className = 'done-sub';
+        var botStrong = document.createElement('strong');
+        botStrong.textContent = data.bot;
+        var br = document.createElement('br');
+        var contactStrong = document.createElement('strong');
+        contactStrong.textContent = data.contact;
+        subDiv.appendChild(botStrong);
+        subDiv.appendChild(br);
+        subDiv.appendChild(document.createTextNode("We'll reach you at "));
+        subDiv.appendChild(contactStrong);
+        var backLink = document.createElement('a');
+        backLink.href = '/';
+        backLink.className = 'done-back';
+        backLink.textContent = '← Back to home';
+        done.appendChild(checkDiv);
+        done.appendChild(titleDiv);
+        done.appendChild(subDiv);
+        done.appendChild(backLink);
+        chat.appendChild(done);
+        setTimeout(function() { done.classList.add('show'); scrollDown(); }, 200);
+      });
+    } else {
+      addBot("Something went wrong, please try again.", 600);
+    }
+  }).catch(function() {
+    addBot("Network error, please try again.", 600);
   });
 }
 

@@ -16,6 +16,7 @@ import SettingsPage from './accounting/settings/SettingsPage'
 import ChatPage from './accounting/chat/ChatPage'
 import NotificationsPage from './accounting/notifications/NotificationsPage'
 import PlannerLayout from './planner/PlannerLayout'
+import PlannerTeamSettings from './planner/PlannerTeamSettings'
 import CustomerBot from './customer/CustomerBot'
 import InventoryBot from './inventory/InventoryBot'
 import SocialLayout from './social/SocialLayout'
@@ -60,7 +61,7 @@ export default function App() {
               <Route index element={<PlannerLayout />} />
               <Route path="settings" element={
                 <RequireRole roles={["owner"]}>
-                  <SettingsPage />
+                  <PlannerTeamSettings />
                 </RequireRole>
               } />
             </Route>

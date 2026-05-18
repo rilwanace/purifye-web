@@ -9,21 +9,24 @@ import { api } from '../api';
 function useApi<T>(url: string, deps: any[] = []) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await api(url);
       setData(res);
     } catch (e) {
       console.error(`API error: ${url}`, e);
+      setError('Failed to load data');
     }
     setLoading(false);
   }, [url]);
 
   useEffect(() => { refresh(); }, [refresh, ...deps]);
 
-  return { data, loading, refresh };
+  return { data, loading, error, refresh };
 }
 
 // ─── Types ────────────────────────────────────────────────────────────

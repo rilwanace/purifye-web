@@ -21,9 +21,9 @@ const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
 
 export default function PlannerLayout() {
   useAuth(); // required for auth context
-  const { data: tasks, refresh: refreshTasks } = useAllTasks();
-  const { data: members, refresh: refreshMembers } = useMembers();
-  const { data: contacts, refresh: refreshContacts } = useContacts();
+  const { data: tasks, refresh: refreshTasks, error: tasksError } = useAllTasks();
+  const { data: members, refresh: refreshMembers, error: membersError } = useMembers();
+  const { data: contacts, refresh: refreshContacts, error: contactsError } = useContacts();
 
   const [tab, setTab] = useState<'me' | 'team' | 'done'>('me');
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
@@ -61,6 +61,17 @@ export default function PlannerLayout() {
     }
   }, [refreshContacts, refreshTasks]);
 
+  if (tasksError || membersError || contactsError) {
+    const retry = () => { refreshTasks(); refreshMembers(); refreshContacts(); };
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="text-[var(--text-muted)] font-mono text-xs mb-3">Something went wrong.</div>
+          <button onClick={retry} className="text-xs text-[#D4A843] font-mono border border-[#D4A843] rounded px-3 py-1">Retry</button>
+        </div>
+      </div>
+    );
+  }
   if (!tasks || !members || !contacts) {
     return (
       <div className="flex items-center justify-center h-64">
