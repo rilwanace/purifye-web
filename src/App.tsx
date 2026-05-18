@@ -30,10 +30,18 @@ import SocialOnboarding from './social/SocialOnboarding'
 import PersonalBot from './personal/PersonalBot'
 import SocialSettings from './social/SocialSettings'
 const EmployeePortal = lazy(() => import('./planner/EmployeePortal'))
+import { AdminProvider, AdminRoute } from './admin/useAdmin'
+import AdminLogin from './admin/AdminLogin'
+import AdminDashboard from './admin/AdminDashboard'
+import AdminUserDetail from './admin/AdminUserDetail'
+import AdminSettings from './admin/AdminSettings'
+import ExpiredPage from './auth/ExpiredPage'
+import BlockedPage from './auth/BlockedPage'
 
 export default function App() {
   return (
     <BrowserRouter>
+      <AdminProvider>
       <AuthProvider>
         <ToastProvider>
           <Routes>
@@ -89,9 +97,16 @@ export default function App() {
             <Route path="/invite/:token" element={<AcceptInvitePage />} />
             <Route path="/t/:token" element={<Navigate to="/login" replace />} />
             <Route path="/portal" element={<ProtectedRoute><Suspense fallback={null}><EmployeePortal /></Suspense></ProtectedRoute>} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+            <Route path="/admin/users/:business_id" element={<AdminRoute><AdminUserDetail /></AdminRoute>} />
+            <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
+            <Route path="/expired" element={<ExpiredPage />} />
+            <Route path="/blocked" element={<BlockedPage />} />
           </Routes>
         </ToastProvider>
       </AuthProvider>
+      </AdminProvider>
     </BrowserRouter>
   )
 }

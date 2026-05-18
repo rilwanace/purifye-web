@@ -26,6 +26,22 @@ export async function api<T = any>(path: string, options?: RequestInit): Promise
     },
   });
   if (!res.ok) {
+    if (res.status === 403) {
+      const data = await res.json().catch(() => ({}));
+      if (data.error === 'subscription_expired') {
+        window.location.href = '/expired';
+        return undefined as T;
+      }
+      if (data.error === 'account_blocked') {
+        window.location.href = '/blocked';
+        return undefined as T;
+      }
+      if (data.error === 'not_subscribed') {
+        window.location.href = '/';
+        return undefined as T;
+      }
+      throw new Error(data.detail || data.error || 'Access denied');
+    }
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || err.error || `HTTP ${res.status}`);
   }
