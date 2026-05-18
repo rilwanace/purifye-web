@@ -8,6 +8,7 @@ interface SheetInfo {
   sample_rows: any[][]
   row_count: number
   suggested_mapping: Record<string, string | null>
+  suggested_entry_type?: string
 }
 
 interface SheetConfig {
@@ -43,8 +44,10 @@ const ENTRY_TYPES = [
   { value: 'sale', label: 'Sales' },
   { value: 'purchase', label: 'Purchases' },
   { value: 'expense', label: 'Expenses' },
-  { value: 'payment_received', label: 'Payments Received' },
-  { value: 'payment_made', label: 'Payments Made' },
+  { value: 'payment_received', label: 'Payment Received' },
+  { value: 'payment_made', label: 'Payment Made' },
+  { value: 'payroll', label: 'Payroll' },
+  { value: 'mixed', label: 'Mixed (auto-detect per row)' },
 ]
 
 const S = {
@@ -101,7 +104,7 @@ export default function ImportWizard({
     for (const s of sheets) {
       out[s.name] = {
         name: s.name,
-        entry_type: 'sale',
+        entry_type: s.suggested_entry_type || 'mixed',
         mapping: { ...s.suggested_mapping },
       }
     }
@@ -246,6 +249,11 @@ export default function ImportWizard({
               </select>
             </div>
 
+            {cfg.entry_type === 'mixed' && (
+              <div style={{ fontSize: 11, color: '#9c9b95', marginTop: -8, marginBottom: 12, padding: '6px 10px', background: 'rgba(93,202,165,0.06)', borderRadius: 6, border: '1px solid rgba(93,202,165,0.15)' }}>
+                Each row's type will be detected from the Category column. Make sure Category is mapped.
+              </div>
+            )}
             {/* Column mapping */}
             <div style={{ marginBottom: 12 }}>
               <div style={S.label}>Column Mapping</div>
@@ -336,7 +344,7 @@ export default function ImportWizard({
             {activeSheets.map(s => {
               const cfg = configs[s.name]
               const mappedCount = Object.values(cfg.mapping).filter(Boolean).length
-              const etLabel = ENTRY_TYPES.find(t => t.value === cfg.entry_type)?.label || cfg.entry_type
+              const etLabel = ENTRY_TYPES.find(t => t.value === cfg.entry_type)?.label || cfg.entry_type.charAt(0).toUpperCase() + cfg.entry_type.slice(1)
               return (
                 <div key={s.name} style={{ background: '#131311', borderRadius: 10, padding: '14px 12px', marginBottom: 10, border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#e8e7e0', marginBottom: 6 }}>{s.name}</div>
