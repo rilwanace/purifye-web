@@ -119,7 +119,7 @@ export default function PlannerLayout() {
         {selectedTask ? (
           <TaskDetail
             task={selectedTask}
-            members={members}
+            members={members ?? []}
             contacts={contacts}
             onBack={() => setSelectedTaskId(null)}
             onToggle={toggleTask}
@@ -138,7 +138,7 @@ export default function PlannerLayout() {
             {tab === 'team' && (
               <TeamTab
                 tasks={tasks.filter(t => t.assignee_id && t.status === 'open')}
-                members={members}
+                members={members ?? []}
                 onSelect={setSelectedTaskId}
                 onToggle={toggleTask}
               />
@@ -146,7 +146,7 @@ export default function PlannerLayout() {
             {tab === 'done' && (
               <CompletedTab
                 tasks={tasks.filter(t => t.status === 'done')}
-                members={members}
+                members={members ?? []}
                 onSelect={setSelectedTaskId}
                 onToggle={toggleTask}
               />
@@ -169,7 +169,7 @@ export default function PlannerLayout() {
       {/* Manage Team Modal */}
       {showManage && members && (
         <TeamManageModal
-          members={members}
+          members={members ?? []}
           onRefresh={refreshMembers}
           onClose={() => setShowManage(false)}
         />
@@ -178,7 +178,7 @@ export default function PlannerLayout() {
       {/* Add Task Modal */}
       {showAddModal && (
         <AddTaskModal
-          members={members}
+          members={members ?? []}
           onClose={() => setShowAddModal(false)}
           onAdd={async (data) => {
             await createTask(data);
