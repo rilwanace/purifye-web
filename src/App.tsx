@@ -27,6 +27,7 @@ import SocialFeed from './social/SocialFeed'
 import SocialLibrary from './social/SocialLibrary'
 import SocialEditor from './social/SocialEditor'
 import SocialOnboarding from './social/SocialOnboarding'
+import PersonalBot from './personal/PersonalBot'
 import SocialSettings from './social/SocialSettings'
 const EmployeePortal = lazy(() => import('./planner/EmployeePortal'))
 
@@ -71,6 +72,7 @@ export default function App() {
             <Route path="/inventory" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
               <Route index element={<InventoryBot />} />
             </Route>
+            <Route path="/personal/*" element={<ProtectedRoute><PersonalBot /></ProtectedRoute>} />
             <Route path="/social" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
               <Route index element={<Navigate to="/social/analytics" replace />} />
               <Route path="onboarding" element={<SocialOnboarding />} />

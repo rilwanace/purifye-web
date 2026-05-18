@@ -55,6 +55,16 @@ const BOTS = [
     emoji: '📅',
     glow: 'rgba(212,168,67,0.3)',
   },
+  {
+    id: 'personal',
+    label: 'Personal',
+    subtitle: 'Life admin',
+    path: '/personal',
+    accent: '#5B8DEF',
+    gradient: 'linear-gradient(145deg, #5B8DEF, #3A63B8)',
+    emoji: '🧠',
+    glow: 'rgba(91,141,239,0.3)',
+  },
 ]
 
 function greeting() {
@@ -86,7 +96,7 @@ export default function BotLandingPage() {
   }
 
   const mainBots = BOTS.slice(0, 4)
-  const lastBot = BOTS[4]
+  const bottomBots = BOTS.slice(4)
 
   return (
     <div style={{ maxWidth: 430, margin: '0 auto', minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: '#131311' }}>
@@ -116,14 +126,18 @@ export default function BotLandingPage() {
                 )
               })}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
-              <div style={{ width: 'calc(50% - 6px)' }}>
-                <BotCard
-                  bot={lastBot}
-                  subscribed={subscribedBots.includes(lastBot.id)}
-                  onTap={() => handleBotTap(lastBot)}
-                />
-              </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+              {bottomBots.map(bot => {
+                const subscribed = subscribedBots.includes(bot.id)
+                return (
+                  <BotCard
+                    key={bot.id}
+                    bot={bot}
+                    subscribed={subscribed}
+                    onTap={() => handleBotTap(bot)}
+                  />
+                )
+              })}
             </div>
           </div>
         )}
