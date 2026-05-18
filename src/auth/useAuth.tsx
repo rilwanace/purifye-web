@@ -12,6 +12,7 @@ interface User {
 interface Business {
   id: string
   name: string
+  has_accountant?: boolean
 }
 
 interface AuthState {

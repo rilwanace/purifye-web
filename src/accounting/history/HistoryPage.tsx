@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useAuth } from '../../auth/useAuth'
 import { api } from '../../api'
 import { useToast } from '../../shared/components/Toast'
 import EntryForm from '../entry/EntryForm'
@@ -90,6 +91,7 @@ interface MD { customers: string[]; suppliers: string[]; staff: string[]; accoun
 
 export default function HistoryPage({ containerHeight = 'calc(100dvh - 60px)' }: { containerHeight?: string }) {
   const { show } = useToast()
+  const { business } = useAuth()
   const [entries, setEntries] = useState<Entry[]>([])
   const [loading, setLoading] = useState(true)
   const [typeTab, setTypeTab] = useState('')
@@ -101,6 +103,7 @@ export default function HistoryPage({ containerHeight = 'calc(100dvh - 60px)' }:
   const [editPrefill, setEditPrefill] = useState<any>(null)
   const [editSheetOpen, setEditSheetOpen] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [authorFilter, setAuthorFilter] = useState<'all'|'accountant'|'mine'>('all')
 
   useEffect(() => {
     api<any>('/api/entry/master-data').then(res => setMasterData({
@@ -121,10 +124,11 @@ export default function HistoryPage({ containerHeight = 'calc(100dvh - 60px)' }:
     if (range?.from) params.set('from_date', range.from)
     if (range?.to) params.set('to_date', range.to)
     if (search) params.set('search', search)
+    if (authorFilter !== 'all') params.set('author_filter', authorFilter)
     try { const res = await api<any>('/api/entries/list?' + params); setEntries(res.entries || []) }
     catch { show('Failed to load entries', 'error') }
     finally { setLoading(false) }
-  }, [typeTab, dateFilter, customFrom, customTo, search])
+  }, [typeTab, dateFilter, customFrom, customTo, search, authorFilter])
 
   useEffect(() => { load() }, [load])
 
@@ -206,6 +210,14 @@ export default function HistoryPage({ containerHeight = 'calc(100dvh - 60px)' }:
       </div>
       <div style={{ display: 'flex', gap: 4, padding: '8px 12px', overflowX: 'auto', scrollbarWidth: 'none', flexShrink: 0 }}>
         {DATE_FILTERS.map(f => <button key={f.id} onClick={() => setDateFilter(f.id)} style={dateSt(dateFilter === f.id)}>{f.label}</button>)}
+        {business?.has_accountant && (
+          <button
+            onClick={() => setAuthorFilter(f => f === 'all' ? 'accountant' : f === 'accountant' ? 'mine' : 'all')}
+            style={{ padding: '5px 12px', borderRadius: 16, whiteSpace: 'nowrap', flexShrink: 0, cursor: 'pointer', border: authorFilter !== 'all' ? '1px solid rgba(93,202,165,0.4)' : '1px solid rgba(255,255,255,0.06)', background: authorFilter !== 'all' ? 'rgba(93,202,165,0.1)' : 'transparent', color: authorFilter !== 'all' ? '#5DCAA5' : '#6a6a64', fontSize: 12, fontFamily: 'var(--font-sans)', marginLeft: 4 }}
+          >
+            {authorFilter === 'all' ? 'All' : authorFilter === 'accountant' ? 'Acct' : 'Mine'}
+          </button>
+        )}
       </div>
       {dateFilter === 'custom' && (
         <div style={{ display: 'flex', gap: 8, padding: '4px 12px 8px', flexShrink: 0 }}>
