@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { api } from '../api'
+import { subscribeToPush } from '../utils/pushSubscription'
 import { useAuth } from './useAuth'
 
 export default function LoginPage() {
@@ -23,6 +24,7 @@ export default function LoginPage() {
       setAuth(data.user, data.business)
       const dest = (data.user.role === 'staff' || data.user.role === 'accountant') ? '/portal' : '/'
       navigate(dest, { replace: true })
+      subscribeToPush(api).catch(() => {})
     } catch (err: any) {
       setError(err.message || 'Login failed')
     } finally {
