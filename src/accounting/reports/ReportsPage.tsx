@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api, apiBlob } from '../../api'
 import { useAuth } from '../../auth/useAuth'
-import { promptWhatsApp } from '../../shared/utils/whatsapp'
+// promptWhatsApp import removed — WaShareBtn now uses navigator.share
 
 type Period = 'this_month' | 'last_month' | 'all'
 type Tab = 'pnl' | 'bs' | 'cf' | 'tb' | 'ledger'
