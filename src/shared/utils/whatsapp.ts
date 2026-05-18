@@ -3,8 +3,8 @@ export function openWhatsApp(phone: string, message: string) {
   const intl = cleaned.startsWith('+') ? cleaned
     : cleaned.startsWith('0') ? '+94' + cleaned.slice(1)
     : '+94' + cleaned
-  const encoded = encodeURIComponent(message)
-  window.open(`https://wa.me/${intl.replace('+', '')}?text=${encoded}`, '_blank', 'noopener,noreferrer')
+  const url = 'https://wa.me/' + intl.replace('+', '') + '?text=' + encodeURIComponent(message)
+  window.location.href = url
 }
 
 export function promptWhatsApp(message: string) {

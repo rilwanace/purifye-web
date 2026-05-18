@@ -149,8 +149,17 @@ const WaShareBtn = ({ data, bizName, tab, period }: { data: any; bizName: string
     }
     return ''
   }
+  async function share() {
+    const msg = buildMsg()
+    if (!msg) return
+    if (navigator.share) {
+      try { await navigator.share({ title: bizName + ' Report', text: msg }) } catch {}
+    } else {
+      window.location.href = 'https://wa.me/?text=' + encodeURIComponent(msg)
+    }
+  }
   return (
-    <button onClick={() => promptWhatsApp(buildMsg())} style={{
+    <button onClick={share} style={{
       padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(37,211,102,0.3)',
       background: 'rgba(37,211,102,0.08)', color: '#25d366',
       fontSize: 12, fontWeight: 600, cursor: 'pointer',
@@ -252,16 +261,14 @@ function CollapsibleSection({ groups, accent, danger }: {
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>
                 {g.category}
               </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 14, color: '#6a6a64', fontFamily: 'var(--font-mono)', width: 14, textAlign: 'center', flexShrink: 0 }}>
+                  {hasChildren ? (isOpen ? '−' : '+') : ''}
+                </span>
                 <span style={{
-                  fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-mono)',
+                  fontSize: 13, fontWeight: 700, fontFamily: 'var(--font-mono)', minWidth: 80, textAlign: 'right',
                   color: accent ? '#3bf084' : danger ? 'var(--danger)' : 'var(--text-primary)',
                 }}>Rs. {fmt(g.total)}</span>
-                {hasChildren && (
-                  <span style={{ fontSize: 14, color: '#6a6a64', fontFamily: 'var(--font-mono)', minWidth: 12, textAlign: 'center' }}>
-                    {isOpen ? '−' : '+'}
-                  </span>
-                )}
               </div>
             </div>
             {isOpen && hasChildren && (
@@ -314,6 +321,21 @@ function PnlReport({ period, onData }: { period: Period; onData?: (d: any) => vo
   )
 }
 
+
+const BS_ASSET_ORDER = ['Cash', 'A/R', 'Inventory', 'VAT Input', 'Prepaid', 'Staff Advance', 'Fixed Assets (Net)']
+const BS_LIAB_ORDER  = ['A/P', 'VAT Output', 'Payroll Liability', 'Loans Payable']
+
+function sortBsGroups<T extends { category: string }>(groups: T[], order: string[]): T[] {
+  return [...groups].sort((a, b) => {
+    const ai = order.findIndex(o => a.category.startsWith(o))
+    const bi = order.findIndex(o => b.category.startsWith(o))
+    const ap = ai === -1 ? order.length : ai
+    const bp = bi === -1 ? order.length : bi
+    if (ap !== bp) return ap - bp
+    return a.category.localeCompare(b.category)
+  })
+}
+
 // ─── Balance Sheet ───────────────────────────────────────────────────────────
 
 function BsReport({ period, onData }: { period: Period; onData?: (d: any) => void }) {
@@ -331,8 +353,8 @@ function BsReport({ period, onData }: { period: Period; onData?: (d: any) => voi
   const d = data?.data || {}
   const totalLE = d.total_liab_plus_equity ?? 0
 
-  const assetGroups = groupItemsByCategory(d.asset_items || [])
-  const liabGroups = groupItemsByCategory(d.liab_items || [])
+  const assetGroups = sortBsGroups(groupItemsByCategory(d.asset_items || []), BS_ASSET_ORDER)
+  const liabGroups = sortBsGroups(groupItemsByCategory(d.liab_items || []), BS_LIAB_ORDER)
 
   return (
     <div>
@@ -419,7 +441,7 @@ function TbReport({ period }: { period: Period }) {
   const headers: Record<string, string> = { asset: 'Assets', liability: 'Liabilities', equity: 'Equity', pnl: 'P&L Accounts' }
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '4px 12px', borderBottom: '1px solid var(--border)', paddingBottom: 6, marginBottom: 4 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 90px', gap: '4px 0', borderBottom: '1px solid var(--border)', paddingBottom: 6, marginBottom: 4 }}>
         <span style={{ fontSize: 10, color: 'var(--text-dim)', fontWeight: 600, letterSpacing: '.5px' }}>ACCOUNT</span>
         <span style={{ fontSize: 10, color: 'var(--text-dim)', fontWeight: 600, textAlign: 'right', letterSpacing: '.5px' }}>DEBIT</span>
         <span style={{ fontSize: 10, color: 'var(--text-dim)', fontWeight: 600, textAlign: 'right', letterSpacing: '.5px' }}>CREDIT</span>
@@ -435,7 +457,7 @@ function TbReport({ period }: { period: Period }) {
               {headers[key] || sec.label}
             </div>
             {items.map((it: any, i: number) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '4px 12px', padding: '4px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 90px 90px', gap: '4px 0', padding: '4px 0', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                 <span style={{ fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingLeft: 8 }}>{it.account}</span>
                 <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', textAlign: 'right', color: (it.dr || 0) > 0 ? 'var(--text-primary)' : 'var(--text-dim)' }}>{(it.dr || 0) > 0 ? fmt(it.dr) : '—'}</span>
                 <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', textAlign: 'right', color: (it.cr || 0) > 0 ? 'var(--text-primary)' : 'var(--text-dim)' }}>{(it.cr || 0) > 0 ? fmt(it.cr) : '—'}</span>
@@ -445,7 +467,7 @@ function TbReport({ period }: { period: Period }) {
         )
       })}
       {(d.total_dr != null || d.total_cr != null) && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '4px 12px', borderTop: '1px solid var(--border)', paddingTop: 8, marginTop: 4 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 90px', gap: '4px 0', borderTop: '1px solid var(--border)', paddingTop: 8, marginTop: 4 }}>
           <span style={{ fontSize: 12, fontWeight: 700 }}>TOTAL</span>
           <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-mono)', textAlign: 'right', color: '#3bf084' }}>Rs. {fmt(d.total_dr)}</span>
           <span style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--font-mono)', textAlign: 'right', color: '#3bf084' }}>Rs. {fmt(d.total_cr)}</span>
@@ -497,17 +519,35 @@ function LedgerReport() {
     setLoadingMore(false)
   }, [account, period, offset, data, loadingMore])
 
+  const [acctSearch, setAcctSearch] = useState('')
+  const filteredAccounts = acctSearch
+    ? accounts.filter(a => a.toLowerCase().includes(acctSearch.toLowerCase()))
+    : accounts
+
   return (
     <div>
       {accounts.length > 0 && (
-        <select value={account} onChange={e => setAccount(e.target.value)} style={{
-          width: '100%', padding: '9px 12px', borderRadius: 10,
-          background: 'var(--bg-card)', border: '1px solid var(--border)',
-          color: 'var(--text-primary)', fontSize: 13, fontFamily: 'var(--font-sans)',
-          marginBottom: 2, cursor: 'pointer',
-        }}>
-          {accounts.map(a => <option key={a} value={a}>{a}</option>)}
-        </select>
+        <>
+          <input
+            value={acctSearch}
+            onChange={e => setAcctSearch(e.target.value)}
+            placeholder="Search accounts..."
+            style={{
+              width: '100%', padding: '9px 12px', borderRadius: 10, marginBottom: 6,
+              background: 'var(--bg-card)', border: '1px solid var(--border)',
+              color: 'var(--text-primary)', fontSize: 13, fontFamily: 'var(--font-sans)',
+              outline: 'none', boxSizing: 'border-box' as const,
+            }}
+          />
+          <select value={account} onChange={e => setAccount(e.target.value)} style={{
+            width: '100%', padding: '9px 12px', borderRadius: 10,
+            background: 'var(--bg-card)', border: '1px solid var(--border)',
+            color: 'var(--text-primary)', fontSize: 13, fontFamily: 'var(--font-sans)',
+            marginBottom: 2, cursor: 'pointer',
+          }}>
+            {filteredAccounts.map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
+        </>
       )}
       <PeriodPills period={period} onChange={p => setPeriod(p)} />
       {loading && <ReportSkeleton />}
