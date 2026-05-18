@@ -15,7 +15,7 @@ export default function ExpiredPage() {
         Your subscription has expired. Contact us to reactivate your account and continue using Purifye.
       </p>
       <a
-        href="https://wa.me/94768083350"
+        href="https://wa.me/94776227802"
         target="_blank"
         rel="noopener noreferrer"
         style={{

@@ -15,7 +15,7 @@ export default function BlockedPage() {
         Access to your account has been temporarily suspended. Contact our support team to resolve this.
       </p>
       <a
-        href="https://wa.me/94768083350"
+        href="https://wa.me/94776227802"
         target="_blank"
         rel="noopener noreferrer"
         style={{
