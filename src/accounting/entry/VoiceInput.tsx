@@ -15,6 +15,7 @@ export default function VoiceInput({ onParsed, disabled }: VoiceInputProps) {
   const timerRef = useRef<number | null>(null)
   const parseTimeoutRef = useRef<number | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const recordingStartRef = useRef<number>(0)
   const { show } = useToast()
 
   useEffect(() => {
@@ -33,11 +34,17 @@ export default function VoiceInput({ onParsed, disabled }: VoiceInputProps) {
       recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data) }
       recorder.onstop = () => {
         stream.getTracks().forEach(t => t.stop())
+        const duration = Date.now() - recordingStartRef.current
+        if (duration < 500) {
+          setState('idle')
+          return
+        }
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
         uploadAudio(blob)
       }
       recorder.start(100)
       mediaRef.current = recorder
+      recordingStartRef.current = Date.now()
       setState('recording')
       setSeconds(0)
       timerRef.current = window.setInterval(() => {
@@ -89,36 +96,64 @@ export default function VoiceInput({ onParsed, disabled }: VoiceInputProps) {
     }
   }
 
-  function handleClick() {
-    if (disabled) return
-    if (state === 'recording') { stopRecording(); return }
-    if (state === 'idle') { startRecording() }
+  function handlePointerDown(e: React.PointerEvent) {
+    if (disabled || state !== 'idle') return
+    startRecording()
+  }
+
+  function handlePointerUp() {
+    if (state !== 'recording') return
+    stopRecording()
+  }
+
+  function handlePointerLeave() {
+    if (state !== 'recording') return
+    stopRecording()
   }
 
   const isRecording = state === 'recording'
   const isParsing = state === 'parsing'
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={disabled || isParsing}
-      title={isRecording ? 'Tap to stop' : 'Voice entry'}
-      style={{
-        width: 44, height: 44, borderRadius: '50%', border: `1px solid ${isRecording ? 'rgba(255,69,58,0.5)' : 'var(--accent-border)'}`,
-        background: isRecording ? 'rgba(255,69,58,0.12)' : 'var(--accent-dim)',
-        color: isRecording ? '#ff453a' : 'var(--accent)',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 18, flexShrink: 0, position: 'relative',
-        animation: isRecording ? 'pulse 1.2s ease-in-out infinite' : 'none',
-        transition: 'all 0.2s',
-      }}
-    >
-      {isParsing ? (
-        <span style={{ fontSize: 12, animation: 'spin 1s linear infinite' }}>⟳</span>
-      ) : isRecording ? (
-        <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{seconds}s</span>
-      ) : '🎤'}
-    </button>
+    <>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg) } }
+        @keyframes pulse { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+      `}</style>
+      <button
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerLeave}
+        disabled={disabled || isParsing}
+        title={isRecording ? 'Release to send' : isParsing ? 'Processing...' : 'Hold to record'}
+        style={{
+          width: 44, height: 44, borderRadius: '50%',
+          border: `1px solid ${isRecording ? 'rgba(255,69,58,0.5)' : isParsing ? 'rgba(93,202,165,0.5)' : 'var(--accent-border)'}`,
+          background: isRecording ? 'rgba(255,69,58,0.12)' : isParsing ? 'rgba(93,202,165,0.12)' : 'var(--accent-dim)',
+          color: isRecording ? '#ff453a' : isParsing ? '#5DCAA5' : 'var(--accent)',
+          cursor: disabled ? 'not-allowed' : isRecording ? 'grabbing' : isParsing ? 'default' : 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 18, flexShrink: 0, position: 'relative',
+          animation: isRecording ? 'pulse 1.2s ease-in-out infinite' : 'none',
+          transition: 'background 0.2s, border-color 0.2s, transform 0.15s',
+          transform: isRecording ? 'scale(1.15)' : 'scale(1)',
+          touchAction: 'none',
+          userSelect: 'none',
+        }}
+      >
+        {isParsing ? (
+          <span style={{
+            width: 18, height: 18, borderRadius: '50%',
+            border: '2.5px solid rgba(93,202,165,0.3)',
+            borderTopColor: '#5DCAA5',
+            animation: 'spin 0.8s linear infinite',
+            display: 'inline-block',
+            flexShrink: 0,
+          }} />
+        ) : isRecording ? (
+          <span style={{ fontSize: 10, fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{seconds}s</span>
+        ) : '??'}
+      </button>
+    </>
   )
 }
