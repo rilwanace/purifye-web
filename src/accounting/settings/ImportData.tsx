@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { useToast } from '../../shared/components/Toast'
 import { apiFormData } from '../../api'
+import ImportWizard from '../entry/ImportWizard'
 
 export default function ImportData() {
   const { show } = useToast()
@@ -9,6 +10,7 @@ export default function ImportData() {
   const [uploading, setUploading] = useState(false)
   const [summary, setSummary] = useState<Record<string, any> | null>(null)
   const [error, setError] = useState('')
+  const [wizardData, setWizardData] = useState<{ uploadId: string; sheets: any[] } | null>(null)
 
   async function doImport() {
     if (!file) return
@@ -21,6 +23,10 @@ export default function ImportData() {
       const form = new FormData()
       form.append('file', file)
       const data = await apiFormData<any>('/api/settings/import-v4', form)
+      if (data.mode === 'custom') {
+        setWizardData({ uploadId: data.upload_id, sheets: data.sheets })
+        return
+      }
       setSummary(data.summary || {})
       show('Import complete', 'success')
       setFile(null)
@@ -71,6 +77,7 @@ export default function ImportData() {
   }
 
   return (
+    <>
     <div style={s.section}>
       <div style={s.sectionTitle}>Import Data</div>
       <div style={s.uploadArea} onClick={() => fileRef.current?.click()}>
@@ -109,5 +116,14 @@ export default function ImportData() {
         </div>
       )}
     </div>
+      {wizardData && (
+        <ImportWizard
+          uploadId={wizardData.uploadId}
+          sheets={wizardData.sheets}
+          onDone={() => { setWizardData(null); setFile(null); if (fileRef.current) fileRef.current.value = '' }}
+          onCancel={() => setWizardData(null)}
+        />
+      )}
+    </>
   )
 }

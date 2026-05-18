@@ -5,6 +5,7 @@ import EntryForm from '../entry/EntryForm'
 import VoiceInput from '../entry/VoiceInput'
 import PhotoInput from '../entry/PhotoInput'
 import HistoryPage from '../history/HistoryPage'
+import ImportWizard from '../entry/ImportWizard'
 
 interface MasterData {
   customers: string[]; suppliers: string[]; staff: string[]
@@ -53,6 +54,7 @@ export default function ChatPage() {
   const [importData, setImportData] = useState<any>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [prefill, setPrefill] = useState<{ type?: string; fields?: Record<string, any> } | null>(null)
+  const [wizardData, setWizardData] = useState<{ uploadId: string; sheets: any[] } | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const confirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -142,7 +144,12 @@ export default function ChatPage() {
       const form = new FormData()
       form.append('file', file)
       const res = await apiFormData<any>('/api/settings/import-v4', form)
-      setImportData(res); setChatState('import_done')
+      if (res.mode === 'custom') {
+        setWizardData({ uploadId: res.upload_id, sheets: res.sheets })
+        setChatState('idle')
+      } else {
+        setImportData(res); setChatState('import_done')
+      }
     } catch { setChatState('error'); setErrorMsg('Import failed. Check file format.') }
   }
 
@@ -296,6 +303,15 @@ export default function ChatPage() {
             </div>
           </div>
         </>
+      )}
+
+      {wizardData && (
+        <ImportWizard
+          uploadId={wizardData.uploadId}
+          sheets={wizardData.sheets}
+          onDone={() => setWizardData(null)}
+          onCancel={() => setWizardData(null)}
+        />
       )}
     </div>
   )

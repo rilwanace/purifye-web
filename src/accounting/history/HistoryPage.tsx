@@ -133,7 +133,7 @@ export default function HistoryPage({ containerHeight = 'calc(100dvh - 60px)' }:
   useEffect(() => { load() }, [load])
 
   async function handleEdit(eg: string) {
-    try { const res = await api<any>('/api/entry/by-group/' + eg); setEditPrefill({ type: res.type, fields: res.fields || {}, entryGroup: eg }); setEditSheetOpen(true); setSelected(null) }
+    try { const res = await api<any>('/api/entry/by-group/' + eg); setEditPrefill({ type: res.type, fields: res.fields || {}, entryGroup: eg }); setEditSheetOpen(true) }
     catch { show('Could not load entry', 'error') }
   }
   async function handleDelete(eg: string) {
@@ -149,7 +149,7 @@ export default function HistoryPage({ containerHeight = 'calc(100dvh - 60px)' }:
     return (
       <div style={{ height: containerHeight, background: '#131311', overflowY: 'auto', paddingBottom: 80 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', color: '#5DCAA5', cursor: 'pointer', fontSize: 18 }}>&#8592;</button>
+          <button onClick={() => { setSelected(null); setEditSheetOpen(false); setEditPrefill(null) }} style={{ background: 'none', border: 'none', color: '#5DCAA5', cursor: 'pointer', fontSize: 18 }}>&#8592;</button>
           <span style={{ fontSize: 12, color: '#6a6a64', fontFamily: 'var(--font-mono)' }}>ENTRY DETAIL</span>
         </div>
         <div style={{ padding: 16 }}>
@@ -250,7 +250,7 @@ export default function HistoryPage({ containerHeight = 'calc(100dvh - 60px)' }:
               {group.label}
             </div>
             {group.entries.map(e => (
-              <div key={e.entry_group} onClick={() => setSelected(e)} style={{
+              <div key={e.entry_group} onClick={() => { setEditSheetOpen(false); setEditPrefill(null); setSelected(e) }} style={{
                 background: '#1a1a18', borderRadius: 12, padding: '12px 14px', marginBottom: 6,
                 cursor: 'pointer', display: 'flex', alignItems: 'center',
               }}>
