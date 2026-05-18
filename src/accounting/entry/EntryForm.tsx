@@ -57,11 +57,11 @@ function emptyItem(isSale: boolean): LineItem {
 function defaultFields(type: string): Record<string, any> {
   const base = { date: new Date().toISOString().slice(0, 10) }
   switch (type) {
-    case 'sale': return { ...base, customer: '', line_items: [emptyItem(true)], credit_period: 0, account: '' }
-    case 'purchase': return { ...base, supplier: '', line_items: [emptyItem(false)], credit_period: 0, account: '' }
+    case 'sale': return { ...base, customer: '', line_items: [emptyItem(true)], credit_period: 0, tax_amount: '', account: '' }
+    case 'purchase': return { ...base, supplier: '', line_items: [emptyItem(false)], credit_period: 0, tax_amount: '', account: '' }
     case 'sales_return': return { ...base, customer: '', line_items: [emptyItem(true)], account: '' }
     case 'purchase_return': return { ...base, supplier: '', line_items: [emptyItem(false)], account: '' }
-    case 'other_expense': return { ...base, vendor: '', category: '', amount: '', account: '' }
+    case 'other_expense': return { ...base, vendor: '', category: '', amount: '', tax_amount: '', account: '' }
     case 'payment_received': return { ...base, customer: '', amount: '', account: '' }
     case 'payment_made': return { ...base, payee: '', amount: '', account: '' }
     case 'payroll': return { ...base, amount: '', account: '' }
@@ -405,6 +405,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
             <LineItemsEditor items={f.line_items || [emptyItem(true)]} isSale={true}
               onChange={v => sf('line_items', v)} products={localMaster.products} />
           </Field>
+          <Field name="Tax Amount (Rs.)"><TextInput type="number" value={f.tax_amount || ''} onChange={v => sf('tax_amount', v)} placeholder="0" /></Field>
           <Field name="Payment Terms">
             <Pill value={f.credit_period ?? 0} options={[0, 7, 14, 30]} onChange={v => sf('credit_period', v)} />
           </Field>
@@ -425,6 +426,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
             <LineItemsEditor items={f.line_items || [emptyItem(false)]} isSale={false}
               onChange={v => sf('line_items', v)} products={localMaster.products} />
           </Field>
+          <Field name="Tax Amount (Rs.)"><TextInput type="number" value={f.tax_amount || ''} onChange={v => sf('tax_amount', v)} placeholder="0" /></Field>
           <Field name="Payment Terms">
             <Pill value={f.credit_period ?? 0} options={[0, 7, 14, 30]} onChange={v => sf('credit_period', v)} />
           </Field>
@@ -497,6 +499,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
             </select>
           </Field>
           <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
+          <Field name="Tax Amount (Rs.)"><TextInput type="number" value={f.tax_amount || ''} onChange={v => sf('tax_amount', v)} placeholder="0" /></Field>
           <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
         </>
       )
