@@ -96,7 +96,7 @@ export default function VoiceInput({ onParsed, disabled }: VoiceInputProps) {
     }
   }
 
-  function handlePointerDown(e: React.PointerEvent) {
+  function handlePointerDown(_e: React.PointerEvent) {
     if (disabled || state !== 'idle') return
     startRecording()
   }
