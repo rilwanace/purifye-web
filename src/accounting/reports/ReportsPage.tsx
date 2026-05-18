@@ -107,7 +107,7 @@ async function downloadPdf(type: string, period: string, setPdfLoading: (v: bool
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 150)
   } catch (e: any) {
     alert(e.message || 'PDF failed')
   } finally {
