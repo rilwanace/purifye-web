@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { api } from '../api'
-import { RuleFlowchartBuilder, RuleOptions, FlowValues, buildSentence } from './PersonalRules'
+import { RuleFlowchartBuilder, buildSentence } from './PersonalRules'
+import type { RuleOptions, FlowValues } from './PersonalRules'
 
 const ACCENT = '#5B8DEF'
 const BG_CARD = '#1a1a18'
