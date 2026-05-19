@@ -1,8 +1,9 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from '../api'
 
-const ACCENT = '#5DCAA5'
+const ACCENT = '#5B8DEF'
 const CATEGORIES = ['all', 'food', 'transport', 'shopping', 'bills', 'income', 'subscription', 'health', 'education', 'entertainment', 'other']
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 interface MoneyEntry {
   id: string
@@ -21,34 +22,70 @@ function fmt(n: number) {
   return n.toLocaleString('en', { maximumFractionDigits: 0 })
 }
 
+function monthRange(year: number, month: number) {
+  const from = `${year}-${String(month).padStart(2, '0')}-01`
+  const lastDay = new Date(year, month, 0).getDate()
+  const to = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+  return { from, to }
+}
+
 export default function PersonalMoney() {
+  const now = new Date()
+  const [viewMonth, setViewMonth] = useState(now.getMonth() + 1)
+  const [viewYear, setViewYear] = useState(now.getFullYear())
   const [entries, setEntries] = useState<MoneyEntry[]>([])
   const [category, setCategory] = useState('all')
   const [loading, setLoading] = useState(true)
 
-  function load(cat: string) {
+  function load(cat: string, year: number, month: number) {
     setLoading(true)
-    const params = cat !== 'all' ? `?category=${cat}` : ''
-    api<MoneyEntry[]>(`/api/personal/money${params}`)
+    const { from, to } = monthRange(year, month)
+    const params = new URLSearchParams({ from_date: from, to_date: to })
+    if (cat !== 'all') params.set('category', cat)
+    api<MoneyEntry[]>(`/api/personal/money?${params}`)
       .then(setEntries)
       .catch(() => setEntries([]))
       .finally(() => setLoading(false))
   }
 
-  useEffect(() => { load(category) }, [category])
+  useEffect(() => { load(category, viewYear, viewMonth) }, [category, viewYear, viewMonth])
+
+  function prevMonth() {
+    if (viewMonth === 1) { setViewMonth(12); setViewYear(y => y - 1) }
+    else setViewMonth(m => m - 1)
+  }
+  function nextMonth() {
+    if (viewMonth === 12) { setViewMonth(1); setViewYear(y => y + 1) }
+    else setViewMonth(m => m + 1)
+  }
 
   const spent = entries.filter(e => e.direction === 'out').reduce((s, e) => s + Number(e.amount), 0)
   const earned = entries.filter(e => e.direction === 'in').reduce((s, e) => s + Number(e.amount), 0)
 
   return (
     <div style={{ padding: '16px 20px' }}>
+      {/* Month navigator */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <button
+          onClick={prevMonth}
+          style={{ background: 'none', border: 'none', color: '#9c9b95', cursor: 'pointer', fontSize: 20, padding: '4px 12px', minHeight: 44, minWidth: 44 }}
+        >‹</button>
+        <span style={{ fontSize: 11, fontFamily: 'DM Mono', fontWeight: 600, color: '#c4c3bc', letterSpacing: '0.08em' }}>
+          {MONTHS[viewMonth - 1].toUpperCase()} {viewYear}
+        </span>
+        <button
+          onClick={nextMonth}
+          style={{ background: 'none', border: 'none', color: '#9c9b95', cursor: 'pointer', fontSize: 20, padding: '4px 12px', minHeight: 44, minWidth: 44 }}
+        >›</button>
+      </div>
+
       {/* Summary cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-        <div style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12, padding: '14px' }}>
+        <div style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px' }}>
           <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: '#6a6a64', letterSpacing: '0.08em' }}>OUT</div>
           <div style={{ fontSize: 20, fontFamily: 'DM Mono', fontWeight: 500, color: '#D85A30', marginTop: 4 }}>{fmt(spent)}</div>
         </div>
-        <div style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12, padding: '14px' }}>
+        <div style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px' }}>
           <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: '#6a6a64', letterSpacing: '0.08em' }}>IN</div>
           <div style={{ fontSize: 20, fontFamily: 'DM Mono', fontWeight: 500, color: '#5DCAA5', marginTop: 4 }}>{fmt(earned)}</div>
         </div>
@@ -62,15 +99,16 @@ export default function PersonalMoney() {
             onClick={() => setCategory(cat)}
             style={{
               flexShrink: 0,
-              padding: '5px 12px',
+              padding: '6px 12px',
               borderRadius: 20,
-              fontSize: 11,
+              fontSize: 10,
               fontFamily: 'DM Mono',
               fontWeight: 600,
               border: category === cat ? `1px solid ${ACCENT}33` : '1px solid transparent',
               background: category === cat ? `${ACCENT}1a` : 'transparent',
               color: category === cat ? ACCENT : '#6a6a64',
               cursor: 'pointer',
+              minHeight: 32,
             }}
           >
             {cat.toUpperCase()}
@@ -78,7 +116,6 @@ export default function PersonalMoney() {
         ))}
       </div>
 
-      {/* Entry list */}
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 40 }}>
           <div style={{ width: 20, height: 20, border: `2px solid ${ACCENT}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
@@ -91,7 +128,7 @@ export default function PersonalMoney() {
       ) : (
         entries.map(e => (
           <div key={e.id} style={{
-            background: '#1a1a18', border: '1px solid rgba(255,255,255,0.04)',
+            background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)',
             borderRadius: 10, padding: '12px 14px', marginBottom: 6,
             display: 'flex', alignItems: 'center', gap: 12,
           }}>
