@@ -61,7 +61,7 @@ const BOTS = [
     subtitle: 'Life admin',
     path: '/personal',
     accent: '#5B8DEF',
-    gradient: 'linear-gradient(145deg, #5B8DEF, #3A63B8)',
+    gradient: 'linear-gradient(135deg, #5B8DEF, #3A63B8)',
     emoji: '🧠',
     glow: 'rgba(91,141,239,0.3)',
   },
