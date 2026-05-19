@@ -13,20 +13,35 @@ interface DocData {
   created_at: string
 }
 
+interface PhotoPair {
+  original?: string
+  preview?: string
+}
+
+function toTitleCase(key: string): string {
+  return key
+    .replace(/_/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .split(" ")
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
+}
+
 export default function PersonalDocViewer() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [doc, setDoc] = useState<DocData | null>(null)
-  const [photos, setPhotos] = useState<string[]>([])
+  const [photos, setPhotos] = useState<PhotoPair[]>([])
   const [page, setPage] = useState(0)
   const [scale, setScale] = useState(1)
+  const [downloading, setDownloading] = useState(false)
   const imgRef = useRef<HTMLImageElement>(null)
   const startDist = useRef<number>(0)
 
   useEffect(() => {
     if (!id) return
     api<DocData>(`/api/personal/entry/${id}`).then(setDoc).catch(() => null)
-    api<{ urls: string[] }>(`/api/personal/documents/${id}/photos`).then(r => setPhotos(r.urls)).catch(() => null)
+    api<{ photos: PhotoPair[] }>(`/api/personal/documents/${id}/photos`).then(r => setPhotos(r.photos || [])).catch(() => null)
   }, [id])
 
   function handleTouchStart(e: React.TouchEvent) {
@@ -81,6 +96,30 @@ export default function PersonalDocViewer() {
         {photos.length > 1 && (
           <div style={{ fontSize: 11, fontFamily: 'DM Mono', color: '#6a6a64' }}>{page + 1}/{photos.length}</div>
         )}
+        {photos[page]?.original && (
+          <button
+            disabled={downloading}
+            onClick={async () => {
+              const url = photos[page]?.original
+              if (!url) return
+              setDownloading(true)
+              try {
+                const resp = await fetch(url)
+                const blob = await resp.blob()
+                const a = document.createElement("a")
+                a.href = URL.createObjectURL(blob)
+                a.download = doc?.doc_type ? doc.doc_type.replace(/\s+/g, "_") + "_original" : "document_original"
+                a.click()
+                URL.revokeObjectURL(a.href)
+              } finally {
+                setDownloading(false)
+              }
+            }}
+            style={{ background: "none", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, color: downloading ? "#4a4a44" : "#9c9b95", cursor: "pointer", padding: "5px 10px", fontSize: 11, fontFamily: "DM Mono", flexShrink: 0 }}
+          >
+            {downloading ? "..." : "Download"}
+          </button>
+        )}
       </div>
 
       {/* Photo viewer */}
@@ -91,7 +130,7 @@ export default function PersonalDocViewer() {
           onTouchEnd={() => { startDist.current = 0 }}>
           <img
             ref={imgRef}
-            src={photos[page]}
+            src={photos[page]?.preview || photos[page]?.original}
             alt="document"
             style={{
               width: '100%',
@@ -120,7 +159,7 @@ export default function PersonalDocViewer() {
             <div style={{ fontSize: 9, fontFamily: 'DM Mono', fontWeight: 700, color: '#6a6a64', letterSpacing: '0.1em', marginBottom: 10 }}>KEY DETAILS</div>
             {Object.entries(doc.key_details).map(([k, v]) => (
               <div key={k} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 11, fontFamily: 'DM Sans', color: '#9c9b95' }}>{k}</span>
+                <span style={{ fontSize: 11, fontFamily: 'DM Sans', color: '#9c9b95' }}>{toTitleCase(k)}</span>
                 <span style={{ fontSize: 11, fontFamily: 'DM Mono', fontWeight: 500, color: '#e8e7e0' }}>{v as string}</span>
               </div>
             ))}

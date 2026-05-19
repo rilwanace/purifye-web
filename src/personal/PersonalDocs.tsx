@@ -6,6 +6,15 @@ import ThreadManager from './ThreadManager'
 
 const DOC_COLOR = '#7068D9'
 
+function toTitleCase(key: string): string {
+  return key
+    .replace(/_/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .split(' ')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+}
+
 interface Thread {
   id: string
   name: string
@@ -109,7 +118,7 @@ function DocList() {
       ) : (
         docs.map(doc => {
           const details = doc.key_details || {}
-          const detailExcerpt = Object.entries(details).slice(0, 2).map(([k, v]) => `${k}: ${v}`).join(' · ')
+          const detailExcerpt = Object.entries(details).slice(0, 2).map(([k, v]) => `${toTitleCase(k)}: ${v}`).join(' · ')
           const isExpiringSoon = doc.expiry_date && new Date(doc.expiry_date) <= new Date(Date.now() + 30 * 86400000)
 
           return (

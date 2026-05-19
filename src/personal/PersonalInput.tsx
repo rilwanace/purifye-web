@@ -51,8 +51,13 @@ export default function PersonalInput({ onSaved }: { onSaved: () => void }) {
       const result = await apiFormData<ParsedData>('/api/personal/parse', form)
       setParsed(result)
     } catch (err) {
-      console.error('[personal] parse error', err)
-      show("Couldn't process that — please try again", 'error')
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('Monthly upload limit') || msg === 'HTTP 429') {
+        show('Upload limit reached for this month (200 photos). Resets on the 1st.', 'error')
+      } else {
+        console.error('[personal] parse error', err)
+        show("Couldn't process that — please try again", 'error')
+      }
     } finally {
       setLoading(false)
     }
