@@ -2,8 +2,14 @@ import { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import PersonalDocViewer from './PersonalDocViewer'
+import ThreadManager from './ThreadManager'
 
 const DOC_COLOR = '#7068D9'
+
+interface Thread {
+  id: string
+  name: string
+}
 
 interface DocEntry {
   id: string
@@ -19,30 +25,86 @@ interface DocEntry {
 
 function DocList() {
   const [docs, setDocs] = useState<DocEntry[]>([])
+  const [threads, setThreads] = useState<Thread[]>([])
+  const [threadFilter, setThreadFilter] = useState<string | null>(null)
+  const [showManager, setShowManager] = useState(false)
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    api<DocEntry[]>('/api/personal/documents')
+  function loadThreads() {
+    api<Thread[]>('/api/personal/threads?workflow=documents')
+      .then(setThreads)
+      .catch(() => setThreads([]))
+  }
+
+  function loadDocs(tid: string | null) {
+    setLoading(true)
+    const params = tid ? `?thread_id=${tid}` : ''
+    api<DocEntry[]>(`/api/personal/documents${params}`)
       .then(setDocs)
       .catch(() => setDocs([]))
       .finally(() => setLoading(false))
-  }, [])
-
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 60 }}>
-        <div style={{ width: 20, height: 20, border: `2px solid ${DOC_COLOR}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-      </div>
-    )
   }
+
+  useEffect(() => { loadThreads() }, [])
+  useEffect(() => { loadDocs(threadFilter) }, [threadFilter])
 
   return (
     <div style={{ padding: '16px 20px' }}>
-      {docs.length === 0 ? (
+      {/* Thread filter chips + manage icon */}
+      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 12, scrollbarWidth: 'none', alignItems: 'center' }}>
+        <button
+          onClick={() => setThreadFilter(null)}
+          style={{
+            flexShrink: 0, padding: '6px 10px', borderRadius: 20,
+            fontSize: 10, fontFamily: 'DM Mono', fontWeight: 600,
+            border: threadFilter === null ? `1px solid ${DOC_COLOR}33` : '1px solid transparent',
+            background: threadFilter === null ? `${DOC_COLOR}1a` : 'transparent',
+            color: threadFilter === null ? DOC_COLOR : '#6a6a64',
+            cursor: 'pointer', minHeight: 32,
+          }}
+        >
+          ALL
+        </button>
+        {threads.map(t => (
+          <button
+            key={t.id}
+            onClick={() => setThreadFilter(t.id)}
+            style={{
+              flexShrink: 0, padding: '6px 10px', borderRadius: 20,
+              fontSize: 10, fontFamily: 'DM Mono', fontWeight: 600,
+              border: threadFilter === t.id ? `1px solid ${DOC_COLOR}33` : '1px solid transparent',
+              background: threadFilter === t.id ? `${DOC_COLOR}1a` : 'transparent',
+              color: threadFilter === t.id ? DOC_COLOR : '#6a6a64',
+              cursor: 'pointer', minHeight: 32,
+            }}
+          >
+            {t.name.toUpperCase()}
+          </button>
+        ))}
+        <button
+          onClick={() => setShowManager(true)}
+          style={{
+            flexShrink: 0, padding: '6px 8px', borderRadius: 20,
+            fontSize: 12, fontFamily: 'DM Mono',
+            border: '1px solid transparent', background: 'transparent',
+            color: '#6a6a64', cursor: 'pointer', minHeight: 32,
+            display: 'flex', alignItems: 'center',
+          }}
+          title="Manage threads"
+        >
+          &#x2699;
+        </button>
+      </div>
+
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 60 }}>
+          <div style={{ width: 20, height: 20, border: `2px solid ${DOC_COLOR}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        </div>
+      ) : docs.length === 0 ? (
         <div style={{ fontSize: 12, fontFamily: 'DM Sans', color: '#6a6a64', textAlign: 'center', paddingTop: 40 }}>
-          No documents — photograph a document to store it
+          {threadFilter ? 'No documents in this thread' : 'No documents — photograph a document to store it'}
         </div>
       ) : (
         docs.map(doc => {
@@ -86,6 +148,14 @@ function DocList() {
             </div>
           )
         })
+      )}
+
+      {showManager && (
+        <ThreadManager
+          workflow="documents"
+          onClose={() => setShowManager(false)}
+          onChanged={() => { loadThreads(); loadDocs(threadFilter) }}
+        />
       )}
     </div>
   )

@@ -29,10 +29,6 @@ interface SearchResult {
   snippet?: string
 }
 
-function fmt(n: number) {
-  return n.toLocaleString('en', { maximumFractionDigits: 0 })
-}
-
 function wfColor(wf: string) {
   const m: Record<string, string> = {
     money: '#5DCAA5', documents: '#7068D9', tasks: '#D4A843', notes: '#CF5BA0',
@@ -101,7 +97,7 @@ export default function PersonalHome() {
     )
   }
 
-  const { money_summary, tasks_summary, expiring_documents, recent_entries, alerts } = data
+  const { tasks_summary, alerts } = data
 
   return (
     <>
@@ -126,16 +122,8 @@ export default function PersonalHome() {
         background: 'rgba(212,168,67,0.08)', border: '1px solid rgba(212,168,67,0.2)',
         borderRadius: 14, padding: '16px', marginBottom: 16,
       }}>
-        <div style={{ fontSize: 9, fontFamily: 'DM Mono', fontWeight: 700, color: '#6a6a64', letterSpacing: '0.1em', marginBottom: 10 }}>TODAY'S SUMMARY</div>
+        <div style={{ fontSize: 9, fontFamily: 'DM Mono', fontWeight: 700, color: '#6a6a64', letterSpacing: '0.1em', marginBottom: 10 }}>BRIEFING</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div>
-            <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: '#6a6a64', letterSpacing: '0.08em' }}>SPENT THIS MONTH</div>
-            <div style={{ fontSize: 18, fontFamily: 'DM Mono', fontWeight: 500, color: '#D85A30', marginTop: 2 }}>{fmt(money_summary.spent)}</div>
-          </div>
-          <div>
-            <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: '#6a6a64', letterSpacing: '0.08em' }}>EARNED</div>
-            <div style={{ fontSize: 18, fontFamily: 'DM Mono', fontWeight: 500, color: '#5DCAA5', marginTop: 2 }}>{fmt(money_summary.earned)}</div>
-          </div>
           <div>
             <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: '#6a6a64', letterSpacing: '0.08em' }}>TASKS PENDING</div>
             <div style={{ fontSize: 18, fontFamily: 'DM Mono', fontWeight: 500, color: '#e8e7e0', marginTop: 2 }}>{tasks_summary.pending}</div>
@@ -185,8 +173,8 @@ export default function PersonalHome() {
         </div>
       </div>
 
-      {/* Search results OR home content */}
-      {searchQuery.trim() ? (
+      {/* Search results */}
+      {searchQuery.trim() && (
         <div>
           {searching ? (
             <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 30 }}>
@@ -194,7 +182,7 @@ export default function PersonalHome() {
             </div>
           ) : searchResults.length === 0 ? (
             <div style={{ fontSize: 12, fontFamily: 'DM Sans', color: '#6a6a64', textAlign: 'center', paddingTop: 30 }}>
-              No results for "{searchQuery}"
+              No results for &quot;{searchQuery}&quot;
             </div>
           ) : (
             searchResults.map((r, i) => {
@@ -234,76 +222,9 @@ export default function PersonalHome() {
             })
           )}
         </div>
-      ) : (
-        <div>
-          {/* Expiring documents */}
-          {expiring_documents.length > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 9, fontFamily: 'DM Mono', fontWeight: 700, color: '#6a6a64', letterSpacing: '0.1em', marginBottom: 8 }}>EXPIRING SOON</div>
-              {expiring_documents.map(d => (
-                <div key={d.id} onClick={() => navigate('/personal/docs')} style={{
-                  background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)',
-                  borderRadius: 10, padding: '10px 14px', marginBottom: 6, cursor: 'pointer',
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                }}>
-                  <div>
-                    <div style={{ fontSize: 12, fontFamily: 'DM Sans', fontWeight: 500, color: '#e8e7e0' }}>{d.doc_type || 'Document'}</div>
-                    {d.related_person && <div style={{ fontSize: 11, fontFamily: 'DM Sans', color: '#9c9b95', marginTop: 1 }}>{d.related_person}</div>}
-                  </div>
-                  <div style={{ fontSize: 10, fontFamily: 'DM Mono', color: '#D4A843' }}>{d.expiry_date}</div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Recent activity */}
-          <div>
-            <div style={{ fontSize: 9, fontFamily: 'DM Mono', fontWeight: 700, color: '#6a6a64', letterSpacing: '0.1em', marginBottom: 8 }}>RECENT ACTIVITY</div>
-            {recent_entries.length === 0 && (
-              <div style={{ fontSize: 12, fontFamily: 'DM Sans', color: '#6a6a64', textAlign: 'center', paddingTop: 20 }}>
-                No entries yet — use the input bar below to capture something
-              </div>
-            )}
-            {recent_entries.map((e, i) => {
-              const color = wfColor(e.workflow)
-              return (
-                <div
-                  key={`${e.id}-${i}`}
-                  onClick={() => navigate(`/personal/${e.workflow === 'documents' ? 'docs' : e.workflow === 'money' ? 'money' : e.workflow === 'tasks' ? 'tasks' : 'notes'}`)}
-                  style={{
-                    background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)',
-                    borderRadius: 10, padding: '10px 14px', marginBottom: 6, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    animation: 'fadeIn 0.3s ease forwards',
-                  }}
-                >
-                  <div style={{
-                    flexShrink: 0,
-                    fontSize: 9, fontFamily: 'DM Mono', fontWeight: 700,
-                    background: `${color}1a`, color, borderRadius: 4, padding: '3px 6px',
-                  }}>
-                    {wfLabel(e.workflow)}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontFamily: 'DM Sans', fontWeight: 500, color: '#e8e7e0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {e.title}
-                    </div>
-                    {e.meta && <div style={{ fontSize: 10, fontFamily: 'DM Mono', color: '#9c9b95', marginTop: 1 }}>{e.meta}</div>}
-                  </div>
-                  <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: '#6a6a64', flexShrink: 0 }}>
-                    {(e.date || '').slice(0, 10)}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
       )}
 
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
-        @keyframes spin { to { transform: rotate(360deg) } }
-      `}</style>
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
     <PersonalInput onSaved={() => setRefreshKey(k => k + 1)} />
     </>

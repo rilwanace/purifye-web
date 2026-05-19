@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { api } from '../api'
 import { useToast } from '../shared/components/Toast'
 
@@ -21,6 +21,11 @@ interface Props {
   parsed: ParsedData
   onClose: () => void
   onSaved: () => void
+}
+
+interface Thread {
+  id: string
+  name: string
 }
 
 const WORKFLOWS = ['money', 'documents', 'tasks', 'notes'] as const
@@ -68,8 +73,21 @@ export default function PersonalConfirmCard({ parsed, onClose, onSaved }: Props)
     }
     return f
   })
+  const [threadId, setThreadId] = useState<string | null>(null)
+  const [threads, setThreads] = useState<Thread[]>([])
   const [saving, setSaving] = useState(false)
   const { show } = useToast()
+
+  useEffect(() => {
+    if (workflow === 'documents' || workflow === 'notes') {
+      api<Thread[]>(`/api/personal/threads?workflow=${workflow}`)
+        .then(setThreads)
+        .catch(() => setThreads([]))
+    } else {
+      setThreads([])
+      setThreadId(null)
+    }
+  }, [workflow])
 
   function setField(k: string, v: string) {
     setFields(f => ({ ...f, [k]: v }))
@@ -83,8 +101,8 @@ export default function PersonalConfirmCard({ parsed, onClose, onSaved }: Props)
         workflow,
         fields: { ...fields },
         r2_key: parsed.r2_key,
+        thread_id: (workflow === 'documents' || workflow === 'notes') ? threadId : null,
       }
-      // Convert numeric fields
       if (workflow === 'money' && fields.amount) {
         body.fields = { ...fields, amount: parseFloat(fields.amount) || 0 }
       }
@@ -174,6 +192,18 @@ export default function PersonalConfirmCard({ parsed, onClose, onSaved }: Props)
             <FieldInput label="Expiry date" value={fields.expiry_date || ''} onChange={v => setField('expiry_date', v)} type="date" />
             <FieldInput label="Issued date" value={fields.issued_date || ''} onChange={v => setField('issued_date', v)} type="date" />
             <FieldInput label="Notes" value={fields.notes || ''} onChange={v => setField('notes', v)} />
+            {/* Thread picker — docs only */}
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 10, fontFamily: 'DM Mono', color: '#6a6a64', display: 'block', marginBottom: 5 }}>THREAD</label>
+              <select
+                value={threadId || ''}
+                onChange={e => setThreadId(e.target.value || null)}
+                style={{ width: '100%', background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '10px 12px', fontSize: 13, fontFamily: 'DM Sans', color: '#e8e7e0', outline: 'none' }}
+              >
+                <option value="">General (no thread)</option>
+                {threads.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            </div>
           </>
         )}
 
@@ -207,6 +237,18 @@ export default function PersonalConfirmCard({ parsed, onClose, onSaved }: Props)
               />
             </div>
             <FieldInput label="Tags (comma-separated)" value={Array.isArray(fields.tags) ? (fields.tags as string[]).join(', ') : (fields.tags || '')} onChange={v => setField('tags', v)} />
+            {/* Thread picker — notes only */}
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ fontSize: 10, fontFamily: 'DM Mono', color: '#6a6a64', display: 'block', marginBottom: 5 }}>THREAD</label>
+              <select
+                value={threadId || ''}
+                onChange={e => setThreadId(e.target.value || null)}
+                style={{ width: '100%', background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '10px 12px', fontSize: 13, fontFamily: 'DM Sans', color: '#e8e7e0', outline: 'none' }}
+              >
+                <option value="">General (no thread)</option>
+                {threads.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            </div>
           </>
         )}
 
