@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../api'
 import PersonalDocViewer from './PersonalDocViewer'
 import ThreadManager from './ThreadManager'
@@ -39,6 +39,7 @@ function DocList() {
   const [showManager, setShowManager] = useState(false)
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
+  const location = useLocation()
 
   function loadThreads() {
     api<Thread[]>('/api/personal/threads?workflow=documents')
@@ -58,9 +59,15 @@ function DocList() {
   useEffect(() => { loadThreads() }, [])
   useEffect(() => { loadDocs(threadFilter) }, [threadFilter])
 
+  useEffect(() => {
+    const eid = (location.state as any)?.openEntryId
+    if (eid) {
+      navigate(`/personal/docs/view/${eid}`, { replace: true })
+    }
+  }, [location.state])
+
   return (
     <div style={{ padding: '16px 20px' }}>
-      {/* Thread filter chips + manage icon */}
       <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 12, scrollbarWidth: 'none', alignItems: 'center' }}>
         <button
           onClick={() => setThreadFilter(null)}

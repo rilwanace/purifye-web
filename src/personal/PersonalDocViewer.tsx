@@ -1,6 +1,7 @@
-﻿import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../api'
+import PersonalEntryDetail from './PersonalEntryDetail'
 
 interface DocData {
   id: string
@@ -20,11 +21,11 @@ interface PhotoPair {
 
 function toTitleCase(key: string): string {
   return key
-    .replace(/_/g, " ")
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .split(" ")
+    .replace(/_/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .split(' ')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ")
+    .join(' ')
 }
 
 export default function PersonalDocViewer() {
@@ -35,14 +36,17 @@ export default function PersonalDocViewer() {
   const [page, setPage] = useState(0)
   const [scale, setScale] = useState(1)
   const [downloading, setDownloading] = useState(false)
+  const [showDetail, setShowDetail] = useState(false)
   const imgRef = useRef<HTMLImageElement>(null)
   const startDist = useRef<number>(0)
 
-  useEffect(() => {
+  function loadDoc() {
     if (!id) return
     api<DocData>(`/api/personal/entry/${id}`).then(setDoc).catch(() => null)
     api<{ photos: PhotoPair[] }>(`/api/personal/documents/${id}/photos`).then(r => setPhotos(r.photos || [])).catch(() => null)
-  }, [id])
+  }
+
+  useEffect(() => { loadDoc() }, [id])
 
   function handleTouchStart(e: React.TouchEvent) {
     if (e.touches.length === 2) {
@@ -75,14 +79,12 @@ export default function PersonalDocViewer() {
 
   return (
     <div style={{ background: '#131311', minHeight: '100dvh' }}>
-      {/* Header */}
       <div style={{
-        padding: '12px 16px',
-        background: '#1a1a18',
+        padding: '12px 16px', background: '#1a1a18',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', alignItems: 'center', gap: 12,
       }}>
-        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: '#9c9b95', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '4px 0' }}>
+        <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: '#9c9b95', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: '4px 0', minHeight: 44, minWidth: 44 }}>
           ←
         </button>
         <div style={{ flex: 1 }}>
@@ -106,23 +108,32 @@ export default function PersonalDocViewer() {
               try {
                 const resp = await fetch(url)
                 const blob = await resp.blob()
-                const a = document.createElement("a")
+                const a = document.createElement('a')
                 a.href = URL.createObjectURL(blob)
-                a.download = doc?.doc_type ? doc.doc_type.replace(/\s+/g, "_") + "_original" : "document_original"
+                a.download = doc?.doc_type ? doc.doc_type.replace(/\s+/g, '_') + '_original' : 'document_original'
                 a.click()
                 URL.revokeObjectURL(a.href)
               } finally {
                 setDownloading(false)
               }
             }}
-            style={{ background: "none", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, color: downloading ? "#4a4a44" : "#9c9b95", cursor: "pointer", padding: "5px 10px", fontSize: 11, fontFamily: "DM Mono", flexShrink: 0 }}
+            style={{ background: 'none', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, color: downloading ? '#4a4a44' : '#9c9b95', cursor: 'pointer', padding: '5px 10px', fontSize: 11, fontFamily: 'DM Mono', flexShrink: 0 }}
           >
-            {downloading ? "..." : "Download"}
+            {downloading ? '...' : 'Download'}
           </button>
         )}
+        <button
+          onClick={() => setShowDetail(true)}
+          style={{
+            background: 'rgba(91,141,239,0.1)', border: '1px solid rgba(91,141,239,0.2)',
+            borderRadius: 8, color: '#5B8DEF', cursor: 'pointer',
+            padding: '5px 10px', fontSize: 11, fontFamily: 'DM Mono', fontWeight: 600, flexShrink: 0,
+          }}
+        >
+          Edit
+        </button>
       </div>
 
-      {/* Photo viewer */}
       {photos.length > 0 && (
         <div style={{ position: 'relative', background: '#0a0a0a', overflow: 'hidden' }}
           onTouchStart={handleTouchStart}
@@ -133,8 +144,7 @@ export default function PersonalDocViewer() {
             src={photos[page]?.preview || photos[page]?.original}
             alt="document"
             style={{
-              width: '100%',
-              display: 'block',
+              width: '100%', display: 'block',
               transform: `scale(${scale})`,
               transformOrigin: 'center',
               transition: scale === 1 ? 'transform 0.2s' : 'none',
@@ -152,7 +162,6 @@ export default function PersonalDocViewer() {
         </div>
       )}
 
-      {/* Key details */}
       <div style={{ padding: '16px 20px' }}>
         {doc.key_details && Object.entries(doc.key_details).length > 0 && (
           <div style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12, padding: '14px', marginBottom: 12 }}>
@@ -190,6 +199,16 @@ export default function PersonalDocViewer() {
           </div>
         )}
       </div>
+
+      {showDetail && (
+        <PersonalEntryDetail
+          entry={doc}
+          workflow="documents"
+          onClose={() => setShowDetail(false)}
+          onUpdated={() => { loadDoc(); setShowDetail(false) }}
+          onDeleted={() => navigate(-1)}
+        />
+      )}
     </div>
   )
 }

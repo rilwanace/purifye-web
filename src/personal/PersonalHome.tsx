@@ -43,7 +43,7 @@ function wfLabel(wf: string) {
   return m[wf] || wf.toUpperCase()
 }
 
-function wfNav(wf: string) {
+function wfNav(wf: string): string {
   const m: Record<string, string> = {
     money: '/personal/money', documents: '/personal/docs',
     tasks: '/personal/tasks', notes: '/personal/notes',
@@ -88,6 +88,14 @@ export default function PersonalHome() {
     if (searchQuery.trim()) runSearch(searchQuery, f)
   }
 
+  function handleResultTap(r: SearchResult) {
+    if (r.workflow === 'documents') {
+      navigate(`/personal/docs/view/${r.id}`)
+    } else {
+      navigate(wfNav(r.workflow), { state: { openEntryId: r.id } })
+    }
+  }
+
   if (!data) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 60 }}>
@@ -102,7 +110,6 @@ export default function PersonalHome() {
   return (
     <>
     <div style={{ padding: '16px 20px' }}>
-      {/* Alert strip */}
       {alerts.length > 0 && (
         <div style={{ marginBottom: 16 }}>
           {alerts.map(a => (
@@ -117,7 +124,6 @@ export default function PersonalHome() {
         </div>
       )}
 
-      {/* Morning briefing card */}
       <div style={{
         background: 'rgba(212,168,67,0.08)', border: '1px solid rgba(212,168,67,0.2)',
         borderRadius: 14, padding: '16px', marginBottom: 16,
@@ -135,7 +141,6 @@ export default function PersonalHome() {
         </div>
       </div>
 
-      {/* Search bar + workflow filter */}
       <div style={{ marginBottom: 16 }}>
         <input
           value={searchQuery}
@@ -155,16 +160,11 @@ export default function PersonalHome() {
               key={opt.id}
               onClick={() => handleFilterChange(opt.id)}
               style={{
-                flexShrink: 0,
-                padding: '6px 10px',
-                borderRadius: 20,
-                fontSize: 10,
-                fontFamily: 'DM Mono',
-                fontWeight: 600,
+                flexShrink: 0, padding: '6px 10px', borderRadius: 20,
+                fontSize: 10, fontFamily: 'DM Mono', fontWeight: 600,
                 border: searchFilter === opt.id ? `1px solid ${ACCENT}33` : '1px solid transparent',
                 background: searchFilter === opt.id ? `${ACCENT}1a` : 'transparent',
-                color: searchFilter === opt.id ? ACCENT : '#6a6a64',
-                cursor: 'pointer',
+                color: searchFilter === opt.id ? ACCENT : '#6a6a64', cursor: 'pointer',
               }}
             >
               {opt.label}
@@ -173,7 +173,6 @@ export default function PersonalHome() {
         </div>
       </div>
 
-      {/* Search results */}
       {searchQuery.trim() && (
         <div>
           {searching ? (
@@ -190,7 +189,7 @@ export default function PersonalHome() {
               return (
                 <div
                   key={`${r.id}-${i}`}
-                  onClick={() => navigate(wfNav(r.workflow))}
+                  onClick={() => handleResultTap(r)}
                   style={{
                     background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)',
                     borderRadius: 10, padding: '12px 14px', marginBottom: 6, cursor: 'pointer',
@@ -198,8 +197,7 @@ export default function PersonalHome() {
                   }}
                 >
                   <div style={{
-                    flexShrink: 0,
-                    fontSize: 9, fontFamily: 'DM Mono', fontWeight: 700,
+                    flexShrink: 0, fontSize: 9, fontFamily: 'DM Mono', fontWeight: 700,
                     background: `${color}1a`, color, borderRadius: 4, padding: '3px 6px',
                   }}>
                     {wfLabel(r.workflow)}

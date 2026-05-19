@@ -1,16 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { useToast } from '../shared/components/Toast'
+import PersonalEntryDetail from './PersonalEntryDetail'
 
 const ACCENT = '#D4A843'
 
-type TaskFilter = 'all' | 'pending' | 'done' | 'recurring'
+type TaskFilter = 'todo' | 'done' | 'recurring'
 
 interface Task {
   id: string
   description: string
   due_date?: string
-  priority?: 'high' | 'medium' | 'low'
+  priority?: string
   status: 'pending' | 'done'
   recurrence?: string
   streak_count?: number
@@ -18,23 +20,36 @@ interface Task {
   completed_at?: string
 }
 
-const PRIORITY_COLOR: Record<string, string> = {
-  high: '#D85A30',
-  medium: '#D4A843',
-  low: '#5B8DEF',
-}
+function formatDueDate(dateStr: string | undefined, status: string): { text: string; color: string } | null {
+  if (!dateStr) return null
+  const due = new Date(dateStr + 'T00:00:00')
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const diffDays = Math.round((due.getTime() - today.getTime()) / 86400000)
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
-function isOverdue(task: Task) {
-  if (!task.due_date || task.status === 'done') return false
-  return new Date(task.due_date) < new Date(new Date().toDateString())
+  if (status === 'done') {
+    return { text: `${months[due.getMonth()]} ${due.getDate()}`, color: '#6a6a64' }
+  }
+  if (diffDays < 0) {
+    const n = Math.abs(diffDays)
+    return { text: `${n} ${n === 1 ? 'day' : 'days'} overdue`, color: '#D85A30' }
+  }
+  if (diffDays === 0) return { text: 'Today', color: '#D4A843' }
+  if (diffDays === 1) return { text: 'Tomorrow', color: '#5DCAA5' }
+  return { text: `${months[due.getMonth()]} ${due.getDate()}`, color: '#6a6a64' }
 }
 
 export default function PersonalTasks() {
   const [tasks, setTasks] = useState<Task[]>([])
-  const [filter, setFilter] = useState<TaskFilter>('all')
+  const [filter, setFilter] = useState<TaskFilter>('todo')
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState<string | null>(null)
+  const [selectedEntry, setSelectedEntry] = useState<Task | null>(null)
   const { show } = useToast()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const openedRef = useRef<string | null>(null)
 
   function load() {
     setLoading(true)
@@ -46,52 +61,55 @@ export default function PersonalTasks() {
 
   useEffect(load, [])
 
+  useEffect(() => {
+    const eid = (location.state as any)?.openEntryId
+    if (eid && eid !== openedRef.current) {
+      openedRef.current = eid
+      navigate(location.pathname, { state: {}, replace: true })
+      api<Task>(`/api/personal/entry/${eid}`)
+        .then(entry => setSelectedEntry(entry))
+        .catch(() => null)
+    }
+  }, [location.state])
+
   async function toggle(id: string) {
     setToggling(id)
     try {
       await api(`/api/personal/tasks/${id}/toggle`, { method: 'PATCH' })
       load()
-    } catch (err) {
-      console.error('[personal] task toggle error', err)
-      show("Couldn't update task — please try again", 'error')
+    } catch {
+      show("Couldn't update task", 'error')
     } finally {
       setToggling(null)
     }
   }
 
   const filtered = tasks.filter(t => {
-    if (filter === 'pending') return t.status === 'pending'
+    if (filter === 'todo') return t.status !== 'done' && (!t.recurrence || t.recurrence === 'none')
     if (filter === 'done') return t.status === 'done'
     if (filter === 'recurring') return t.recurrence && t.recurrence !== 'none'
     return true
   })
 
   const tabs: { id: TaskFilter; label: string }[] = [
-    { id: 'all', label: 'ALL' },
-    { id: 'pending', label: 'PENDING' },
+    { id: 'todo', label: 'TODO' },
     { id: 'done', label: 'DONE' },
     { id: 'recurring', label: 'RECURRING' },
   ]
 
   return (
     <div style={{ padding: '16px 20px' }}>
-      {/* Filter tabs */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setFilter(tab.id)}
             style={{
-              flex: 1,
-              padding: '6px 4px',
-              borderRadius: 8,
-              fontSize: 10,
-              fontFamily: 'DM Mono',
-              fontWeight: 600,
+              flex: 1, padding: '6px 4px', borderRadius: 8,
+              fontSize: 10, fontFamily: 'DM Mono', fontWeight: 600,
               border: filter === tab.id ? `1px solid ${ACCENT}33` : '1px solid transparent',
               background: filter === tab.id ? `${ACCENT}1a` : 'transparent',
-              color: filter === tab.id ? ACCENT : '#6a6a64',
-              cursor: 'pointer',
+              color: filter === tab.id ? ACCENT : '#6a6a64', cursor: 'pointer',
             }}
           >
             {tab.label}
@@ -106,30 +124,29 @@ export default function PersonalTasks() {
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ fontSize: 12, fontFamily: 'DM Sans', color: '#6a6a64', textAlign: 'center', paddingTop: 40 }}>
-          No {filter !== 'all' ? filter : ''} tasks
+          No {filter} tasks
         </div>
       ) : (
         filtered.map(task => {
-          const overdue = isOverdue(task)
+          const dueFmt = formatDueDate(task.due_date, task.status)
           return (
-            <div key={task.id} style={{
-              background: '#1a1a18', border: '1px solid rgba(255,255,255,0.04)',
-              borderRadius: 10, padding: '12px 14px', marginBottom: 6,
-              display: 'flex', alignItems: 'flex-start', gap: 12,
-            }}>
-              {/* Check circle */}
+            <div
+              key={task.id}
+              onClick={() => setSelectedEntry(task)}
+              style={{
+                background: '#1a1a18', border: '1px solid rgba(255,255,255,0.04)',
+                borderRadius: 10, padding: '12px 14px', marginBottom: 6,
+                display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer',
+              }}
+            >
               <button
-                onClick={() => toggle(task.id)}
+                onClick={e => { e.stopPropagation(); toggle(task.id) }}
                 disabled={toggling === task.id}
                 style={{
-                  flexShrink: 0,
-                  width: 22, height: 22,
-                  borderRadius: '50%',
-                  border: task.status === 'done' ? `2px solid #5DCAA5` : '2px solid rgba(255,255,255,0.15)',
+                  flexShrink: 0, width: 22, height: 22, borderRadius: '50%',
+                  border: task.status === 'done' ? '2px solid #5DCAA5' : '2px solid rgba(255,255,255,0.15)',
                   background: task.status === 'done' ? 'rgba(93,202,165,0.13)' : 'transparent',
-                  cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  marginTop: 1,
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1,
                 }}
               >
                 {task.status === 'done' && <span style={{ color: '#5DCAA5', fontSize: 12, lineHeight: 1 }}>✓</span>}
@@ -145,14 +162,9 @@ export default function PersonalTasks() {
                   {task.description}
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-                  {task.priority && (
-                    <span style={{ fontSize: 9, fontFamily: 'DM Mono', fontWeight: 700, background: `${PRIORITY_COLOR[task.priority]}1a`, color: PRIORITY_COLOR[task.priority], borderRadius: 4, padding: '2px 6px' }}>
-                      {task.priority.toUpperCase()}
-                    </span>
-                  )}
-                  {task.due_date && (
-                    <span style={{ fontSize: 9, fontFamily: 'DM Mono', color: overdue ? '#D85A30' : '#6a6a64' }}>
-                      {overdue ? 'OVERDUE · ' : ''}{task.due_date}
+                  {dueFmt && (
+                    <span style={{ fontSize: 9, fontFamily: 'DM Mono', color: dueFmt.color }}>
+                      {dueFmt.text}
                     </span>
                   )}
                   {task.recurrence && task.recurrence !== 'none' && (
@@ -166,6 +178,16 @@ export default function PersonalTasks() {
             </div>
           )
         })
+      )}
+
+      {selectedEntry && (
+        <PersonalEntryDetail
+          entry={selectedEntry}
+          workflow="tasks"
+          onClose={() => setSelectedEntry(null)}
+          onUpdated={load}
+          onDeleted={load}
+        />
       )}
     </div>
   )

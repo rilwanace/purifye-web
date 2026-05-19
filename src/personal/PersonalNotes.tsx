@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import ThreadManager from './ThreadManager'
+import PersonalEntryDetail from './PersonalEntryDetail'
 
 const NOTE_COLOR = '#CF5BA0'
 
@@ -24,7 +26,10 @@ export default function PersonalNotes() {
   const [threadFilter, setThreadFilter] = useState<string | null>(null)
   const [showManager, setShowManager] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState<Note | null>(null)
+  const [selectedEntry, setSelectedEntry] = useState<Note | null>(null)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const openedRef = useRef<string | null>(null)
 
   function loadThreads() {
     api<Thread[]>('/api/personal/threads?workflow=notes')
@@ -44,36 +49,19 @@ export default function PersonalNotes() {
   useEffect(() => { loadThreads() }, [])
   useEffect(() => { loadNotes(threadFilter) }, [threadFilter])
 
-  if (selected) {
-    return (
-      <div style={{ padding: '16px 20px' }}>
-        <button
-          onClick={() => setSelected(null)}
-          style={{ background: 'none', border: 'none', color: '#9c9b95', cursor: 'pointer', fontSize: 20, marginBottom: 12, minHeight: 44, padding: '4px 8px' }}
-        >&#x2190;</button>
-        {selected.photo_url && (
-          <img src={selected.photo_url} alt="" style={{ width: '100%', borderRadius: 12, marginBottom: 12, display: 'block' }} />
-        )}
-        <div style={{ fontSize: 13, fontFamily: 'DM Sans', color: '#e8e7e0', lineHeight: 1.6, marginBottom: 14, whiteSpace: 'pre-wrap' }}>
-          {selected.content}
-        </div>
-        {selected.tags && selected.tags.length > 0 && (
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-            {selected.tags.map(tag => (
-              <span key={tag} style={{ fontSize: 9, fontFamily: 'DM Mono', fontWeight: 700, background: `${NOTE_COLOR}1a`, color: NOTE_COLOR, borderRadius: 4, padding: '3px 8px' }}>
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-        <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: '#6a6a64' }}>{selected.created_at?.slice(0, 10)}</div>
-      </div>
-    )
-  }
+  useEffect(() => {
+    const eid = (location.state as any)?.openEntryId
+    if (eid && eid !== openedRef.current) {
+      openedRef.current = eid
+      navigate(location.pathname, { state: {}, replace: true })
+      api<Note>(`/api/personal/entry/${eid}`)
+        .then(entry => setSelectedEntry(entry))
+        .catch(() => null)
+    }
+  }, [location.state])
 
   return (
     <div style={{ padding: '16px 20px' }}>
-      {/* Thread filter chips + manage icon */}
       <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 12, scrollbarWidth: 'none', alignItems: 'center' }}>
         <button
           onClick={() => setThreadFilter(null)}
@@ -132,7 +120,7 @@ export default function PersonalNotes() {
         notes.map(note => (
           <div
             key={note.id}
-            onClick={() => setSelected(note)}
+            onClick={() => setSelectedEntry(note)}
             style={{
               background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)',
               borderRadius: 10, padding: '12px 14px', marginBottom: 6, cursor: 'pointer',
@@ -164,6 +152,16 @@ export default function PersonalNotes() {
           workflow="notes"
           onClose={() => setShowManager(false)}
           onChanged={() => { loadThreads(); loadNotes(threadFilter) }}
+        />
+      )}
+
+      {selectedEntry && (
+        <PersonalEntryDetail
+          entry={selectedEntry}
+          workflow="notes"
+          onClose={() => setSelectedEntry(null)}
+          onUpdated={() => loadNotes(threadFilter)}
+          onDeleted={() => loadNotes(threadFilter)}
         />
       )}
     </div>

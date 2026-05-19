@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api'
+import PersonalEntryDetail from './PersonalEntryDetail'
 
 const ACCENT = '#5B8DEF'
 const CATEGORIES = ['all', 'food', 'transport', 'shopping', 'bills', 'income', 'subscription', 'health', 'education', 'entertainment', 'other']
@@ -36,6 +38,10 @@ export default function PersonalMoney() {
   const [entries, setEntries] = useState<MoneyEntry[]>([])
   const [category, setCategory] = useState('all')
   const [loading, setLoading] = useState(true)
+  const [selectedEntry, setSelectedEntry] = useState<MoneyEntry | null>(null)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const openedRef = useRef<string | null>(null)
 
   function load(cat: string, year: number, month: number) {
     setLoading(true)
@@ -49,6 +55,17 @@ export default function PersonalMoney() {
   }
 
   useEffect(() => { load(category, viewYear, viewMonth) }, [category, viewYear, viewMonth])
+
+  useEffect(() => {
+    const eid = (location.state as any)?.openEntryId
+    if (eid && eid !== openedRef.current) {
+      openedRef.current = eid
+      navigate(location.pathname, { state: {}, replace: true })
+      api<MoneyEntry>(`/api/personal/entry/${eid}`)
+        .then(entry => setSelectedEntry(entry))
+        .catch(() => null)
+    }
+  }, [location.state])
 
   function prevMonth() {
     if (viewMonth === 1) { setViewMonth(12); setViewYear(y => y - 1) }
@@ -64,22 +81,14 @@ export default function PersonalMoney() {
 
   return (
     <div style={{ padding: '16px 20px' }}>
-      {/* Month navigator */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <button
-          onClick={prevMonth}
-          style={{ background: 'none', border: 'none', color: '#9c9b95', cursor: 'pointer', fontSize: 20, padding: '4px 12px', minHeight: 44, minWidth: 44 }}
-        >‹</button>
+        <button onClick={prevMonth} style={{ background: 'none', border: 'none', color: '#9c9b95', cursor: 'pointer', fontSize: 20, padding: '4px 12px', minHeight: 44, minWidth: 44 }}>‹</button>
         <span style={{ fontSize: 11, fontFamily: 'DM Mono', fontWeight: 600, color: '#c4c3bc', letterSpacing: '0.08em' }}>
           {MONTHS[viewMonth - 1].toUpperCase()} {viewYear}
         </span>
-        <button
-          onClick={nextMonth}
-          style={{ background: 'none', border: 'none', color: '#9c9b95', cursor: 'pointer', fontSize: 20, padding: '4px 12px', minHeight: 44, minWidth: 44 }}
-        >›</button>
+        <button onClick={nextMonth} style={{ background: 'none', border: 'none', color: '#9c9b95', cursor: 'pointer', fontSize: 20, padding: '4px 12px', minHeight: 44, minWidth: 44 }}>›</button>
       </div>
 
-      {/* Summary cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
         <div style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px' }}>
           <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: '#6a6a64', letterSpacing: '0.08em' }}>OUT</div>
@@ -91,26 +100,15 @@ export default function PersonalMoney() {
         </div>
       </div>
 
-      {/* Category filter */}
       <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 12, scrollbarWidth: 'none' }}>
         {CATEGORIES.map(cat => (
-          <button
-            key={cat}
-            onClick={() => setCategory(cat)}
-            style={{
-              flexShrink: 0,
-              padding: '6px 12px',
-              borderRadius: 20,
-              fontSize: 10,
-              fontFamily: 'DM Mono',
-              fontWeight: 600,
-              border: category === cat ? `1px solid ${ACCENT}33` : '1px solid transparent',
-              background: category === cat ? `${ACCENT}1a` : 'transparent',
-              color: category === cat ? ACCENT : '#6a6a64',
-              cursor: 'pointer',
-              minHeight: 32,
-            }}
-          >
+          <button key={cat} onClick={() => setCategory(cat)} style={{
+            flexShrink: 0, padding: '6px 12px', borderRadius: 20, fontSize: 10,
+            fontFamily: 'DM Mono', fontWeight: 600,
+            border: category === cat ? `1px solid ${ACCENT}33` : '1px solid transparent',
+            background: category === cat ? `${ACCENT}1a` : 'transparent',
+            color: category === cat ? ACCENT : '#6a6a64', cursor: 'pointer', minHeight: 32,
+          }}>
             {cat.toUpperCase()}
           </button>
         ))}
@@ -127,11 +125,15 @@ export default function PersonalMoney() {
         </div>
       ) : (
         entries.map(e => (
-          <div key={e.id} style={{
-            background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)',
-            borderRadius: 10, padding: '12px 14px', marginBottom: 6,
-            display: 'flex', alignItems: 'center', gap: 12,
-          }}>
+          <div
+            key={e.id}
+            onClick={() => setSelectedEntry(e)}
+            style={{
+              background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)',
+              borderRadius: 10, padding: '12px 14px', marginBottom: 6,
+              display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', minHeight: 44,
+            }}
+          >
             <div style={{
               width: 32, height: 32, borderRadius: 8, flexShrink: 0,
               background: e.direction === 'out' ? 'rgba(216,90,48,0.12)' : 'rgba(93,202,165,0.12)',
@@ -161,6 +163,16 @@ export default function PersonalMoney() {
             </div>
           </div>
         ))
+      )}
+
+      {selectedEntry && (
+        <PersonalEntryDetail
+          entry={selectedEntry}
+          workflow="money"
+          onClose={() => setSelectedEntry(null)}
+          onUpdated={() => load(category, viewYear, viewMonth)}
+          onDeleted={() => load(category, viewYear, viewMonth)}
+        />
       )}
     </div>
   )
