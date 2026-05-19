@@ -1,6 +1,7 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api'
+import PersonalInput from './PersonalInput'
 
 const ACCENT = '#5B8DEF'
 
@@ -30,8 +31,9 @@ function wfLabel(wf: string) {
   return m[wf] || wf.toUpperCase()
 }
 
-export default function PersonalHome({ refreshKey }: { refreshKey: number }) {
+export default function PersonalHome() {
   const [data, setData] = useState<HomeData | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -158,5 +160,6 @@ export default function PersonalHome({ refreshKey }: { refreshKey: number }) {
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
       `}</style>
     </div>
+    <PersonalInput onSaved={() => setRefreshKey(k => k + 1)} />
   )
 }

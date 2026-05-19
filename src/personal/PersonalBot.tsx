@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import PersonalHome from './PersonalHome'
 import PersonalMoney from './PersonalMoney'
@@ -6,7 +6,6 @@ import PersonalDocs from './PersonalDocs'
 import PersonalTasks from './PersonalTasks'
 import PersonalNotes from './PersonalNotes'
 import PersonalRules from './PersonalRules'
-import PersonalInput from './PersonalInput'
 import PersonalOnboarding from './PersonalOnboarding'
 import { api } from '../api'
 
@@ -24,7 +23,6 @@ export default function PersonalBot() {
   const navigate = useNavigate()
   const location = useLocation()
   const [hasRules, setHasRules] = useState<boolean | null>(null)
-  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     api<{ id: string }[]>('/api/personal/rules')
@@ -79,7 +77,7 @@ export default function PersonalBot() {
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 140 }}>
         <Routes>
           <Route index element={<Navigate to="home" replace />} />
-          <Route path="home" element={<PersonalHome refreshKey={refreshKey} />} />
+          <Route path="home" element={<PersonalHome />} />
           <Route path="money" element={<PersonalMoney />} />
           <Route path="docs/*" element={<PersonalDocs />} />
           <Route path="tasks" element={<PersonalTasks />} />
@@ -89,8 +87,6 @@ export default function PersonalBot() {
         </Routes>
       </div>
 
-      {/* Universal input bar */}
-      <PersonalInput onSaved={() => setRefreshKey(k => k + 1)} />
 
       {/* Bottom tab bar */}
       <div style={{
