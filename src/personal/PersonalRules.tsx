@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from '../api'
+import { useToast } from '../shared/components/Toast'
 
 const ACCENT = '#5B8DEF'
 
@@ -33,6 +34,7 @@ function AddRuleSheet({ onClose, onSaved }: { onClose: () => void; onSaved: () =
   const [params, setParams] = useState<Record<string, string>>({})
   const [name, setName] = useState('')
   const [saving, setSaving] = useState(false)
+  const { show } = useToast()
 
   function selectTemplate(t: typeof TEMPLATES[0]) {
     setSelected(t)
@@ -60,8 +62,9 @@ function AddRuleSheet({ onClose, onSaved }: { onClose: () => void; onSaved: () =
       })
       onSaved()
       onClose()
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[personal] rule save error', err)
+      show("Couldn't save rule — please try again", 'error')
     } finally {
       setSaving(false)
     }
@@ -116,6 +119,7 @@ export default function PersonalRules() {
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [toggling, setToggling] = useState<string | null>(null)
+  const { show: showRules } = useToast()
 
   function load() {
     setLoading(true)
@@ -135,8 +139,9 @@ export default function PersonalRules() {
         body: JSON.stringify({ active: !rule.active }),
       })
       load()
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[personal] rule toggle error', err)
+      showRules("Couldn't update rule — please try again", 'error')
     } finally {
       setToggling(null)
     }
@@ -146,8 +151,9 @@ export default function PersonalRules() {
     try {
       await api(`/api/personal/rules/${id}`, { method: 'DELETE' })
       load()
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[personal] rule delete error', err)
+      showRules("Couldn't delete rule — please try again", 'error')
     }
   }
 

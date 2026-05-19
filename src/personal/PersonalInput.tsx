@@ -1,5 +1,6 @@
-﻿import { useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { apiFormData } from '../api'
+import { useToast } from '../shared/components/Toast'
 import PersonalConfirmCard from './PersonalConfirmCard'
 
 const ACCENT = '#5B8DEF'
@@ -18,6 +19,7 @@ export default function PersonalInput({ onSaved }: { onSaved: () => void }) {
   const [loading, setLoading] = useState(false)
   const [parsed, setParsed] = useState<ParsedData | null>(null)
   const [recording, setRecording] = useState(false)
+  const { show } = useToast()
   const fileRef = useRef<HTMLInputElement>(null)
   const mediaRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
@@ -32,8 +34,9 @@ export default function PersonalInput({ onSaved }: { onSaved: () => void }) {
       const result = await apiFormData<ParsedData>('/api/personal/parse', form)
       setParsed(result)
       setText('')
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[personal] parse error', err)
+      show("Couldn't process that — please try again", 'error')
     } finally {
       setLoading(false)
     }
@@ -47,8 +50,9 @@ export default function PersonalInput({ onSaved }: { onSaved: () => void }) {
       form.append('file', file, file.name)
       const result = await apiFormData<ParsedData>('/api/personal/parse', form)
       setParsed(result)
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[personal] parse error', err)
+      show("Couldn't process that — please try again", 'error')
     } finally {
       setLoading(false)
     }
@@ -77,8 +81,8 @@ export default function PersonalInput({ onSaved }: { onSaved: () => void }) {
       recorder.start()
       mediaRef.current = recorder
       setRecording(true)
-    } catch {
-      // microphone denied
+    } catch (err) {
+      console.error('[personal] mic permission denied', err)
     }
   }
 

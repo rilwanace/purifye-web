@@ -1,5 +1,6 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { api } from '../api'
+import { useToast } from '../shared/components/Toast'
 
 const ACCENT = '#5B8DEF'
 
@@ -68,6 +69,7 @@ export default function PersonalConfirmCard({ parsed, onClose, onSaved }: Props)
     return f
   })
   const [saving, setSaving] = useState(false)
+  const { show } = useToast()
 
   function setField(k: string, v: string) {
     setFields(f => ({ ...f, [k]: v }))
@@ -97,8 +99,9 @@ export default function PersonalConfirmCard({ parsed, onClose, onSaved }: Props)
       })
       onSaved()
       onClose()
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[personal] confirm save error', err)
+      show("Couldn't save — please try again", 'error')
     } finally {
       setSaving(false)
     }

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { api } from '../api'
 
 const ACCENT = '#5B8DEF'
@@ -57,8 +57,8 @@ export default function PersonalOnboarding({ onDone }: { onDone: () => void }) {
         })
       }
       onDone()
-    } catch {
-      // ignore — let user in anyway
+    } catch (err) {
+      console.error('[personal] onboarding rule save error', err)
       onDone()
     } finally {
       setSaving(false)

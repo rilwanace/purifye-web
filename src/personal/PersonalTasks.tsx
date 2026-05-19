@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from '../api'
+import { useToast } from '../shared/components/Toast'
 
 const ACCENT = '#D4A843'
 
@@ -33,6 +34,7 @@ export default function PersonalTasks() {
   const [filter, setFilter] = useState<TaskFilter>('all')
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState<string | null>(null)
+  const { show } = useToast()
 
   function load() {
     setLoading(true)
@@ -49,8 +51,9 @@ export default function PersonalTasks() {
     try {
       await api(`/api/personal/tasks/${id}/toggle`, { method: 'PATCH' })
       load()
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[personal] task toggle error', err)
+      show("Couldn't update task — please try again", 'error')
     } finally {
       setToggling(null)
     }
