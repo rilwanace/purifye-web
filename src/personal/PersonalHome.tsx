@@ -52,6 +52,7 @@ export default function PersonalHome() {
   const { money_summary, tasks_summary, expiring_documents, recent_entries, alerts } = data
 
   return (
+    <>
     <div style={{ padding: '16px 20px' }}>
       {/* Alert strip */}
       {alerts.length > 0 && (
@@ -161,5 +162,6 @@ export default function PersonalHome() {
       `}</style>
     </div>
     <PersonalInput onSaved={() => setRefreshKey(k => k + 1)} />
+    </>
   )
 }
