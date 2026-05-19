@@ -62,8 +62,19 @@ export default function PersonalBot() {
         alignItems: 'center',
         justifyContent: 'space-between',
       }}>
-        <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'DM Sans', letterSpacing: '-0.3px', color: '#e8e7e0' }}>
-          <span style={{ color: ACCENT }}>◆</span> Personal Bot
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={() => navigate('/')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, color: '#e8e7e0', flexShrink: 0 }}
+            aria-label="Back to bot selector"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12.5 15L7.5 10L12.5 5" stroke="#e8e7e0" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'DM Sans', letterSpacing: '-0.3px', color: '#e8e7e0' }}>
+            <span style={{ color: ACCENT }}>◆</span> Personal Bot
+          </div>
         </div>
         <button
           onClick={() => navigate('/personal/rules')}
