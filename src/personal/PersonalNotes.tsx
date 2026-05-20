@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { useToast } from '../shared/components/Toast'
@@ -69,7 +69,167 @@ function CheckIcon({ filled }: { filled: boolean }) {
   )
 }
 
+const inputStyle: React.CSSProperties = {
+  width: '100%', background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)',
+  borderRadius: 8, color: '#e8e7e0', fontSize: 14, fontFamily: 'DM Sans',
+  padding: '10px 12px', boxSizing: 'border-box', outline: 'none',
+}
+
+const labelStyle: React.CSSProperties = {
+  fontSize: 11, fontFamily: 'DM Mono', color: '#9c9b95', marginBottom: 6, display: 'block',
+}
+
 type SubTab = 'due' | 'other'
+
+function QuickAddNote({ onClose, onSaved, subTab, threads }: {
+  onClose: () => void
+  onSaved: () => void
+  subTab: SubTab
+  threads: Thread[]
+}) {
+  const today = new Date().toISOString().slice(0, 10)
+  const [content, setContent] = useState('')
+  const [hasDueDate, setHasDueDate] = useState(false)
+  const [dueDate, setDueDate] = useState(today)
+  const [threadId, setThreadId] = useState('')
+  const [notes, setNotes] = useState('')
+  const [saving, setSaving] = useState(false)
+  const { show } = useToast()
+
+  async function save() {
+    if (!content.trim()) return
+    setSaving(true)
+    try {
+      if (hasDueDate && dueDate) {
+        await api('/api/personal/confirm', {
+          method: 'POST',
+          body: JSON.stringify({
+            source_input_id: null,
+            workflow: 'tasks',
+            fields: {
+              description: content.trim(),
+              due_date: dueDate,
+              notes: notes || null,
+            },
+          }),
+        })
+      } else {
+        await api('/api/personal/confirm', {
+          method: 'POST',
+          body: JSON.stringify({
+            source_input_id: null,
+            workflow: 'notes',
+            thread_id: threadId || null,
+            fields: {
+              content: content.trim(),
+              notes: notes || null,
+            },
+          }),
+        })
+      }
+      show('Saved', 'success')
+      onSaved()
+      onClose()
+    } catch {
+      show('Failed to save', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 200 }} onClick={onClose}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+          width: '100%', maxWidth: 430,
+          background: '#1a1a18', borderRadius: '16px 16px 0 0',
+          maxHeight: '85vh', overflowY: 'auto',
+          padding: '0 20px 32px',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 16px' }}>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: '#6a6a64' }} />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <span style={labelStyle}>CONTENT</span>
+            <textarea
+              rows={4}
+              placeholder="What's on your mind?"
+              value={content}
+              onChange={e => setContent(e.target.value)}
+              autoFocus
+              style={{ ...inputStyle, resize: 'none' as any, lineHeight: '1.5' }}
+            />
+          </div>
+
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: hasDueDate ? 8 : 0 }}>
+              <span style={labelStyle}>ADD DUE DATE</span>
+              <button
+                onClick={() => setHasDueDate(v => !v)}
+                style={{
+                  width: 40, height: 22, borderRadius: 11,
+                  background: hasDueDate ? BLUE : '#2a2a28',
+                  border: 'none', cursor: 'pointer', position: 'relative',
+                  transition: 'background 0.15s',
+                }}
+              >
+                <div style={{
+                  position: 'absolute', top: 3, left: hasDueDate ? 21 : 3,
+                  width: 16, height: 16, borderRadius: '50%', background: 'white',
+                  transition: 'left 0.15s',
+                }} />
+              </button>
+            </div>
+            {hasDueDate && (
+              <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} style={inputStyle} />
+            )}
+          </div>
+
+          {subTab === 'other' && threads.length > 0 && (
+            <div>
+              <span style={labelStyle}>THREAD</span>
+              <select value={threadId} onChange={e => setThreadId(e.target.value)} style={{ ...inputStyle, appearance: 'none' as any }}>
+                <option value="">No thread</option>
+                {threads.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            </div>
+          )}
+
+          <div>
+            <span style={labelStyle}>NOTES</span>
+            <textarea
+              rows={2}
+              placeholder="Additional notes"
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              style={{ ...inputStyle, resize: 'none' as any, lineHeight: '1.5' }}
+            />
+          </div>
+
+          <button
+            onClick={save}
+            disabled={!content.trim() || saving}
+            style={{
+              width: '100%', padding: '14px 0', borderRadius: 12,
+              background: !content.trim() ? '#2a2a28' : BLUE,
+              color: !content.trim() ? '#6a6a64' : 'white',
+              fontSize: 14, fontFamily: 'DM Sans', fontWeight: 600,
+              border: 'none', cursor: !content.trim() ? 'default' : 'pointer',
+            }}
+          >
+            {saving ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function PersonalNotes() {
   const [subTab, setSubTab] = useState<SubTab>('due')
@@ -78,6 +238,7 @@ export default function PersonalNotes() {
   const [threads, setThreads] = useState<Thread[]>([])
   const [threadFilter, setThreadFilter] = useState<string | null>(null)
   const [showManager, setShowManager] = useState(false)
+  const [showQuickAdd, setShowQuickAdd] = useState(false)
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState<string | null>(null)
   const [showDone, setShowDone] = useState(false)
@@ -131,7 +292,6 @@ export default function PersonalNotes() {
     }
   }
 
-  // Build unified items
   const allItems: UnifiedItem[] = [
     ...tasks.map(t => ({
       id: t.id, type: 'task' as const, content: t.description,
@@ -165,8 +325,7 @@ export default function PersonalNotes() {
   }
 
   return (
-    <div style={{ padding: '16px 20px' }}>
-      {/* Sub-tab segmented control */}
+    <div style={{ padding: '16px 20px', paddingBottom: 100 }}>
       <div style={{
         display: 'flex', background: '#212120', borderRadius: 10, padding: 3,
         marginBottom: 16,
@@ -198,7 +357,7 @@ export default function PersonalNotes() {
         <>
           {dueActive.length === 0 && !showDone && (
             <div style={{ fontSize: 12, fontFamily: 'DM Sans', color: '#6a6a64', textAlign: 'center', paddingTop: 40 }}>
-              Nothing due ??? capture a task below
+              Nothing due — capture a task below
             </div>
           )}
 
@@ -239,7 +398,6 @@ export default function PersonalNotes() {
             </div>
           ))}
 
-          {/* Show done toggle */}
           {(dueActive.length > 0 || dueDone.length > 0) && (
             <button
               onClick={() => setShowDone(s => !s)}
@@ -303,8 +461,7 @@ export default function PersonalNotes() {
         </>
       ) : (
         <>
-          {/* Thread filter pills */}
-          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 12, scrollbarWidth: 'none', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 12, scrollbarWidth: 'none' as any, alignItems: 'center' }}>
             <button
               onClick={() => setThreadFilter(null)}
               style={{
@@ -351,7 +508,7 @@ export default function PersonalNotes() {
 
           {otherSorted.length === 0 ? (
             <div style={{ fontSize: 12, fontFamily: 'DM Sans', color: '#6a6a64', textAlign: 'center', paddingTop: 40 }}>
-              {threadFilter ? 'No notes in this thread' : 'No notes yet ??? capture an idea below'}
+              {threadFilter ? 'No notes in this thread' : 'No notes yet — capture an idea below'}
             </div>
           ) : (
             otherSorted.map(item => (
@@ -383,6 +540,29 @@ export default function PersonalNotes() {
         </>
       )}
 
+      <button
+        onClick={() => setShowQuickAdd(true)}
+        style={{
+          position: 'fixed', bottom: 80, right: 20,
+          width: 48, height: 48, borderRadius: '50%',
+          background: BLUE, border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.3)', zIndex: 50,
+          fontSize: 24, color: 'white', lineHeight: '1',
+        }}
+      >
+        +
+      </button>
+
+      {showQuickAdd && (
+        <QuickAddNote
+          onClose={() => setShowQuickAdd(false)}
+          onSaved={loadData}
+          subTab={subTab}
+          threads={threads}
+        />
+      )}
+
       {showManager && (
         <ThreadManager
           workflow="notes"
@@ -403,4 +583,3 @@ export default function PersonalNotes() {
     </div>
   )
 }
-
