@@ -121,6 +121,10 @@ export default function PersonalConfirmCard({ parsed, onClose, onSaved }: Props)
     }
     return result
   })
+  const [extractedText] = useState<string>(() => {
+    const et = parsed.fields?.extracted_text
+    return et != null ? String(et) : ""
+  })
   const [threadId, setThreadId] = useState<string | null>(null)
   const [threads, setThreads] = useState<Thread[]>([])
   const [saving, setSaving] = useState(false)
@@ -147,6 +151,7 @@ export default function PersonalConfirmCard({ parsed, onClose, onSaved }: Props)
       const baseFields: Record<string, unknown> = { ...fields }
       if (workflow === "documents") {
         baseFields.key_details = keyDetails
+        baseFields.extracted_text = extractedText
       }
       const body: Record<string, unknown> = {
         source_input_id: parsed.source_input_id,
