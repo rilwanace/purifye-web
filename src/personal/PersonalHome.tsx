@@ -58,6 +58,7 @@ export default function PersonalHome() {
   const [searchFilter, setSearchFilter] = useState('all')
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [searching, setSearching] = useState(false)
+  const [deepSearch, setDeepSearch] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const navigate = useNavigate()
 
@@ -65,11 +66,12 @@ export default function PersonalHome() {
     api<HomeData>('/api/personal/home').then(setData).catch(() => null)
   }, [refreshKey])
 
-  function runSearch(q: string, wf: string) {
+  function runSearch(q: string, wf: string, deep: boolean) {
     if (!q.trim()) { setSearchResults([]); return }
     setSearching(true)
     const params = new URLSearchParams({ q: q.trim() })
     if (wf !== 'all') params.set('workflow', wf)
+    if (deep) params.set('deep', 'true')
     api<SearchResult[]>(`/api/personal/search?${params}`)
       .then(setSearchResults)
       .catch(() => setSearchResults([]))
@@ -80,12 +82,18 @@ export default function PersonalHome() {
     setSearchQuery(q)
     if (debounceRef.current) clearTimeout(debounceRef.current)
     if (!q.trim()) { setSearchResults([]); return }
-    debounceRef.current = setTimeout(() => runSearch(q, searchFilter), 400)
+    debounceRef.current = setTimeout(() => runSearch(q, searchFilter, deepSearch), 400)
   }
 
   function handleFilterChange(f: string) {
     setSearchFilter(f)
-    if (searchQuery.trim()) runSearch(searchQuery, f)
+    if (searchQuery.trim()) runSearch(searchQuery, f, deepSearch)
+  }
+
+  function handleDeepToggle() {
+    const next = !deepSearch
+    setDeepSearch(next)
+    if (searchQuery.trim()) runSearch(searchQuery, searchFilter, next)
   }
 
   function handleResultTap(r: SearchResult) {
@@ -154,7 +162,7 @@ export default function PersonalHome() {
             outline: 'none', marginBottom: 8,
           }}
         />
-        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', scrollbarWidth: 'none' }}>
+        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', scrollbarWidth: 'none', alignItems: 'center' }}>
           {WF_OPTIONS.map(opt => (
             <button
               key={opt.id}
@@ -170,6 +178,27 @@ export default function PersonalHome() {
               {opt.label}
             </button>
           ))}
+          <div style={{ flex: 1 }} />
+          <button
+            onClick={handleDeepToggle}
+            title={deepSearch ? 'Full text ON — searching inside documents' : 'Full text OFF — click to search inside documents'}
+            style={{
+              flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4,
+              padding: '6px 10px', borderRadius: 20, cursor: 'pointer',
+              fontSize: 10, fontFamily: 'DM Mono', fontWeight: 600,
+              border: deepSearch ? `1px solid ${ACCENT}33` : '1px solid transparent',
+              background: deepSearch ? `rgba(91,141,239,0.15)` : 'transparent',
+              color: deepSearch ? ACCENT : '#6a6a64',
+              minHeight: 44,
+            }}
+          >
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+              <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M4.5 6.5h4M6.5 4.5v4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+            </svg>
+            FULL TEXT
+          </button>
         </div>
       </div>
 
