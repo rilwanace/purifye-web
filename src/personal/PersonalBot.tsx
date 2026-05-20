@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import PersonalHome from './PersonalHome'
 import PersonalMoney from './PersonalMoney'
 import PersonalDocs from './PersonalDocs'
-import PersonalTasks from './PersonalTasks'
 import PersonalNotes from './PersonalNotes'
 import PersonalRules from './PersonalRules'
 import PersonalOnboarding from './PersonalOnboarding'
@@ -15,7 +14,6 @@ const TABS = [
   { id: 'home', label: 'HOME', path: '/personal/home' },
   { id: 'money', label: 'MONEY', path: '/personal/money' },
   { id: 'docs', label: 'DOCS', path: '/personal/docs' },
-  { id: 'tasks', label: 'TASKS', path: '/personal/tasks' },
   { id: 'notes', label: 'NOTES', path: '/personal/notes' },
 ] as const
 
@@ -27,7 +25,7 @@ export default function PersonalBot() {
   useEffect(() => {
     api<{ id: string }[]>('/api/personal/rules')
       .then(rules => setHasRules(rules.length > 0))
-      .catch(() => setHasRules(true)) // on error, skip onboarding
+      .catch(() => setHasRules(true))
   }, [])
 
   function activeTab() {
@@ -73,7 +71,7 @@ export default function PersonalBot() {
             </svg>
           </button>
           <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'DM Sans', letterSpacing: '-0.3px', color: '#e8e7e0' }}>
-            <span style={{ color: ACCENT }}>◆</span> Personal Bot
+            <span style={{ color: ACCENT }}>???</span> Personal Bot
           </div>
         </div>
         <button
@@ -91,13 +89,12 @@ export default function PersonalBot() {
           <Route path="home" element={<PersonalHome />} />
           <Route path="money" element={<PersonalMoney />} />
           <Route path="docs/*" element={<PersonalDocs />} />
-          <Route path="tasks" element={<PersonalTasks />} />
           <Route path="notes" element={<PersonalNotes />} />
+          <Route path="tasks" element={<Navigate to="/personal/notes" replace />} />
           <Route path="rules" element={<PersonalRules />} />
           <Route path="*" element={<Navigate to="home" replace />} />
         </Routes>
       </div>
-
 
       {/* Bottom tab bar */}
       <div style={{
@@ -153,3 +150,4 @@ export default function PersonalBot() {
     </div>
   )
 }
+

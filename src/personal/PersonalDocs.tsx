@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../api'
 import PersonalDocViewer from './PersonalDocViewer'
 import ThreadManager from './ThreadManager'
 
-const DOC_COLOR = '#7068D9'
+const DOC_COLOR = '#5B8DEF'
 
 function toTitleCase(key: string): string {
   return key
@@ -13,6 +13,20 @@ function toTitleCase(key: string): string {
     .split(' ')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ')
+}
+
+function expiryLabel(dateStr: string): string {
+  const exp = new Date(dateStr + 'T00:00:00')
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const diffDays = Math.round((exp.getTime() - today.getTime()) / 86400000)
+  if (diffDays < 0) {
+    const n = Math.abs(diffDays)
+    return `Expired ${n} ${n === 1 ? 'day' : 'days'} ago`
+  }
+  if (diffDays === 0) return 'Expires today'
+  if (diffDays === 1) return 'Expires tomorrow'
+  return `Expires in ${diffDays} days`
 }
 
 interface Thread {
@@ -34,6 +48,7 @@ interface DocEntry {
 
 function DocList() {
   const [docs, setDocs] = useState<DocEntry[]>([])
+  const [allDocs, setAllDocs] = useState<DocEntry[]>([])
   const [threads, setThreads] = useState<Thread[]>([])
   const [threadFilter, setThreadFilter] = useState<string | null>(null)
   const [showManager, setShowManager] = useState(false)
@@ -47,6 +62,12 @@ function DocList() {
       .catch(() => setThreads([]))
   }
 
+  function loadAllDocs() {
+    api<DocEntry[]>('/api/personal/documents')
+      .then(setAllDocs)
+      .catch(() => setAllDocs([]))
+  }
+
   function loadDocs(tid: string | null) {
     setLoading(true)
     const params = tid ? `?thread_id=${tid}` : ''
@@ -56,7 +77,7 @@ function DocList() {
       .finally(() => setLoading(false))
   }
 
-  useEffect(() => { loadThreads() }, [])
+  useEffect(() => { loadThreads(); loadAllDocs() }, [])
   useEffect(() => { loadDocs(threadFilter) }, [threadFilter])
 
   useEffect(() => {
@@ -66,8 +87,49 @@ function DocList() {
     }
   }, [location.state])
 
+  const expiringDocs = allDocs
+    .filter(d => d.expiry_date)
+    .sort((a, b) => (a.expiry_date! < b.expiry_date! ? -1 : 1))
+
   return (
     <div style={{ padding: '16px 20px' }}>
+      {/* Expiry timeline row */}
+      {expiringDocs.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 10, fontFamily: 'DM Mono', color: '#9c9b95', letterSpacing: '0.08em', marginBottom: 8 }}>
+            EXPIRING
+          </div>
+          <div style={{
+            display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none',
+            paddingBottom: 4,
+          }}>
+            {expiringDocs.map(doc => (
+              <div
+                key={doc.id}
+                onClick={() => navigate(`/personal/docs/view/${doc.id}`)}
+                style={{
+                  flexShrink: 0, width: 140, background: '#1a1a18',
+                  border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8,
+                  padding: 10, cursor: 'pointer',
+                }}
+              >
+                <div style={{
+                  fontSize: 13, fontFamily: 'DM Sans', fontWeight: 500, color: '#e8e7e0',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  marginBottom: 4,
+                }}>
+                  {doc.doc_type || 'Document'}
+                </div>
+                <div style={{ fontSize: 11, fontFamily: 'DM Mono', color: '#9c9b95' }}>
+                  {expiryLabel(doc.expiry_date!)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Thread filter pills */}
       <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 12, scrollbarWidth: 'none', alignItems: 'center' }}>
         <button
           onClick={() => setThreadFilter(null)}
@@ -120,12 +182,12 @@ function DocList() {
         </div>
       ) : docs.length === 0 ? (
         <div style={{ fontSize: 12, fontFamily: 'DM Sans', color: '#6a6a64', textAlign: 'center', paddingTop: 40 }}>
-          {threadFilter ? 'No documents in this thread' : 'No documents — photograph a document to store it'}
+          {threadFilter ? 'No documents in this thread' : 'No documents ??? photograph a document to store it'}
         </div>
       ) : (
         docs.map(doc => {
           const details = doc.key_details || {}
-          const detailExcerpt = Object.entries(details).slice(0, 2).map(([k, v]) => `${toTitleCase(k)}: ${v}`).join(' · ')
+          const detailExcerpt = Object.entries(details).slice(0, 2).map(([k, v]) => `${toTitleCase(k)}: ${v}`).join(' ?? ')
           const isExpiringSoon = doc.expiry_date && new Date(doc.expiry_date) <= new Date(Date.now() + 30 * 86400000)
 
           return (
@@ -134,11 +196,12 @@ function DocList() {
               onClick={() => navigate(`/personal/docs/view/${doc.id}`)}
               style={{
                 background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: 10, padding: '12px 14px', marginBottom: 6, cursor: 'pointer',
-                display: 'flex', alignItems: 'flex-start', gap: 12, minHeight: 44,
+                borderRadius: 10, marginBottom: 6, cursor: 'pointer',
+                display: 'flex', alignItems: 'stretch', overflow: 'hidden', minHeight: 44,
               }}
             >
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ width: 3, flexShrink: 0, background: DOC_COLOR }} />
+              <div style={{ flex: 1, padding: '12px 14px', minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                   <span style={{ fontSize: 9, fontFamily: 'DM Mono', fontWeight: 700, background: `${DOC_COLOR}1a`, color: DOC_COLOR, borderRadius: 4, padding: '2px 6px' }}>
                     {(doc.doc_type || 'DOC').toUpperCase()}
@@ -158,7 +221,7 @@ function DocList() {
                   <div style={{ fontSize: 11, fontFamily: 'DM Sans', color: '#9c9b95' }}>{doc.related_person}</div>
                 )}
               </div>
-              <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: '#6a6a64', flexShrink: 0 }}>
+              <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: '#6a6a64', flexShrink: 0, padding: '12px 14px 12px 0', alignSelf: 'center' }}>
                 {doc.created_at?.slice(0, 10)}
               </div>
             </div>
@@ -185,3 +248,4 @@ export default function PersonalDocs() {
     </Routes>
   )
 }
+
