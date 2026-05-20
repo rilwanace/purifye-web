@@ -71,7 +71,7 @@ export default function PersonalBot() {
             </svg>
           </button>
           <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'DM Sans', letterSpacing: '-0.3px', color: '#e8e7e0' }}>
-            <span style={{ color: ACCENT }}>???</span> Personal Bot
+            <span style={{ color: ACCENT }}>◆</span> Personal Bot
           </div>
         </div>
         <button
