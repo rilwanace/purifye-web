@@ -1,27 +1,16 @@
 import { useEffect, useState, useRef } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { useToast } from '../shared/components/Toast'
 import ThreadManager from './ThreadManager'
 import PersonalEntryDetail from './PersonalEntryDetail'
+import PersonalInput from './PersonalInput'
 
 const NOTE_COLOR = '#D4A843'
-const DUE_COLOR = '#9c9b95'
-const DONE_COLOR = '#6a6a64'
-const BLUE = '#5B8DEF'
 
 interface Thread {
   id: string
   name: string
-}
-
-interface Task {
-  id: string
-  description: string
-  due_date?: string
-  status: string
-  recurrence?: string
-  created_at: string
+  count?: number
 }
 
 interface Note {
@@ -31,42 +20,6 @@ interface Note {
   photo_url?: string
   thread_id?: string
   created_at: string
-}
-
-interface UnifiedItem {
-  id: string
-  type: 'task' | 'note'
-  content: string
-  due_date?: string
-  status?: string
-  thread_id?: string
-  created_at: string
-  _raw: Task | Note
-}
-
-function formatDueLabel(dateStr: string): string {
-  const due = new Date(dateStr + 'T00:00:00')
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const diffDays = Math.round((due.getTime() - today.getTime()) / 86400000)
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-
-  if (diffDays < 0) {
-    const n = Math.abs(diffDays)
-    return `${n} ${n === 1 ? 'day' : 'days'} overdue`
-  }
-  if (diffDays === 0) return 'Today'
-  if (diffDays === 1) return 'Tomorrow'
-  return `${months[due.getMonth()]} ${due.getDate()}`
-}
-
-function CheckIcon({ filled }: { filled: boolean }) {
-  if (!filled) return null
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-      <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  )
 }
 
 const inputStyle: React.CSSProperties = {
@@ -79,20 +32,9 @@ const labelStyle: React.CSSProperties = {
   fontSize: 11, fontFamily: 'DM Mono', color: '#9c9b95', marginBottom: 6, display: 'block',
 }
 
-type SubTab = 'due' | 'other'
-
-function QuickAddNote({ onClose, onSaved, subTab, threads }: {
-  onClose: () => void
-  onSaved: () => void
-  subTab: SubTab
-  threads: Thread[]
-}) {
-  const today = new Date().toISOString().slice(0, 10)
+function QuickAddNote({ onClose, onSaved, threads }: { onClose: () => void; onSaved: () => void; threads: Thread[] }) {
   const [content, setContent] = useState('')
-  const [hasDueDate, setHasDueDate] = useState(false)
-  const [dueDate, setDueDate] = useState(today)
   const [threadId, setThreadId] = useState('')
-  const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const { show } = useToast()
 
@@ -100,33 +42,15 @@ function QuickAddNote({ onClose, onSaved, subTab, threads }: {
     if (!content.trim()) return
     setSaving(true)
     try {
-      if (hasDueDate && dueDate) {
-        await api('/api/personal/confirm', {
-          method: 'POST',
-          body: JSON.stringify({
-            source_input_id: null,
-            workflow: 'tasks',
-            fields: {
-              description: content.trim(),
-              due_date: dueDate,
-              notes: notes || null,
-            },
-          }),
-        })
-      } else {
-        await api('/api/personal/confirm', {
-          method: 'POST',
-          body: JSON.stringify({
-            source_input_id: null,
-            workflow: 'notes',
-            thread_id: threadId || null,
-            fields: {
-              content: content.trim(),
-              notes: notes || null,
-            },
-          }),
-        })
-      }
+      await api('/api/personal/confirm', {
+        method: 'POST',
+        body: JSON.stringify({
+          source_input_id: null,
+          workflow: 'notes',
+          thread_id: threadId || null,
+          fields: { content: content.trim() },
+        }),
+      })
       show('Saved', 'success')
       onSaved()
       onClose()
@@ -140,89 +64,23 @@ function QuickAddNote({ onClose, onSaved, subTab, threads }: {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 200 }} onClick={onClose}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-          width: '100%', maxWidth: 430,
-          background: '#1a1a18', borderRadius: '16px 16px 0 0',
-          maxHeight: '85vh', overflowY: 'auto',
-          padding: '0 20px 32px',
-        }}
-      >
+      <div onClick={e => e.stopPropagation()} style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, background: '#1a1a18', borderRadius: '16px 16px 0 0', maxHeight: '85vh', overflowY: 'auto', padding: '0 20px 32px' }}>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 16px' }}>
           <div style={{ width: 36, height: 4, borderRadius: 2, background: '#6a6a64' }} />
         </div>
-
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
             <span style={labelStyle}>CONTENT</span>
-            <textarea
-              rows={4}
-              placeholder="What's on your mind?"
-              value={content}
-              onChange={e => setContent(e.target.value)}
-              autoFocus
-              style={{ ...inputStyle, resize: 'none' as any, lineHeight: '1.5' }}
-            />
+            <textarea rows={4} placeholder="What's on your mind?" value={content} onChange={e => setContent(e.target.value)} autoFocus style={{ ...inputStyle, resize: 'none', lineHeight: '1.5' } as React.CSSProperties} />
           </div>
-
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: hasDueDate ? 8 : 0 }}>
-              <span style={labelStyle}>ADD DUE DATE</span>
-              <button
-                onClick={() => setHasDueDate(v => !v)}
-                style={{
-                  width: 40, height: 22, borderRadius: 11,
-                  background: hasDueDate ? BLUE : '#2a2a28',
-                  border: 'none', cursor: 'pointer', position: 'relative',
-                  transition: 'background 0.15s',
-                }}
-              >
-                <div style={{
-                  position: 'absolute', top: 3, left: hasDueDate ? 21 : 3,
-                  width: 16, height: 16, borderRadius: '50%', background: 'white',
-                  transition: 'left 0.15s',
-                }} />
-              </button>
-            </div>
-            {hasDueDate && (
-              <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} style={inputStyle} />
-            )}
+            <span style={labelStyle}>THREAD</span>
+            <select value={threadId} onChange={e => setThreadId(e.target.value)} style={{ ...inputStyle, appearance: 'none' } as React.CSSProperties}>
+              <option value="">No thread</option>
+              {threads.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
           </div>
-
-          {subTab === 'other' && threads.length > 0 && (
-            <div>
-              <span style={labelStyle}>THREAD</span>
-              <select value={threadId} onChange={e => setThreadId(e.target.value)} style={{ ...inputStyle, appearance: 'none' as any }}>
-                <option value="">No thread</option>
-                {threads.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-              </select>
-            </div>
-          )}
-
-          <div>
-            <span style={labelStyle}>NOTES</span>
-            <textarea
-              rows={2}
-              placeholder="Additional notes"
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              style={{ ...inputStyle, resize: 'none' as any, lineHeight: '1.5' }}
-            />
-          </div>
-
-          <button
-            onClick={save}
-            disabled={!content.trim() || saving}
-            style={{
-              width: '100%', padding: '14px 0', borderRadius: 12,
-              background: !content.trim() ? '#2a2a28' : BLUE,
-              color: !content.trim() ? '#6a6a64' : 'white',
-              fontSize: 14, fontFamily: 'DM Sans', fontWeight: 600,
-              border: 'none', cursor: !content.trim() ? 'default' : 'pointer',
-            }}
-          >
+          <button onClick={save} disabled={!content.trim() || saving} style={{ width: '100%', padding: '14px 0', borderRadius: 12, background: !content.trim() ? '#2a2a28' : NOTE_COLOR, color: !content.trim() ? '#6a6a64' : '#131311', fontSize: 14, fontFamily: 'DM Sans', fontWeight: 600, border: 'none', cursor: !content.trim() ? 'default' : 'pointer' }}>
             {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
@@ -231,355 +89,200 @@ function QuickAddNote({ onClose, onSaved, subTab, threads }: {
   )
 }
 
-export default function PersonalNotes() {
-  const [subTab, setSubTab] = useState<SubTab>('due')
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [notes, setNotes] = useState<Note[]>([])
-  const [threads, setThreads] = useState<Thread[]>([])
-  const [threadFilter, setThreadFilter] = useState<string | null>(null)
-  const [showManager, setShowManager] = useState(false)
-  const [showQuickAdd, setShowQuickAdd] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [toggling, setToggling] = useState<string | null>(null)
-  const [showDone, setShowDone] = useState(false)
-  const [selectedEntry, setSelectedEntry] = useState<UnifiedItem | null>(null)
-  const { show } = useToast()
-  const location = useLocation()
-  const navigate = useNavigate()
-  const openedRef = useRef<string | null>(null)
+function ThreadFilter({ threads, threadFilter, onSelect, totalCount, accentColor }: {
+  threads: Thread[]
+  threadFilter: string | null
+  onSelect: (id: string | null) => void
+  totalCount: number
+  accentColor: string
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const activeThread = threads.find(t => t.id === threadFilter)
+  const activeLabel = threadFilter === null ? 'All notes' : (activeThread?.name || 'Unknown')
 
-  function loadData() {
-    setLoading(true)
-    Promise.all([
-      api<Task[]>('/api/personal/tasks').catch(() => [] as Task[]),
-      api<Note[]>('/api/personal/notes').catch(() => [] as Note[]),
-      api<Thread[]>('/api/personal/threads?workflow=notes').catch(() => [] as Thread[]),
-    ]).then(([t, n, th]) => {
-      setTasks(t)
-      setNotes(n)
-      setThreads(th)
-    }).finally(() => setLoading(false))
-  }
-
-  useEffect(() => { loadData() }, [])
-
-  useEffect(() => {
-    const eid = (location.state as any)?.openEntryId
-    if (eid && eid !== openedRef.current) {
-      openedRef.current = eid
-      navigate(location.pathname, { state: {}, replace: true })
-      api<any>(`/api/personal/entry/${eid}`)
-        .then(entry => {
-          const isTask = 'description' in entry
-          const unified: UnifiedItem = isTask
-            ? { id: entry.id, type: 'task', content: entry.description, due_date: entry.due_date, status: entry.status, created_at: entry.created_at, _raw: entry }
-            : { id: entry.id, type: 'note', content: entry.content, thread_id: entry.thread_id, created_at: entry.created_at, _raw: entry }
-          setSelectedEntry(unified)
-        })
-        .catch(() => null)
-    }
-  }, [location.state])
-
-  async function toggleTask(id: string) {
-    setToggling(id)
-    try {
-      await api(`/api/personal/tasks/${id}/toggle`, { method: 'PATCH' })
-      loadData()
-    } catch {
-      show("Couldn't update task", 'error')
-    } finally {
-      setToggling(null)
-    }
-  }
-
-  const allItems: UnifiedItem[] = [
-    ...tasks.map(t => ({
-      id: t.id, type: 'task' as const, content: t.description,
-      due_date: t.due_date, status: t.status, created_at: t.created_at, _raw: t,
-    })),
-    ...notes.map(n => ({
-      id: n.id, type: 'note' as const, content: n.content,
-      thread_id: n.thread_id, created_at: n.created_at, _raw: n,
-    })),
-  ]
-
-  const dueActive = allItems
-    .filter(i => i.due_date && i.status !== 'done')
-    .sort((a, b) => (a.due_date! < b.due_date! ? -1 : 1))
-
-  const dueDone = allItems
-    .filter(i => i.due_date && i.status === 'done')
-    .sort((a, b) => (a.due_date! < b.due_date! ? -1 : 1))
-
-  const otherItems = allItems.filter(i => !i.due_date)
-  const otherFiltered = threadFilter
-    ? otherItems.filter(i => i.type === 'note' && i.thread_id === threadFilter)
-    : otherItems
-
-  const otherSorted = [...otherFiltered].sort((a, b) =>
-    (b.created_at > a.created_at ? 1 : -1)
-  )
-
-  function openEntry(item: UnifiedItem) {
-    setSelectedEntry(item)
+  function select(id: string | null) {
+    onSelect(id)
+    setExpanded(false)
   }
 
   return (
-    <div style={{ padding: '16px 20px', paddingBottom: 100 }}>
-      <div style={{
-        display: 'flex', background: '#212120', borderRadius: 10, padding: 3,
-        marginBottom: 16,
-      }}>
-        {(['due', 'other'] as SubTab[]).map(tab => (
+    <div style={{ marginBottom: 0 }}>
+      {/* Collapsed row */}
+      <button
+        onClick={() => setExpanded(e => !e)}
+        style={{ width: '100%', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, padding: '0 0 8px 0', height: 36 }}
+      >
+        <span style={{ fontSize: 10, fontFamily: 'DM Mono', color: '#9c9b95', letterSpacing: '0.06em', flexShrink: 0 }}>THREAD</span>
+        <span style={{ fontSize: 12, fontFamily: 'DM Sans', color: accentColor, fontWeight: 500, flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{activeLabel}</span>
+        <span style={{ fontSize: 10, color: '#9c9b95', flexShrink: 0 }}>{expanded ? '▴' : '▾'}</span>
+      </button>
+
+      {/* Expanded list */}
+      {expanded && (
+        <div style={{ background: '#1a1a18', borderRadius: 8, overflow: 'hidden', marginBottom: 8 }}>
+          {/* All notes item */}
           <button
-            key={tab}
-            onClick={() => setSubTab(tab)}
-            style={{
-              flex: 1, padding: '7px 0', borderRadius: 8,
-              fontSize: 11, fontFamily: 'DM Mono', fontWeight: 600,
-              background: subTab === tab ? '#2a2a28' : 'transparent',
-              border: subTab === tab ? '1px solid rgba(255,255,255,0.08)' : '1px solid transparent',
-              color: subTab === tab ? '#e8e7e0' : '#6a6a64',
-              cursor: 'pointer', letterSpacing: '0.05em',
-            }}
+            onClick={() => select(null)}
+            style={{ width: '100%', height: 36, display: 'flex', alignItems: 'center', padding: '0 12px', background: threadFilter === null ? `rgba(${accentColor === NOTE_COLOR ? '212,168,67' : '91,141,239'},0.08)` : 'transparent', border: 'none', borderLeft: threadFilter === null ? `2px solid ${accentColor}` : '2px solid transparent', cursor: 'pointer' }}
           >
-            {tab === 'due' ? 'DUE' : 'OTHER'}
+            <span style={{ flex: 1, fontSize: 12, fontFamily: 'DM Sans', color: threadFilter === null ? accentColor : '#e8e7e0', textAlign: 'left' }}>All notes</span>
+            <span style={{ fontSize: 10, fontFamily: 'DM Mono', color: '#9c9b95' }}>{totalCount}</span>
           </button>
-        ))}
+          {threads.map(t => (
+            <button
+              key={t.id}
+              onClick={() => select(t.id)}
+              style={{ width: '100%', height: 36, display: 'flex', alignItems: 'center', padding: '0 12px', background: threadFilter === t.id ? `rgba(${accentColor === NOTE_COLOR ? '212,168,67' : '91,141,239'},0.08)` : 'transparent', border: 'none', borderLeft: threadFilter === t.id ? `2px solid ${accentColor}` : '2px solid transparent', cursor: 'pointer', borderTop: '1px solid rgba(255,255,255,0.04)' }}
+            >
+              <span style={{ flex: 1, fontSize: 12, fontFamily: 'DM Sans', color: threadFilter === t.id ? accentColor : '#e8e7e0', textAlign: 'left' }}>{t.name}</span>
+              {t.count !== undefined && <span style={{ fontSize: 10, fontFamily: 'DM Mono', color: '#9c9b95' }}>{t.count}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 12 }} />
+    </div>
+  )
+}
+
+export default function PersonalNotes() {
+  const [notes, setNotes] = useState<Note[]>([])
+  const [threads, setThreads] = useState<Thread[]>([])
+  const [threadFilter, setThreadFilter] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showManager, setShowManager] = useState(false)
+  const [showQuickAdd, setShowQuickAdd] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [selectedEntry, setSelectedEntry] = useState<Note | null>(null)
+  const { show } = useToast()
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  function loadThreads() {
+    api<Thread[]>('/api/personal/threads?workflow=notes')
+      .then(setThreads)
+      .catch(() => setThreads([]))
+  }
+
+  function loadNotes(q: string = '', tid: string | null = null) {
+    setLoading(true)
+    const params = new URLSearchParams()
+    if (q) params.set('q', q)
+    if (tid) params.set('thread_id', tid)
+    const qs = params.toString() ? `?${params.toString()}` : ''
+    api<Note[]>(`/api/personal/notes${qs}`)
+      .then(setNotes)
+      .catch(() => setNotes([]))
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { loadThreads(); loadNotes() }, [])
+
+  function handleSearch(q: string) {
+    setSearchQuery(q)
+    if (searchTimer.current) clearTimeout(searchTimer.current)
+    searchTimer.current = setTimeout(() => loadNotes(q, threadFilter), 300)
+  }
+
+  function handleThreadSelect(tid: string | null) {
+    setThreadFilter(tid)
+    loadNotes(searchQuery, tid)
+  }
+
+  function reload() {
+    loadThreads()
+    loadNotes(searchQuery, threadFilter)
+  }
+
+  const totalCount = threads.reduce((s, t) => s + (t.count ?? 0), 0) || notes.length
+
+  return (
+    <div style={{ padding: '16px 20px', paddingBottom: 120 }}>
+      {/* Search bar */}
+      <div style={{ position: 'relative', marginBottom: 12 }}>
+        <input
+          value={searchQuery}
+          onChange={e => handleSearch(e.target.value)}
+          placeholder="Search notes..."
+          style={{ width: '100%', boxSizing: 'border-box', background: '#2a2a28', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '10px 14px', fontSize: 13, fontFamily: 'DM Sans', color: '#e8e7e0', outline: 'none' }}
+        />
       </div>
 
+      {/* Collapsible thread filter */}
+      <ThreadFilter
+        threads={threads}
+        threadFilter={threadFilter}
+        onSelect={handleThreadSelect}
+        totalCount={totalCount}
+        accentColor={NOTE_COLOR}
+      />
+
+      {/* Note cards */}
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 40 }}>
           <div style={{ width: 20, height: 20, border: `2px solid ${NOTE_COLOR}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
         </div>
-      ) : subTab === 'due' ? (
-        <>
-          {dueActive.length === 0 && !showDone && (
-            <div style={{ fontSize: 12, fontFamily: 'DM Sans', color: '#6a6a64', textAlign: 'center', paddingTop: 40 }}>
-              Nothing due — capture a task below
-            </div>
-          )}
-
-          {dueActive.map(item => (
-            <div
-              key={item.id}
-              onClick={() => openEntry(item)}
-              style={{
-                background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: 10, marginBottom: 6, cursor: 'pointer',
-                display: 'flex', alignItems: 'stretch', overflow: 'hidden', minHeight: 44,
-              }}
-            >
-              <div style={{ width: 3, flexShrink: 0, background: DUE_COLOR }} />
-              <div style={{ flex: 1, padding: '12px 14px', minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontFamily: 'DM Sans', fontWeight: 500, color: '#e8e7e0', lineHeight: 1.5, marginBottom: 4 }}>
-                  {item.content}
-                </div>
-                {item.due_date && (
-                  <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: DUE_COLOR }}>
-                    {formatDueLabel(item.due_date)}
-                  </div>
-                )}
-              </div>
-              {item.type === 'task' && (
-                <button
-                  onClick={e => { e.stopPropagation(); toggleTask(item.id) }}
-                  disabled={toggling === item.id}
-                  style={{
-                    flexShrink: 0, width: 22, height: 22, borderRadius: '50%',
-                    border: '2px solid rgba(255,255,255,0.15)',
-                    background: 'transparent', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    alignSelf: 'center', marginRight: 14,
-                  }}
-                />
-              )}
-            </div>
-          ))}
-
-          {(dueActive.length > 0 || dueDone.length > 0) && (
-            <button
-              onClick={() => setShowDone(s => !s)}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-                width: '100%', background: 'none', border: 'none', cursor: 'pointer',
-                padding: '12px 0', marginTop: 4,
-                fontSize: 12, fontFamily: 'DM Sans',
-                color: showDone ? BLUE : '#6a6a64',
-              }}
-            >
-              {showDone ? 'Hide done' : 'Show done'}
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ transform: showDone ? 'rotate(180deg)' : 'none' }}>
-                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          )}
-
-          {showDone && dueDone.map(item => (
-            <div
-              key={item.id}
-              onClick={() => openEntry(item)}
-              style={{
-                background: '#1a1a18', border: '1px solid rgba(255,255,255,0.04)',
-                borderRadius: 10, marginBottom: 6, cursor: 'pointer',
-                display: 'flex', alignItems: 'stretch', overflow: 'hidden',
-                opacity: 0.5, minHeight: 44,
-              }}
-            >
-              <div style={{ width: 3, flexShrink: 0, background: DONE_COLOR }} />
-              <div style={{ flex: 1, padding: '12px 14px', minWidth: 0 }}>
-                <div style={{
-                  fontSize: 13, fontFamily: 'DM Sans', fontWeight: 500,
-                  color: DONE_COLOR, lineHeight: 1.5,
-                  textDecoration: 'line-through', marginBottom: 4,
-                }}>
-                  {item.content}
-                </div>
-                {item.due_date && (
-                  <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: DONE_COLOR }}>
-                    {formatDueLabel(item.due_date)}
-                  </div>
-                )}
-              </div>
-              {item.type === 'task' && (
-                <button
-                  onClick={e => { e.stopPropagation(); toggleTask(item.id) }}
-                  disabled={toggling === item.id}
-                  style={{
-                    flexShrink: 0, width: 22, height: 22, borderRadius: '50%',
-                    border: 'none', background: BLUE,
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    alignSelf: 'center', marginRight: 14,
-                  }}
-                >
-                  <CheckIcon filled />
-                </button>
-              )}
-            </div>
-          ))}
-        </>
+      ) : notes.length === 0 ? (
+        <div style={{ fontSize: 12, fontFamily: 'DM Sans', color: '#6a6a64', textAlign: 'center', paddingTop: 40 }}>
+          {threadFilter ? 'No notes in this thread' : 'No notes yet — capture an idea below'}
+        </div>
       ) : (
-        <>
-          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 8, marginBottom: 12, scrollbarWidth: 'none' as any, alignItems: 'center' }}>
-            <button
-              onClick={() => setThreadFilter(null)}
-              style={{
-                flexShrink: 0, padding: '6px 10px', borderRadius: 20,
-                fontSize: 10, fontFamily: 'DM Mono', fontWeight: 600,
-                border: threadFilter === null ? `1px solid ${NOTE_COLOR}33` : '1px solid transparent',
-                background: threadFilter === null ? `${NOTE_COLOR}1a` : 'transparent',
-                color: threadFilter === null ? NOTE_COLOR : '#6a6a64',
-                cursor: 'pointer', minHeight: 32,
-              }}
+        notes.map(note => {
+          const threadName = threads.find(t => t.id === note.thread_id)?.name
+          return (
+            <div
+              key={note.id}
+              onClick={() => setSelectedEntry(note)}
+              style={{ background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, marginBottom: 6, cursor: 'pointer', display: 'flex', alignItems: 'stretch', overflow: 'hidden', minHeight: 60 }}
             >
-              ALL
-            </button>
-            {threads.map(t => (
-              <button
-                key={t.id}
-                onClick={() => setThreadFilter(t.id)}
-                style={{
-                  flexShrink: 0, padding: '6px 10px', borderRadius: 20,
-                  fontSize: 10, fontFamily: 'DM Mono', fontWeight: 600,
-                  border: threadFilter === t.id ? `1px solid ${NOTE_COLOR}33` : '1px solid transparent',
-                  background: threadFilter === t.id ? `${NOTE_COLOR}1a` : 'transparent',
-                  color: threadFilter === t.id ? NOTE_COLOR : '#6a6a64',
-                  cursor: 'pointer', minHeight: 32,
-                }}
-              >
-                {t.name.toUpperCase()}
-              </button>
-            ))}
-            <button
-              onClick={() => setShowManager(true)}
-              style={{
-                flexShrink: 0, padding: '6px 8px', borderRadius: 20,
-                fontSize: 12, fontFamily: 'DM Mono',
-                border: '1px solid transparent', background: 'transparent',
-                color: '#6a6a64', cursor: 'pointer', minHeight: 32,
-                display: 'flex', alignItems: 'center',
-              }}
-              title="Manage threads"
-            >
-              &#x2699;
-            </button>
-          </div>
-
-          {otherSorted.length === 0 ? (
-            <div style={{ fontSize: 12, fontFamily: 'DM Sans', color: '#6a6a64', textAlign: 'center', paddingTop: 40 }}>
-              {threadFilter ? 'No notes in this thread' : 'No notes yet — capture an idea below'}
-            </div>
-          ) : (
-            otherSorted.map(item => (
-              <div
-                key={item.id}
-                onClick={() => openEntry(item)}
-                style={{
-                  background: '#1a1a18', border: '1px solid rgba(255,255,255,0.06)',
-                  borderRadius: 10, marginBottom: 6, cursor: 'pointer',
-                  display: 'flex', alignItems: 'stretch', overflow: 'hidden', minHeight: 44,
-                }}
-              >
-                <div style={{ width: 3, flexShrink: 0, background: NOTE_COLOR }} />
-                <div style={{ flex: 1, padding: '12px 14px', minWidth: 0 }}>
-                  <div style={{
-                    fontSize: 13, fontFamily: 'DM Sans', fontWeight: 500, color: '#e8e7e0',
-                    lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: 4,
-                  }}>
-                    {item.content}
-                  </div>
-                  <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: NOTE_COLOR }}>
-                    {item.created_at?.slice(0, 10)}
-                  </div>
+              <div style={{ width: 3, flexShrink: 0, background: NOTE_COLOR }} />
+              <div style={{ flex: 1, padding: '12px 14px', minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontFamily: 'DM Sans', fontWeight: 500, color: '#e8e7e0', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: 4 }}>
+                  {note.content}
+                </div>
+                <div style={{ fontSize: 9, fontFamily: 'DM Mono', color: '#9c9b95', display: 'flex', gap: 6 }}>
+                  {threadName && <span style={{ color: NOTE_COLOR }}>{threadName}</span>}
+                  <span>{note.created_at?.slice(0, 10)}</span>
                 </div>
               </div>
-            ))
-          )}
-        </>
+              {note.photo_url && (
+                <div style={{ flexShrink: 0, width: 52, padding: '8px 8px 8px 0', display: 'flex', alignItems: 'center' }}>
+                  <img src={note.photo_url} alt="" style={{ width: 44, height: 44, borderRadius: 6, objectFit: 'cover' }} />
+                </div>
+              )}
+            </div>
+          )
+        })
       )}
 
+      {/* FAB */}
       <button
         onClick={() => setShowQuickAdd(true)}
-        style={{
-          position: 'fixed', bottom: 80, right: 20,
-          width: 48, height: 48, borderRadius: '50%',
-          background: BLUE, border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.3)', zIndex: 50,
-          fontSize: 24, color: 'white', lineHeight: '1',
-        }}
+        style={{ position: 'fixed', bottom: 120, right: 20, width: 48, height: 48, borderRadius: '50%', background: NOTE_COLOR, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.3)', zIndex: 50, fontSize: 24, color: '#131311', lineHeight: '1' }}
       >
         +
       </button>
 
       {showQuickAdd && (
-        <QuickAddNote
-          onClose={() => setShowQuickAdd(false)}
-          onSaved={loadData}
-          subTab={subTab}
-          threads={threads}
-        />
+        <QuickAddNote onClose={() => setShowQuickAdd(false)} onSaved={reload} threads={threads} />
       )}
 
       {showManager && (
-        <ThreadManager
-          workflow="notes"
-          onClose={() => setShowManager(false)}
-          onChanged={() => loadData()}
-        />
+        <ThreadManager workflow="notes" onClose={() => setShowManager(false)} onChanged={reload} />
       )}
 
       {selectedEntry && (
         <PersonalEntryDetail
-          entry={selectedEntry._raw as any}
-          workflow={selectedEntry.type === 'task' ? 'tasks' : 'notes'}
+          entry={selectedEntry}
+          workflow="notes"
           onClose={() => setSelectedEntry(null)}
-          onUpdated={loadData}
-          onDeleted={loadData}
+          onUpdated={reload}
+          onDeleted={reload}
         />
       )}
+
+      {/* Input bar */}
+      <PersonalInput mode="notes" onSaved={reload} />
     </div>
   )
 }
