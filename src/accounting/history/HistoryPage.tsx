@@ -119,7 +119,7 @@ export default function HistoryPage({ containerHeight = 'calc(100dvh - 60px)' }:
   const load = useCallback(async () => {
     setLoading(true)
     const range = dateFilter === 'custom' ? { from: customFrom, to: customTo } : getRange(dateFilter)
-    const params = new URLSearchParams({ limit: '50' })
+    const params = new URLSearchParams({ limit: '200' })
     if (typeTab) params.set('type', typeTab)
     if (range?.from) params.set('from_date', range.from)
     if (range?.to) params.set('to_date', range.to)
