@@ -154,7 +154,6 @@ export default function PersonalNotes() {
   const [showQuickAdd, setShowQuickAdd] = useState(false)
   const [loading, setLoading] = useState(true)
   const [selectedEntry, setSelectedEntry] = useState<Note | null>(null)
-  const { show } = useToast()
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function loadThreads() {
