@@ -246,11 +246,11 @@ const Row = ({name,sub,val,valColor,onClick,chevron}:{name:string;sub?:string;va
 )
 
 const TxRow = ({tx}:{tx:any})=>{
-  const isCredit=(tx.credit||0)>0, amt=isCredit?tx.credit:tx.debit
+  const isIn=(tx.debit||0)>0, amt=isIn?tx.debit:tx.credit
   return <div style={{padding:'10px 14px',background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:10}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
       <div style={{fontSize:12,fontWeight:500,flex:1,marginRight:8,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical' as any,fontFamily:'var(--font-sans)',color:'var(--text-primary)'}}>{tx.description||'—'}</div>
-      <div style={{fontSize:12,fontWeight:600,whiteSpace:'nowrap',color:isCredit?'#3bf084':'#d85a30',fontFamily:'var(--font-mono)'}}>{isCredit?'+':'-'}Rs. {fmt(amt)}</div>
+      <div style={{fontSize:12,fontWeight:600,whiteSpace:'nowrap',color:isIn?'#3bf084':'#d85a30',fontFamily:'var(--font-mono)'}}>{isIn?'+':'-'}Rs. {fmt(amt)}</div>
     </div>
     <div style={{display:'flex',justifyContent:'space-between',marginTop:3}}>
       <div style={{fontSize:9,color:'var(--text-muted)',fontFamily:'var(--font-mono)'}}>{fmtDate(tx.date)}</div>
