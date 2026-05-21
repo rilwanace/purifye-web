@@ -125,7 +125,7 @@ export default function HistoryPage({ containerHeight = 'calc(100dvh - 60px)' }:
     if (range?.to) params.set('to_date', range.to)
     if (search) params.set('search', search)
     if (authorFilter !== 'all') params.set('author_filter', authorFilter)
-    try { const res = await api<any>('/api/entries/list?' + params); setEntries(res.entries || []) }
+    try { const res = await api<any>('/api/entries/list?' + params); setEntries((res.entries || []).filter((e: any) => e.type !== 'payment_made')) }
     catch { show('Failed to load entries', 'error') }
     finally { setLoading(false) }
   }, [typeTab, dateFilter, customFrom, customTo, search, authorFilter])
