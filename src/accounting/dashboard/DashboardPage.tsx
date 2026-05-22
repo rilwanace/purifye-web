@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../api'
 import { useAuth } from '../../auth/useAuth'
+import EntryForm from '../entry/EntryForm'
 import { openWhatsApp, promptWhatsApp } from '../../shared/utils/whatsapp'
 
 type Period = 'this_month' | 'last_month' | 'all' | 'custom'
@@ -245,9 +246,10 @@ const Row = ({name,sub,val,valColor,onClick,chevron}:{name:string;sub?:string;va
   </div>
 )
 
-const TxRow = ({tx}:{tx:any})=>{
+const TxRow = ({tx,onTap}:{tx:any;onTap?:()=>void})=>{
+  const tappable=!!tx.entry_group_id&&!!onTap
   const isIn=(tx.debit||0)>0, amt=isIn?tx.debit:tx.credit
-  return <div style={{padding:'10px 14px',background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:10}}>
+  return <div onClick={tappable?onTap:undefined} style={{padding:'10px 14px',background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:10,cursor:tappable?'pointer':'default'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
       <div style={{fontSize:12,fontWeight:500,flex:1,marginRight:8,overflow:'hidden',display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical' as any,fontFamily:'var(--font-sans)',color:'var(--text-primary)'}}>{tx.description||'—'}</div>
       <div style={{fontSize:12,fontWeight:600,whiteSpace:'nowrap',color:isIn?'#3bf084':'#d85a30',fontFamily:'var(--font-mono)'}}>{isIn?'+':'-'}Rs. {fmt(amt)}</div>
@@ -281,10 +283,10 @@ const CashAccountsView = ({d,push}:{d:any;push:Function})=>(
   </div>
 )
 
-const AccountTxnsView = ({d,onMore,loadingMore}:{d:any;onMore:()=>void;loadingMore?:boolean})=>(
+const AccountTxnsView = ({d,onMore,loadingMore,onTxTap}:{d:any;onMore:()=>void;loadingMore?:boolean;onTxTap?:(eg:string)=>void})=>(
   <div style={{display:'flex',flexDirection:'column',gap:8}}>
     <ViewH title={d.account||''} sub={`Balance: Rs. ${fmt(d.total)}`}/>
-    {(d.transactions||[]).map((tx:any,i:number)=><TxRow key={i} tx={tx}/>)}
+    {(d.transactions||[]).map((tx:any,i:number)=><TxRow key={i} tx={tx} onTap={tx.entry_group_id&&onTxTap?()=>onTxTap(tx.entry_group_id):undefined}/>)}
     <LoadMore has={!!d.has_more} onLoad={onMore} loading={loadingMore}/>
   </div>
 )
@@ -335,7 +337,7 @@ const AgingView = ({d,side,push}:{d:any;side:'ar'|'ap';push:Function})=>{
   </div>
 }
 
-const CounterpartyLedger = ({d,ctype,onMore,loadingMore}:{d:any;ctype:string;onMore:()=>void;loadingMore?:boolean})=>{
+const CounterpartyLedger = ({d,ctype,onMore,loadingMore,onTxTap}:{d:any;ctype:string;onMore:()=>void;loadingMore?:boolean;onTxTap?:(eg:string)=>void})=>{
   const outstanding=d.outstanding||0
   const outColor=outstanding>0?'#ef9f27':outstanding<0?'#3bf084':'var(--text-primary)'
   const trend=d.trend||[], maxT=Math.max(...trend.map((t:any)=>Math.abs(t.balance)),1)
@@ -356,7 +358,7 @@ const CounterpartyLedger = ({d,ctype,onMore,loadingMore}:{d:any;ctype:string;onM
       </div>
     </div>
     <SectionHead>Transactions</SectionHead>
-    {(d.transactions||[]).map((tx:any,i:number)=><TxRow key={i} tx={tx}/>)}
+    {(d.transactions||[]).map((tx:any,i:number)=><TxRow key={i} tx={tx} onTap={tx.entry_group_id&&onTxTap?()=>onTxTap(tx.entry_group_id):undefined}/>)}
     <LoadMore has={!!d.has_more} onLoad={onMore} loading={loadingMore}/>
   </div>
 }
@@ -556,6 +558,10 @@ export default function DashboardPage() {
   const [drillData, setDrillData] = useState<any>(null)
   const [drillLoading, setDrillLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
+  const [txDetail, setTxDetail] = useState<any>(null)
+  const [masterData, setMasterData] = useState<any>(null)
+  const [editSheetOpen, setEditSheetOpen] = useState(false)
+  const [editPrefill, setEditPrefill] = useState<any>(null)
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
 
@@ -571,6 +577,39 @@ export default function DashboardPage() {
   }, [period, customFrom, customTo])
 
   const cur = stack[stack.length-1]
+
+  async function handleTxTap(entry_group_id: string) {
+    try {
+      const res = await api<any>('/api/entry/by-group/' + entry_group_id)
+      if (!masterData) {
+        const md = await api<any>('/api/entry/master-data')
+        setMasterData({
+          customers: (md.customers||[]).map((c:any)=>c.name??c),
+          suppliers: (md.suppliers||[]).map((s:any)=>s.name??s),
+          staff: (md.employees||[]).map((e:any)=>e.name??e),
+          accounts: (md.cash_accounts||[]).map((a:any)=>a.name??a),
+          categories: md.expense_categories||[],
+          products: (md.products||[]).map((p:any)=>p.name??p),
+        })
+      }
+      setTxDetail({...res, entry_group_id})
+    } catch {}
+  }
+
+  async function handleTxEdit(eg: string) {
+    try {
+      const res = await api<any>('/api/entry/by-group/' + eg)
+      setEditPrefill({ type: res.type, fields: res.fields||{}, entryGroup: eg })
+      setEditSheetOpen(true)
+    } catch {}
+  }
+
+  async function handleTxDelete(eg: string) {
+    try {
+      await api('/api/entry/undo', { method: 'POST', body: JSON.stringify({ entry_group: eg }) })
+      setTxDetail(null)
+    } catch {}
+  }
 
   const fetchDrill = async (entry: ViewEntry): Promise<any> => {
     const p=entry.period||period, pa=entry.params||{}, b='/api/dashboard'
@@ -670,6 +709,49 @@ export default function DashboardPage() {
     </div>
   }
 
+  // Entry detail view (from TxRow tap)
+  if (txDetail) {
+    const typeColors: Record<string,string> = {sale:'#5DCAA5',payment_received:'#5DCAA5',purchase:'#E86B3A',other_expense:'#E85454',payroll:'#D4A843',payment_made:'#D4A843'}
+    const tColor = typeColors[txDetail.type] || '#7068D9'
+    const tLabel = (txDetail.type||'').replace(/_/g, ' ').replace(/\w/g, (c:string)=>c.toUpperCase())
+    return (
+      <div style={{height:'calc(100dvh - 60px)',background:'#131311',overflowY:'auto',paddingBottom:80}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+          <button onClick={()=>setTxDetail(null)} style={{background:'none',border:'none',color:'#5DCAA5',cursor:'pointer',fontSize:18}}>&#8592;</button>
+          <span style={{fontSize:12,color:'#6a6a64',fontFamily:'var(--font-mono)'}}>ENTRY DETAIL</span>
+        </div>
+        <div style={{padding:16}}>
+          <div style={{background:'#1a1a18',border:'1px solid rgba(255,255,255,0.06)',borderRadius:12,padding:20}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+              <span style={{padding:'4px 10px',borderRadius:20,background:tColor+'18',border:'1px solid '+tColor+'40',fontSize:10,fontFamily:'var(--font-mono)',color:tColor,textTransform:'uppercase'}}>{tLabel}</span>
+            </div>
+            {txDetail.fields && Object.entries({Description:txDetail.fields.description||txDetail.description||'—',Party:txDetail.fields.customer||txDetail.fields.supplier||txDetail.fields.payee||txDetail.fields.lender||txDetail.fields.employee||'—',Account:txDetail.fields.account||'—'}).map(([l,v])=>(
+              <div key={l} style={{marginBottom:14}}>
+                <div style={{fontSize:9,fontFamily:'var(--font-mono)',color:'#6a6a64',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:4}}>{l}</div>
+                <div style={{fontSize:13,color:'#e8e7e0'}}>{v as string}</div>
+              </div>
+            ))}
+            <div style={{display:'flex',gap:8,marginTop:20}}>
+              <button onClick={()=>handleTxEdit(txDetail.entry_group_id)} style={{flex:1,padding:'11px',borderRadius:9,border:'1px solid rgba(255,255,255,0.06)',background:'transparent',color:'#e8e7e0',fontSize:11,cursor:'pointer',fontFamily:'var(--font-mono)',textTransform:'uppercase'}}>Edit</button>
+              <button onClick={()=>handleTxDelete(txDetail.entry_group_id)} style={{flex:1,padding:'11px',borderRadius:9,border:'1px solid rgba(232,84,84,0.25)',background:'rgba(232,84,84,0.07)',color:'#e85454',fontSize:11,cursor:'pointer',fontFamily:'var(--font-mono)',textTransform:'uppercase'}}>Delete</button>
+            </div>
+          </div>
+        </div>
+        {editSheetOpen&&masterData&&(
+          <>
+            <div onClick={()=>{setEditSheetOpen(false);setEditPrefill(null)}} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:400}}/>
+            <div style={{position:'fixed',bottom:0,left:'50%',transform:'translateX(-50%)',width:'100%',maxWidth:430,background:'#1a1a18',borderRadius:'20px 20px 0 0',maxHeight:'78vh',display:'flex',flexDirection:'column',zIndex:401}}>
+              <div style={{width:36,height:4,background:'rgba(106,106,100,0.3)',borderRadius:2,margin:'12px auto 0'}}/>
+              <div style={{overflowY:'auto',flex:1,padding:'16px'}}>
+                <EntryForm masterData={masterData} prefill={editPrefill} onSaved={()=>{setEditSheetOpen(false);setEditPrefill(null);setTxDetail(null)}}/>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    )
+  }
+
   // Drill view
   return <div>
     <div style={{display:'flex',alignItems:'center',gap:8,padding:'10px 16px',borderBottom:'1px solid var(--border)'}}>
@@ -682,11 +764,11 @@ export default function DashboardPage() {
       {drillData&&!drillData.error&&(()=>{
         switch(cur.id){
           case 'cash_accounts': return <CashAccountsView d={drillData} push={push}/>
-          case 'account_txns': return <AccountTxnsView d={drillData} onMore={onMore} loadingMore={loadingMore}/>
+          case 'account_txns': return <AccountTxnsView d={drillData} onMore={onMore} loadingMore={loadingMore} onTxTap={handleTxTap}/>
           case 'ar_aging': return <AgingView d={drillData} side="ar" push={push}/>
           case 'ap_aging': return <AgingView d={drillData} side="ap" push={push}/>
-          case 'customer_ledger': return <CounterpartyLedger d={drillData} ctype="customer" onMore={onMore} loadingMore={loadingMore}/>
-          case 'supplier_ledger': return <CounterpartyLedger d={drillData} ctype="supplier" onMore={onMore} loadingMore={loadingMore}/>
+          case 'customer_ledger': return <CounterpartyLedger d={drillData} ctype="customer" onMore={onMore} loadingMore={loadingMore} onTxTap={handleTxTap}/>
+          case 'supplier_ledger': return <CounterpartyLedger d={drillData} ctype="supplier" onMore={onMore} loadingMore={loadingMore} onTxTap={handleTxTap}/>
           case 'revenue': return <RevenueView d={drillData} entry={cur} onTab={onTab} push={push}/>
           case 'pnl': return <PnlView d={drillData} push={push}/>
           case 'cogs_drill': return <CogsView d={drillData}/>

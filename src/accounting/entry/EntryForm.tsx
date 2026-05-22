@@ -25,28 +25,25 @@ interface Props {
 }
 
 const ENTRY_GROUPS = [
-  { label: 'Income', types: [
-    { value: 'sale', label: 'Sale' },
-    { value: 'sales_return', label: 'Sales Return' },
-    { value: 'payment_received', label: 'Payment Received' },
-    { value: 'capital_injection', label: 'Capital Injection' },
-    { value: 'loan_disbursement', label: 'Loan Disbursement' },
+  { label: 'Money In', types: [
+    { value: 'payment_received',   label: 'Payment Received' },
+    { value: 'capital_injection',  label: 'Capital Injection' },
+    { value: 'loan_disbursement',  label: 'Loan Disbursement' },
   ]},
-  { label: 'Expenses', types: [
-    { value: 'purchase', label: 'Purchase' },
-    { value: 'purchase_return', label: 'Purchase Return' },
-    { value: 'other_expense', label: 'Other Expense' },
-    { value: 'payment_made', label: 'Payment Made' },
-    { value: 'payroll', label: 'Payroll' },
-    { value: 'salary_advance', label: 'Salary Advance' },
-    { value: 'owner_drawing', label: 'Owner Drawing' },
+  { label: 'Money Out', types: [
+    { value: 'payment_made',       label: 'Payment Made' },
+    { value: 'payroll',            label: 'Payroll' },
+    { value: 'salary_advance',     label: 'Salary Advance' },
+    { value: 'owner_drawing',      label: 'Owner Drawing' },
+    { value: 'loan_repayment',     label: 'Loan Repayment' },
   ]},
-  { label: 'Other', types: [
-    { value: 'loan_repayment', label: 'Loan Repayment' },
-    { value: 'asset_purchase', label: 'Asset Purchase' },
+  { label: 'Adjustments', types: [
+    { value: 'sales_return',       label: 'Sales Return' },
+    { value: 'purchase_return',    label: 'Purchase Return' },
+    { value: 'asset_purchase',     label: 'Asset Purchase' },
     { value: 'inventory_adjustment', label: 'Inventory Adjustment' },
-    { value: 'intra_transfer', label: 'Intra-Transfer' },
-    { value: 'conversion', label: 'Conversion (FG)' },
+    { value: 'intra_transfer',     label: 'Intra-Transfer' },
+    { value: 'conversion',         label: 'Conversion (FG)' },
   ]},
 ]
 
