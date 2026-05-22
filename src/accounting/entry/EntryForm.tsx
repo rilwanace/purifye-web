@@ -25,6 +25,11 @@ interface Props {
 }
 
 const ENTRY_GROUPS = [
+  { label: 'Sales & Purchases', types: [
+    { value: 'sale',               label: 'Sale' },
+    { value: 'purchase',           label: 'Purchase' },
+    { value: 'other_expense',      label: 'Other Expense' },
+  ]},
   { label: 'Money In', types: [
     { value: 'payment_received',   label: 'Payment Received' },
     { value: 'capital_injection',  label: 'Capital Injection' },
