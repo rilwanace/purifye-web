@@ -758,7 +758,7 @@ export default function DashboardPage() {
       <button onClick={pop} style={{background:'none',border:'none',color:'var(--accent)',cursor:'pointer',fontSize:20,padding:'0 4px',fontFamily:'var(--font-sans)'}}>←</button>
       <span style={{fontSize:13,color:'var(--text-muted)'}}>Back</span>
     </div>
-    <div style={{padding:'12px 16px'}}>
+    <div style={{padding:'12px 16px 80px'}}>
       {drillLoading&&<div style={{textAlign:'center',padding:40,color:'var(--text-muted)'}}>Loading…</div>}
       {drillData?.error&&<div style={{padding:20,color:'var(--danger)',textAlign:'center'}}>{drillData.error}</div>}
       {drillData&&!drillData.error&&(()=>{
