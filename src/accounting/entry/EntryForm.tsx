@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+﻿import React, { useState, useEffect } from 'react'
 import { api } from '../../api'
 import { useToast } from '../../shared/components/Toast'
 
@@ -64,7 +64,7 @@ function defaultFields(type: string): Record<string, any> {
     case 'other_expense': return { ...base, vendor: '', category: '', amount: '', tax_amount: '', account: '' }
     case 'payment_received': return { ...base, customer: '', amount: '', account: '' }
     case 'payment_made': return { ...base, payee: '', amount: '', account: '' }
-    case 'payroll': return { ...base, amount: '', account: '' }
+    case 'payroll': return { ...base, month: new Date().toISOString().slice(0, 7), account: '', employees: [] }
     case 'salary_advance': return { ...base, employee: '', amount: '', account: '' }
     case 'owner_drawing': return { ...base, amount: '', account: '' }
     case 'capital_injection': return { ...base, source: '', amount: '', account: '' }
@@ -146,7 +146,7 @@ function EntityPicker({ value, onChange, options, placeholder, onAddNew }: {
         </button>
         <button onClick={() => { setAdding(false); setNewVal('') }}
           style={{ background: 'transparent', color: 'var(--text-muted)', border: '1px solid var(--border)', borderRadius: 8, padding: '0 10px', cursor: 'pointer', fontSize: 13 }}>
-          ✕
+          ???
         </button>
       </div>
     )
@@ -201,7 +201,7 @@ function LineItemsEditor({ items, isSale, onChange, products }: {
             <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>ITEM {idx + 1}</span>
             {items.length > 1 && (
               <button onClick={() => onChange(items.filter((_, i) => i !== idx))}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 14, padding: 0 }}>✕</button>
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 14, padding: 0 }}>???</button>
             )}
           </div>
           <select value={item.product} onChange={e => set(idx, 'product', e.target.value)}
@@ -275,10 +275,13 @@ function validate(type: string, f: Record<string, any>): Set<string> {
       if (noAmt(f.amount)) err.add('amount')
       if (empty(f.account)) err.add('account')
       break
-    case 'payroll':
-      if (noAmt(f.amount)) err.add('amount')
-      if (empty(f.account)) err.add('account')
+    case 'payroll': {
+      const emps: any[] = f.employees || []
+      if (!emps.length) err.add('employees')
+      const anyPaying = emps.some((e: any) => parseFloat(String(e.paying_now || 0)) > 0)
+      if (anyPaying && empty(f.account)) err.add('account')
       break
+    }
     case 'salary_advance':
       if (empty(f.employee)) err.add('employee')
       if (noAmt(f.amount)) err.add('amount')
@@ -335,8 +338,20 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
   const [editEntryGroup, setEditEntryGroup] = useState<string | null>(null)
   const [conversionPending, setConversionPending] = useState<{ token: string; details: any } | null>(null)
   const [localMaster, setLocalMaster] = useState(masterData)
+  const [payrollAdvances, setPayrollAdvances] = useState<Record<string, number>>({})
 
   useEffect(() => { setLocalMaster(masterData) }, [masterData])
+
+  useEffect(() => {
+    if (type !== 'payroll') return
+    api<any>('/api/payroll/advances')
+      .then(res => {
+        const m: Record<string, number> = {}
+        for (const a of (res.advances || [])) m[a.employee] = a.outstanding_advance
+        setPayrollAdvances(m)
+      })
+      .catch(() => {})
+  }, [type])
 
   useEffect(() => {
     if (!prefill) return
@@ -358,7 +373,57 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
     setConversionPending(null)
   }
 
+  async function handlePayrollSave() {
+    setLoading(true)
+    try {
+      const emps: any[] = fields.employees || []
+      if (!emps.length) { show('Add at least one employee', 'error'); return }
+      for (const e of emps) {
+        if (!(e.employee || '').trim()) { show('Employee name required for all rows', 'error'); return }
+        if (!(parseFloat(String(e.salary || 0)) > 0)) { show(`Salary must be > 0 for ${e.employee || 'employee'}`, 'error'); return }
+        const pay = parseFloat(String(e.paying_now || 0))
+        const sal = parseFloat(String(e.salary || 0))
+        const adv = payrollAdvances[e.employee] || 0
+        if (pay > sal + adv + 0.01) { show(`Payment for ${e.employee} exceeds salary + advance (Rs. ${(sal + adv).toLocaleString()})`, 'error'); return }
+      }
+      const anyPaying = emps.some(e => parseFloat(String(e.paying_now || 0)) > 0)
+      if (anyPaying && !fields.account) { show('Select payment account', 'error'); return }
+      const body = {
+        month: fields.month,
+        payment_date: fields.date,
+        account: fields.account || undefined,
+        employees: emps.map(e => {
+          const basic = parseFloat(String(e.basic || 0))
+          const row: any = {
+            employee: e.employee,
+            salary: parseFloat(String(e.salary || 0)),
+            paying_now: parseFloat(String(e.paying_now || 0)),
+            deduct_advance: e.deduct_advance !== false,
+          }
+          if (basic > 0) {
+            row.basic = basic
+            row.allowances = parseFloat(String(e.allowances || 0))
+            row.ot = parseFloat(String(e.ot || 0))
+            row.deductions = parseFloat(String(e.deductions || 0))
+            row.employee_epf = parseFloat(String(e.employee_epf || 0))
+            row.etf = parseFloat(String(e.etf || 0))
+          }
+          return row
+        }),
+      }
+      await api<any>('/api/payroll/save', { method: 'POST', body: JSON.stringify(body) })
+      show('Payroll saved', 'success')
+      setFieldsAll(defaultFields('payroll'))
+      onSaved?.()
+    } catch (err: any) {
+      show(err.message || 'Save failed', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   async function handleSave(confirmToken?: string, withInvoice = false) {
+    if (type === 'payroll') { await handlePayrollSave(); return }
     setLoading(true)
     try {
       const body: any = { type, fields: { ...fields } }
@@ -530,8 +595,136 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
 
       case 'payroll': return (
         <>
-          <Field name="Total Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="Total payroll" /></Field>
-          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+          <Field name="Payroll Month">
+            <input type="month" value={f.month || ''} onChange={e => sf('month', e.target.value)} style={inp} />
+          </Field>
+
+          {(f.employees || []).map((emp: any, idx: number) => {
+            const outstanding = payrollAdvances[emp.employee] || 0
+            const salary = parseFloat(String(emp.salary || 0))
+            const payingNow = parseFloat(String(emp.paying_now || 0))
+            const maxPay = salary + outstanding
+            const overpay = payingNow > maxPay + 0.01
+
+            function updEmp(key: string, val: any) {
+              sf('employees', (fields.employees || []).map((e: any, i: number) => i === idx ? { ...e, [key]: val } : e))
+            }
+
+            function onDetailChange(key: string, val: string) {
+              const next = { ...emp, [key]: val }
+              const b = parseFloat(String(next.basic || 0))
+              const a = parseFloat(String(next.allowances || 0))
+              const o = parseFloat(String(next.ot || 0))
+              const d = parseFloat(String(next.deductions || 0))
+              const epf = parseFloat(String(next.employee_epf || 0))
+              const auto = Math.round(Math.max(0, b + a + o - d - epf) * 100) / 100
+              sf('employees', (fields.employees || []).map((e: any, i: number) =>
+                i === idx ? { ...next, salary: b > 0 ? String(auto) : next.salary } : e
+              ))
+            }
+
+            function toggleExpand() {
+              if (!emp.expanded && !(emp.basic)) {
+                sf('employees', (fields.employees || []).map((e: any, i: number) =>
+                  i === idx ? { ...e, expanded: true, basic: e.salary || '' } : e
+                ))
+              } else {
+                updEmp('expanded', !emp.expanded)
+              }
+            }
+
+            return (
+              <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${overpay ? '#D4A843' : 'var(--border)'}`, borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                  <select value={emp.employee || ''} onChange={e => updEmp('employee', e.target.value)} style={{ ...inp, flex: 1 }}>
+                    <option value="">Select employee</option>
+                    {localMaster.staff.map((s: string) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                  <button onClick={toggleExpand} title="Toggle detail"
+                    style={{ background: 'none', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text-muted)', cursor: 'pointer', fontSize: 11, padding: '0 8px', flexShrink: 0 }}>
+                    {emp.expanded ? '???' : '???'}
+                  </button>
+                  {(f.employees || []).length > 1 && (
+                    <button onClick={() => sf('employees', (fields.employees || []).filter((_: any, i: number) => i !== idx))}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 16, padding: '0 2px', flexShrink: 0 }}>???</button>
+                  )}
+                </div>
+
+                {emp.expanded && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 8, padding: '8px 10px', background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                    <div><label style={lbl}>Basic</label><input type="number" value={emp.basic || ''} onChange={e => onDetailChange('basic', e.target.value)} placeholder="0" style={inp} /></div>
+                    <div><label style={lbl}>Allowances</label><input type="number" value={emp.allowances || ''} onChange={e => onDetailChange('allowances', e.target.value)} placeholder="0" style={inp} /></div>
+                    <div><label style={lbl}>OT</label><input type="number" value={emp.ot || ''} onChange={e => onDetailChange('ot', e.target.value)} placeholder="0" style={inp} /></div>
+                    <div><label style={lbl}>Deductions</label><input type="number" value={emp.deductions || ''} onChange={e => onDetailChange('deductions', e.target.value)} placeholder="0" style={inp} /></div>
+                    <div><label style={lbl}>Emp EPF</label><input type="number" value={emp.employee_epf || ''} onChange={e => onDetailChange('employee_epf', e.target.value)} placeholder="0" style={inp} /></div>
+                    <div><label style={lbl}>ETF</label><input type="number" value={emp.etf || ''} onChange={e => onDetailChange('etf', e.target.value)} placeholder="0" style={inp} /></div>
+                  </div>
+                )}
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                  <div>
+                    <label style={lbl}>{emp.expanded ? 'Net Salary (Auto)' : 'Salary'}</label>
+                    {emp.expanded ? (
+                      <div style={{ ...inp, background: 'rgba(93,202,165,0.06)', color: 'var(--accent)', cursor: 'default' }}>
+                        {salary > 0 ? salary.toLocaleString() : '???'}
+                      </div>
+                    ) : (
+                      <input type="number" value={emp.salary || ''} onChange={e => updEmp('salary', e.target.value)} placeholder="0" style={inp} />
+                    )}
+                  </div>
+                  <div>
+                    <label style={{ ...lbl, ...(overpay ? { color: '#D4A843' } : {}) }}>Paying Now{overpay ? ' ???' : ''}</label>
+                    <input type="number" value={emp.paying_now || ''} onChange={e => updEmp('paying_now', e.target.value)} placeholder="0"
+                      style={{ ...inp, ...(overpay ? { outline: '1.5px solid #D4A843' } : {}) }} />
+                  </div>
+                </div>
+
+                {emp.employee && outstanding > 0 && (
+                  <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 10, fontSize: 12 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 5, cursor: 'pointer', color: 'var(--text-muted)' }}>
+                      <input type="checkbox" checked={emp.deduct_advance !== false} onChange={e => updEmp('deduct_advance', e.target.checked)} />
+                      Deduct advance
+                    </label>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>
+                      Rs. {outstanding.toLocaleString()} outstanding
+                    </span>
+                  </div>
+                )}
+
+                {overpay && (
+                  <div style={{ fontSize: 11, color: '#D4A843', marginTop: 5, fontFamily: 'var(--font-mono)' }}>
+                    Max: Rs. {maxPay.toLocaleString()} (salary + advance)
+                  </div>
+                )}
+              </div>
+            )
+          })}
+
+          <button onClick={() => sf('employees', [...(f.employees || []),
+            { employee: '', salary: '', paying_now: '', deduct_advance: true, basic: '', allowances: '', ot: '', deductions: '', employee_epf: '', etf: '', expanded: false }
+          ])} style={{ width: '100%', padding: 8, background: 'none', border: '1px dashed var(--border)', borderRadius: 8, color: 'var(--text-muted)', cursor: 'pointer', fontSize: 13, marginBottom: 14 }}>
+            + Add Employee
+          </button>
+
+          {(f.employees || []).length > 0 && (
+            <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '10px 12px', marginBottom: 14, fontFamily: 'var(--font-mono)', fontSize: 12 }}>
+              {[
+                ['Total salary', (f.employees || []).reduce((s: number, e: any) => s + (parseFloat(String(e.salary || 0)) || 0), 0)],
+                ['Total paying', (f.employees || []).reduce((s: number, e: any) => s + (parseFloat(String(e.paying_now || 0)) || 0), 0)],
+              ].map(([label, val]: any) => (
+                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                  <span style={{ color: 'var(--text-muted)' }}>{label}</span>
+                  <span>Rs. {Number(val).toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(f.employees || []).some((e: any) => parseFloat(String(e.paying_now || 0)) > 0) && (
+            <Field name="Payment Account" error={errors.has('account')}>
+              <AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} />
+            </Field>
+          )}
         </>
       )
 
@@ -604,7 +797,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
                     background: f.direction === d ? 'var(--accent)' : 'var(--bg-card)',
                     color: f.direction === d ? '#000' : 'var(--text-muted)',
                   }}>
-                  {d === 'add' ? '+ Add Stock' : '− Remove Stock'}
+                  {d === 'add' ? '+ Add Stock' : '??? Remove Stock'}
                 </button>
               ))}
             </div>
@@ -649,7 +842,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
         </select>
       </Field>
 
-      <Field name="Date" error={errors.has('date')}>
+      <Field name={type === 'payroll' ? 'Payment Date' : 'Date'} error={errors.has('date')}>
         <input type="date" value={f.date || ''} onChange={e => sf('date', e.target.value)} style={inp} />
       </Field>
 
