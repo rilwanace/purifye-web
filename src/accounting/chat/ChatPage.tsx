@@ -242,7 +242,7 @@ export default function ChatPage() {
                   { type: 'sale', label: 'Sale', border: 'rgba(93,202,165,0.25)', bg: 'rgba(93,202,165,0.07)', color: '#5DCAA5' },
                   { type: 'purchase', label: 'Purchase', border: 'rgba(232,107,58,0.25)', bg: 'rgba(232,107,58,0.07)', color: '#E86B3A' },
                   { type: 'other_expense', label: 'Expense', border: 'rgba(212,168,67,0.25)', bg: 'rgba(212,168,67,0.07)', color: '#D4A843' },
-                  { type: '', label: 'Other', border: 'rgba(112,104,217,0.25)', bg: 'rgba(112,104,217,0.07)', color: '#7068D9' },
+                  { type: 'loan_repayment', label: 'Other', border: 'rgba(112,104,217,0.25)', bg: 'rgba(112,104,217,0.07)', color: '#7068D9' },
                 ] as const).map((q: any) => (
                   <button key={q.label} onClick={() => openQuickEntry(q.type)} style={{ flex: 1, padding: '10px 0', borderRadius: 8, border: '1px solid ' + q.border, background: q.bg, color: q.color, fontSize: 10, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', cursor: 'pointer' }}>{q.label}</button>
                 ))}
