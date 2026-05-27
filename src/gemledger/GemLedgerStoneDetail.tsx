@@ -42,7 +42,6 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
   const [refreshKey, setRefreshKey] = useState(0)
   const [edit, setEdit] = useState<any>({})
   const [dupWarn, setDupWarn] = useState(false)
-  const [shareUrl, setShareUrl] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const certRef = useRef<HTMLInputElement>(null)
 
@@ -90,7 +89,6 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
   async function share() {
     try {
       const r = await gemApi.shareLot(lotId)
-      setShareUrl(r.url)
       if (navigator.share) {
         navigator.share({ title: lot?.name || 'Stone', url: r.url })
       } else {

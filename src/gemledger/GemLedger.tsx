@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import GemLedgerDashboard from './GemLedgerDashboard'
 import GemLedgerStockDrill from './GemLedgerStockDrill'
 import GemLedgerTypeDrill from './GemLedgerTypeDrill'
@@ -11,8 +11,7 @@ import GemLedgerSearch from './GemLedgerSearch'
 import GemLedgerBottomNav from './GemLedgerBottomNav'
 import GemLedgerSharePage from './GemLedgerSharePage'
 import {
-  AddLotForm, AddPartyForm, AddInvestmentForm, SellForm,
-  AddExpenseForm, ReceiveCutterForm,
+  AddLotForm, AddPartyForm, AddInvestmentForm, ReceiveCutterForm,
 } from './GemLedgerForms'
 
 const C = {
@@ -30,7 +29,6 @@ type Drill =
   | { kind: 'investor'; id: string; name: string }
 
 function GemLedgerApp() {
-  const navigate = useNavigate()
   const [tab, setTab] = useState<'dashboard' | 'sold' | 'settings'>('dashboard')
   const [drill, setDrill] = useState<Drill>(null)
   const [activeLotId, setActiveLotId] = useState<string | null>(null)
@@ -162,7 +160,6 @@ function GemLedgerApp() {
         {tab === 'dashboard' && drill?.kind === 'investments' && (
           <InvestmentsList
             onBack={() => setDrill(null)}
-            onLot={openLot}
             onInvestorDetail={(id, name) => setDrill({ kind: 'investor', id, name })}
             refreshKey={refreshKey}
           />

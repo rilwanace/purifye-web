@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { gemApi } from './gemledger-api'
-import type { Lot, Party } from './gemledger-types'
+import type { Lot } from './gemledger-types'
 import { LotCard, numFmt } from './GemLedgerCards'
 
 const C = {

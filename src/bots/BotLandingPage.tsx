@@ -64,7 +64,7 @@ const BOTS = [
     gradient: 'linear-gradient(135deg, #5B8DEF, #3A63B8)',
     emoji: '🧠',
     glow: 'rgba(91,141,239,0.3)',
-  },,
+  },
   {
     id: "gemledger",
     label: "GemLedger",

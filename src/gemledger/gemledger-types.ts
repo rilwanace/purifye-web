@@ -40,6 +40,7 @@ export interface Lot {
   total_cost: string
   cost_per_ct?: string
   sale_price?: string
+  profit?: string
   sold_at?: string
   shape?: string
   color?: string

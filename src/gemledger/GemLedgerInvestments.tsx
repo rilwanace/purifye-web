@@ -12,12 +12,11 @@ const C = {
 
 interface Props {
   onBack: () => void
-  onLot: (id: string) => void
   onInvestorDetail: (id: string, name: string) => void
   refreshKey: number
 }
 
-export function InvestmentsList({ onBack, onLot, onInvestorDetail, refreshKey }: Props) {
+export function InvestmentsList({ onBack, onInvestorDetail, refreshKey }: Props) {
   const [invs, setInvs] = useState<Investment[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<'cash' | 'pnl'>('cash')
