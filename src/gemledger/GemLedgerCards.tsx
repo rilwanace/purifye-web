@@ -7,7 +7,13 @@ const C = {
 }
 
 export function numFmt(v: string | number) {
-  return parseFloat(String(v)).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const n = parseFloat(String(v))
+  if (Number.isInteger(n)) return n.toLocaleString('en')
+  return n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+export function fmtCt(v: string | number) {
+  return parseFloat(String(v)).toLocaleString('en', { minimumFractionDigits: 1, maximumFractionDigits: 2 })
 }
 
 export function LotCard({
@@ -47,7 +53,7 @@ export function LotCard({
       {/* Line 2: Weight + stone count aligned */}
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'flex-end', gap: 16, marginBottom: 4 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, minWidth: 80, justifyContent: 'flex-end' }}>
-          <span style={{ color: C.t1, fontFamily: 'JetBrains Mono', fontSize: 14, fontWeight: 600 }}>{numFmt(lot.total_weight_ct)}</span>
+          <span style={{ color: C.t1, fontFamily: 'JetBrains Mono', fontSize: 14, fontWeight: 600 }}>{fmtCt(lot.total_weight_ct)}</span>
           <span style={{ color: C.t3, fontSize: 10 }}>ct</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, minWidth: 60, justifyContent: 'flex-end' }}>

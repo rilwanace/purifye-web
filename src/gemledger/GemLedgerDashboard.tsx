@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react'
 import { gemApi } from './gemledger-api'
 import type { DashboardData } from './gemledger-types'
+import { numFmt, fmtCt } from './GemLedgerCards'
 
 const C = {
   bg2: '#111a11', bg3: '#1a2a1a', border: '#1e2e1e', border2: '#162016',
   t1: '#e0e8e0', t2: '#c0ccc0', t3: '#8a9a8a',
   green: '#34d399', yellow: '#fbbf24', purple: '#a78bfa',
 }
-
-const num = (n: string | number) =>
-  parseFloat(String(n)).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 function SectionDivider({ label, color }: { label: string; color: string }) {
   return (
@@ -79,7 +77,7 @@ export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }:
               >
                 <span style={{ fontSize: 11, fontWeight: 700, color, fontFamily: 'DM Sans', letterSpacing: '0.05em', marginBottom: 6 }}>{label}</span>
                 <span style={{ fontSize: 22, fontWeight: 700, color: C.t1, fontFamily: 'JetBrains Mono' }}>{d.count}</span>
-                <span style={{ fontSize: 11, color: C.t3, fontFamily: 'JetBrains Mono', marginTop: 2 }}>{num(d.ct)} ct</span>
+                <span style={{ fontSize: 11, color: C.t3, fontFamily: 'JetBrains Mono', marginTop: 2 }}>{fmtCt(d.ct)} ct</span>
               </button>
             )
           })}
@@ -111,8 +109,8 @@ export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }:
                   </div>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <div style={{ color: C.t1, fontSize: 13, fontFamily: 'JetBrains Mono', fontWeight: 600 }}>{num(t.total_cost)}</div>
-                  <div style={{ color: C.t3, fontSize: 11, fontFamily: 'JetBrains Mono' }}>{t.stone_count} · {num(t.total_ct)} ct</div>
+                  <div style={{ color: C.t1, fontSize: 13, fontFamily: 'JetBrains Mono', fontWeight: 600 }}>{numFmt(t.total_cost)}</div>
+                  <div style={{ color: C.t3, fontSize: 11, fontFamily: 'JetBrains Mono' }}>{t.stone_count} · {fmtCt(t.total_ct)} ct</div>
                 </div>
               </button>
             )
@@ -144,7 +142,7 @@ export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }:
                   <span style={{ fontSize: 12, color: C.t2, fontFamily: 'DM Sans', fontWeight: 600 }}>{label}</span>
                 </div>
                 <span style={{ fontSize: 24, fontWeight: 700, color: C.t1, fontFamily: 'JetBrains Mono' }}>{d.count}</span>
-                <span style={{ fontSize: 11, color: C.t3, fontFamily: 'JetBrains Mono', marginTop: 2 }}>{num(d.ct)} ct</span>
+                <span style={{ fontSize: 11, color: C.t3, fontFamily: 'JetBrains Mono', marginTop: 2 }}>{fmtCt(d.ct)} ct</span>
               </button>
             )
           })}
@@ -164,7 +162,7 @@ export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }:
         >
           <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans', fontWeight: 600, marginBottom: 6, letterSpacing: '0.05em' }}>CASH AVAILABLE TO DEPLOY</div>
           <div style={{ color: C.green, fontSize: 28, fontWeight: 700, fontFamily: 'JetBrains Mono' }}>
-            {num(inv.cash_available)}
+            {numFmt(inv.cash_available)}
           </div>
           <div style={{ color: C.t3, fontSize: 12, fontFamily: 'DM Sans', marginTop: 4 }}>
             {inv.investor_count} investor{inv.investor_count !== 1 ? 's' : ''}

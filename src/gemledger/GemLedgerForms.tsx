@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { gemApi } from './gemledger-api'
+import { numFmt } from './GemLedgerCards'
 import type { StoneType, Party, Investment } from './gemledger-types'
 
 const C = {
@@ -7,6 +8,8 @@ const C = {
   border: '#1e2e1e', t1: '#e0e8e0', t2: '#c0ccc0', t3: '#8a9a8a',
   green: '#34d399', yellow: '#fbbf24', red: '#f87171',
 }
+
+const SWATCH_COLORS = ['#60a5fa', '#f472b6', '#f87171', '#fbbf24', '#8a9a8a', '#a78bfa', '#22d3ee', '#fb923c']
 
 function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
@@ -108,6 +111,10 @@ export function AddLotForm({ onClose, onSaved, prefill }: { onClose: () => void;
   })
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
+  const [showCustomInput, setShowCustomInput] = useState(false)
+  const [customName, setCustomName] = useState('')
+  const [customColor, setCustomColor] = useState(SWATCH_COLORS[0])
+  const [addingType, setAddingType] = useState(false)
 
   useEffect(() => {
     gemApi.stoneTypes().then(setTypes).catch(() => {})
@@ -115,6 +122,20 @@ export function AddLotForm({ onClose, onSaved, prefill }: { onClose: () => void;
   }, [])
 
   const upd = (k: string) => (v: any) => setF(p => ({ ...p, [k]: v }))
+
+  async function addCustomType() {
+    if (!customName.trim()) return
+    setAddingType(true)
+    try {
+      const newType = await gemApi.createStoneType({ name: customName.trim(), color_hex: customColor })
+      const refreshed = await gemApi.stoneTypes()
+      setTypes(refreshed)
+      upd('stone_type_id')(newType.id)
+      setShowCustomInput(false)
+      setCustomName('')
+    } catch { }
+    finally { setAddingType(false) }
+  }
 
   async function save() {
     if (!f.stone_type_id || !f.total_weight_ct) { setErr('Stone type and weight are required'); return }
@@ -147,13 +168,43 @@ export function AddLotForm({ onClose, onSaved, prefill }: { onClose: () => void;
   return (
     <Sheet title="Add Stone / Lot" onClose={onClose}>
       <Field label="STONE TYPE">
-        <Select value={f.stone_type_id} onChange={upd('stone_type_id')}>
+        <Select value={f.stone_type_id} onChange={(v: string) => {
+          if (v === '__new__') { setShowCustomInput(true); upd('stone_type_id')('') }
+          else { setShowCustomInput(false); upd('stone_type_id')(v) }
+        }}>
           <option value="">Select type…</option>
           {types.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+          <option disabled>──────────</option>
+          <option value="__new__">+ Add custom type</option>
         </Select>
+        {showCustomInput && (
+          <div style={{ marginTop: 10, background: C.bg3, borderRadius: 8, padding: '12px', border: `1px solid ${C.border}` }}>
+            <Input value={customName} onChange={setCustomName} placeholder="Type name" />
+            <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
+              {SWATCH_COLORS.map(c => (
+                <button key={c} onClick={() => setCustomColor(c)} style={{
+                  width: 28, height: 28, borderRadius: 6, background: c,
+                  border: `2px solid ${customColor === c ? 'white' : 'transparent'}`,
+                  cursor: 'pointer', padding: 0,
+                }} />
+              ))}
+            </div>
+            <button
+              onClick={addCustomType}
+              disabled={!customName.trim() || addingType}
+              style={{
+                width: '100%', marginTop: 10, padding: '8px', borderRadius: 6,
+                background: customName.trim() ? C.green : '#2a3a2a',
+                border: 'none', color: customName.trim() ? '#0a0f0a' : C.t3,
+                fontFamily: 'DM Sans', fontWeight: 600, fontSize: 14,
+                cursor: customName.trim() ? 'pointer' : 'default',
+              }}
+            >{addingType ? 'Adding…' : 'Add type'}</button>
+          </div>
+        )}
       </Field>
       <Field label="DISPLAY NAME (optional)">
-        <Input value={f.name} onChange={upd('name')} placeholder="Auto from type" />
+        <Input value={f.name} onChange={upd('name')} placeholder="Optional" />
       </Field>
       <Field label="CODE (auto-generated if blank)">
         <Input value={f.code} onChange={upd('code')} placeholder="e.g. BS-001" />
@@ -259,13 +310,13 @@ export function SellForm({ lot, onClose, onSaved }: { lot: any; onClose: () => v
     finally { setLoading(false) }
   }
 
-  const profit = salePrice ? (parseFloat(salePrice) - parseFloat(lot.total_cost)).toFixed(2) : null
+  const profitVal = salePrice ? parseFloat(salePrice) - parseFloat(lot.total_cost) : null
 
   return (
     <Sheet title={`Sell — ${lot.name}`} onClose={onClose}>
       <div style={{ background: C.bg3, borderRadius: 10, padding: '12px 14px', marginBottom: 16 }}>
         <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans', marginBottom: 4 }}>CURRENT LOT</div>
-        <div style={{ color: C.t1, fontFamily: 'DM Sans' }}>{lot.stone_count} stones · {lot.total_weight_ct} ct · Cost: {lot.total_cost}</div>
+        <div style={{ color: C.t1, fontFamily: 'DM Sans' }}>{lot.stone_count} stones · {lot.total_weight_ct} ct · Cost: {numFmt(lot.total_cost)}</div>
       </div>
       <Field label="SALE PRICE">
         <Input type="number" value={salePrice} onChange={setSalePrice} placeholder="0.00" />
@@ -283,17 +334,17 @@ export function SellForm({ lot, onClose, onSaved }: { lot: any; onClose: () => v
           </div>
         </>
       )}
-      {profit !== null && (
+      {profitVal !== null && (
         <div style={{
-          background: parseFloat(profit) >= 0 ? '#0a2a1a' : '#2a0a0a',
-          border: `1px solid ${parseFloat(profit) >= 0 ? '#1a4a2a' : '#4a1a1a'}`,
+          background: profitVal >= 0 ? '#0a2a1a' : '#2a0a0a',
+          border: `1px solid ${profitVal >= 0 ? '#1a4a2a' : '#4a1a1a'}`,
           borderRadius: 8, padding: '10px 14px', marginBottom: 12,
         }}>
           <span style={{ color: C.t3, fontFamily: 'DM Sans', fontSize: 12 }}>Profit: </span>
           <span style={{
-            color: parseFloat(profit) >= 0 ? C.green : C.red,
+            color: profitVal >= 0 ? C.green : C.red,
             fontFamily: 'JetBrains Mono, monospace', fontSize: 16, fontWeight: 700,
-          }}>{profit}</span>
+          }}>{numFmt(profitVal)}</span>
         </div>
       )}
       {err && <div style={{ color: C.red, fontSize: 13, marginBottom: 8 }}>{err}</div>}
@@ -445,7 +496,7 @@ export function AddPartyForm({ onClose, onSaved }: { onClose: () => void; onSave
 
   return (
     <Sheet title="Add Party" onClose={onClose}>
-      <Field label="NAME"><Input value={f.name} onChange={upd('name')} placeholder="Buyer, broker, cutter…" /></Field>
+      <Field label="NAME"><Input value={f.name} onChange={upd('name')} placeholder="Party name" /></Field>
       <Field label="PHONE"><Input value={f.phone} onChange={upd('phone')} placeholder="+94 77 123 4567" /></Field>
       <Field label="LOCATION"><Input value={f.location} onChange={upd('location')} placeholder="Colombo, Bangkok…" /></Field>
       <Field label="NOTES"><Input value={f.notes} onChange={upd('notes')} placeholder="Optional notes" /></Field>
@@ -526,6 +577,11 @@ export function CloseInvestmentModal({ inv, onClose, onSaved }: { inv: any; onCl
   const yourProfit = poolBal - now
   const shortfall = Math.max(0, -yourProfit)
 
+  const fmt = (n: number) => {
+    if (Number.isInteger(n)) return n.toLocaleString('en')
+    return n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  }
+
   async function confirm() {
     if (!returnNow) return
     setLoading(true)
@@ -548,8 +604,6 @@ export function CloseInvestmentModal({ inv, onClose, onSaved }: { inv: any; onCl
       </Sheet>
     )
   }
-
-  const fmt = (n: number) => n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   return (
     <Sheet title={`Close — ${inv.name}`} onClose={onClose}>

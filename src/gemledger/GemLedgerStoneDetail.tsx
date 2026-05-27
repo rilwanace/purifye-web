@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { gemApi } from './gemledger-api'
 import type { Lot } from './gemledger-types'
-import { numFmt } from './GemLedgerCards'
+import { numFmt, fmtCt } from './GemLedgerCards'
 import {
   SellForm, GiveApprovalForm, SendCutterForm,
   ReceiveCutterForm, AddExpenseForm,
@@ -108,7 +108,7 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
   }
 
   const costPerCt = parseFloat(lot.total_weight_ct) > 0
-    ? (parseFloat(lot.total_cost) / parseFloat(lot.total_weight_ct)).toFixed(2) : '0.00'
+    ? numFmt(parseFloat(lot.total_cost) / parseFloat(lot.total_weight_ct)) : "0"
 
   const statusColor: Record<string, string> = { rough: C.yellow, cut: C.green, wip: C.purple, sold: C.t3, processed: C.t3 }
   const sc = statusColor[lot.status] || C.t3
@@ -188,7 +188,7 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
             {[
               ['STONES', lot.stone_count, 'JetBrains Mono'],
-              ['WEIGHT', `${lot.total_weight_ct} ct`, 'JetBrains Mono'],
+              ['WEIGHT', `${fmtCt(lot.total_weight_ct)} ct`, 'JetBrains Mono'],
               ['COST', numFmt(lot.total_cost), 'JetBrains Mono'],
               ['COST/CT', costPerCt, 'JetBrains Mono'],
               ['INVESTMENT', lot.investment_name || '—', 'DM Sans'],

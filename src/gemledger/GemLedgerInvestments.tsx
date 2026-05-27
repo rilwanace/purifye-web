@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { gemApi } from './gemledger-api'
 import type { Investment, InvestmentDetail } from './gemledger-types'
-import { numFmt } from './GemLedgerCards'
+import { numFmt, fmtCt } from './GemLedgerCards'
 import { CloseInvestmentModal, ReturnCapitalForm } from './GemLedgerForms'
 
 const C = {
@@ -247,7 +247,7 @@ export function InvestorDetail({ investmentId, investmentName, onBack, onLot }: 
         <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans', fontWeight: 600, letterSpacing: '0.06em', marginBottom: 8 }}>STONES IN THIS INVESTMENT</div>
         {inv.lots.map(lot => {
           const isSold = lot.status === 'sold' || lot.status === 'processed'
-          const profit = lot.sale_price ? (parseFloat(lot.sale_price) - parseFloat(lot.total_cost)).toFixed(2) : null
+          const profitNum = lot.sale_price ? parseFloat(lot.sale_price) - parseFloat(lot.total_cost) : null
           return (
             <button key={lot.id} onClick={() => !isSold && onLot(lot.id)} style={{
               width: '100%', background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 12,
@@ -258,9 +258,9 @@ export function InvestorDetail({ investmentId, investmentName, onBack, onLot }: 
               <div style={{ flex: 1, textAlign: 'left', minWidth: 0 }}>
                 <div style={{ color: C.t1, fontFamily: 'DM Sans', fontWeight: 600, fontSize: 13 }}>{lot.name}</div>
                 <div style={{ color: C.t3, fontSize: 11, fontFamily: 'JetBrains Mono' }}>
-                  {lot.total_weight_ct} ct · Cost: {lot.total_cost}
-                  {lot.sale_price && ` → ${lot.sale_price}`}
-                  {profit && <span style={{ color: parseFloat(profit) >= 0 ? C.green : C.red }}> ({parseFloat(profit) >= 0 ? '+' : ''}{profit})</span>}
+                  {fmtCt(lot.total_weight_ct)} ct · Cost: {numFmt(lot.total_cost)}
+                  {lot.sale_price && ` → ${numFmt(lot.sale_price)}`}
+                  {profitNum !== null && <span style={{ color: profitNum >= 0 ? C.green : C.red }}> ({profitNum >= 0 ? "+" : ""}{numFmt(profitNum)})</span>}
                 </div>
               </div>
               <div style={{
