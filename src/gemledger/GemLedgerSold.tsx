@@ -17,11 +17,13 @@ type Period = 'month' | 'last_month' | 'all'
 export default function GemLedgerSold({ refreshKey }: Props) {
   const [data, setData] = useState<SoldData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [period, setPeriod] = useState<Period>('month')
 
   useEffect(() => {
     setLoading(true)
-    gemApi.sold(period).then(setData).catch(() => {}).finally(() => setLoading(false))
+    setError(null)
+    gemApi.sold(period).then(setData).catch((err: any) => { setError(err?.message || 'Failed to load sales') }).finally(() => setLoading(false))
   }, [period, refreshKey])
 
   return (
@@ -49,6 +51,8 @@ export default function GemLedgerSold({ refreshKey }: Props) {
           <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
         </div>
       )}
+
+      {error && <div style={{ color: '#f87171', fontFamily: 'DM Sans', textAlign: 'center', padding: 20, fontSize: 13 }}>{error}</div>}
 
       {data && (
         <>

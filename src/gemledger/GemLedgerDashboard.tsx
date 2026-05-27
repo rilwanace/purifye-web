@@ -33,12 +33,14 @@ interface Props {
 export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }: Props) {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setLoading(true)
+    setError(null)
     gemApi.dashboard()
       .then(setData)
-      .catch(() => {})
+      .catch((err: any) => { setError(err?.message || 'Failed to load dashboard') })
       .finally(() => setLoading(false))
   }, [refreshKey])
 
@@ -46,6 +48,10 @@ export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }:
     <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
       <div style={{ width: 24, height: 24, border: `2px solid ${C.green}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
     </div>
+  )
+
+  if (error) return (
+    <div style={{ padding: 24, textAlign: 'center', color: '#f87171', fontFamily: 'DM Sans', fontSize: 14 }}>{error}</div>
   )
 
   if (!data) return null

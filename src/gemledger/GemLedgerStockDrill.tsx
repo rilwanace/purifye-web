@@ -20,13 +20,15 @@ interface Props {
 export default function GemLedgerStockDrill({ status, onBack, onLot, onReceiveCutter }: Props) {
   const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [locTab, setLocTab] = useState<'all' | 'with_me' | 'on_approval'>('all')
 
   useEffect(() => {
     setLoading(true)
+    setError(null)
     gemApi.lots({ status, page_size: 200 })
       .then(r => setLots(r.items))
-      .catch(() => {})
+      .catch((err: any) => { setError(err?.message || 'Failed to load lots') })
       .finally(() => setLoading(false))
   }, [status])
 
@@ -89,6 +91,7 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onReceiveCu
       {/* Cards */}
       <div style={{ padding: '4px 16px', paddingBottom: 80 }}>
         {loading && <div style={{ color: C.t3, fontFamily: 'DM Sans', textAlign: 'center', padding: 20 }}>Loading…</div>}
+        {error && <div style={{ color: '#f87171', fontFamily: 'DM Sans', textAlign: 'center', padding: 20, fontSize: 13 }}>{error}</div>}
         {!loading && filtered.length === 0 && (
           <div style={{ color: C.t3, fontFamily: 'DM Sans', textAlign: 'center', padding: 20 }}>No lots</div>
         )}

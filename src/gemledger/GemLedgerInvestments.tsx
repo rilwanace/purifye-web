@@ -19,11 +19,13 @@ interface Props {
 export function InvestmentsList({ onBack, onInvestorDetail, refreshKey }: Props) {
   const [invs, setInvs] = useState<Investment[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<'cash' | 'pnl'>('cash')
 
   useEffect(() => {
     setLoading(true)
-    gemApi.investments().then(setInvs).catch(() => {}).finally(() => setLoading(false))
+    setError(null)
+    gemApi.investments().then(setInvs).catch((err: any) => { setError(err?.message || 'Failed to load investments') }).finally(() => setLoading(false))
   }, [refreshKey])
 
   const active = invs.filter(i => i.status === 'active')
@@ -57,6 +59,7 @@ export function InvestmentsList({ onBack, onInvestorDetail, refreshKey }: Props)
 
       <div style={{ padding: '12px 16px', paddingBottom: 80 }}>
         {loading && <div style={{ color: C.t3, textAlign: 'center', padding: 20, fontFamily: 'DM Sans' }}>Loading…</div>}
+        {error && <div style={{ color: '#f87171', textAlign: 'center', padding: 16, fontFamily: 'DM Sans', fontSize: 13 }}>{error}</div>}
 
         {tab === 'cash' ? (
           <>
@@ -188,10 +191,12 @@ export function InvestorDetail({ investmentId, investmentName, onBack, onLot }: 
   const [returnOpen, setReturnOpen] = useState(false)
   const [closeOpen, setCloseOpen] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setLoading(true)
-    gemApi.investment(investmentId).then(setInv).catch(() => {}).finally(() => setLoading(false))
+    setError(null)
+    gemApi.investment(investmentId).then(setInv).catch((err: any) => { setError(err?.message || 'Failed to load investment') }).finally(() => setLoading(false))
   }, [investmentId, refreshKey])
 
   if (loading) return (
@@ -199,6 +204,9 @@ export function InvestorDetail({ investmentId, investmentName, onBack, onLot }: 
       <div style={{ width: 24, height: 24, border: `2px solid ${C.green}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
+  )
+  if (error) return (
+    <div style={{ padding: 24, textAlign: 'center', color: '#f87171', fontFamily: 'DM Sans', fontSize: 14 }}>{error}</div>
   )
   if (!inv) return null
 

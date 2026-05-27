@@ -20,13 +20,15 @@ interface Props {
 export default function GemLedgerTypeDrill({ stoneTypeId, stoneTypeName, color, onBack, onLot, onReceiveCutter }: Props) {
   const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<'rough' | 'cut' | 'wip'>('rough')
 
   useEffect(() => {
     setLoading(true)
+    setError(null)
     gemApi.lots({ stone_type_id: stoneTypeId, page_size: 200 })
       .then(r => setLots(r.items.filter(l => !['sold', 'processed'].includes(l.status))))
-      .catch(() => {})
+      .catch((err: any) => { setError(err?.message || 'Failed to load lots') })
       .finally(() => setLoading(false))
   }, [stoneTypeId])
 
@@ -82,6 +84,7 @@ export default function GemLedgerTypeDrill({ stoneTypeId, stoneTypeName, color, 
 
       <div style={{ padding: '12px 16px', paddingBottom: 80 }}>
         {loading && <div style={{ color: C.t3, textAlign: 'center', padding: 20, fontFamily: 'DM Sans' }}>Loading…</div>}
+        {error && <div style={{ color: '#f87171', textAlign: 'center', padding: 20, fontFamily: 'DM Sans', fontSize: 13 }}>{error}</div>}
         {!loading && byTab.length === 0 && (
           <div style={{ color: C.t3, textAlign: 'center', padding: 20, fontFamily: 'DM Sans' }}>No {tab} lots</div>
         )}

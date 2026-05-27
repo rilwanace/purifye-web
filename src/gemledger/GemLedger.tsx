@@ -80,11 +80,11 @@ function GemLedgerApp() {
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setShowSearch(true)} style={{
               background: 'none', border: `1px solid ${C.border}`, borderRadius: 8,
-              color: C.t3, width: 36, height: 36, cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: C.t3, minWidth: 44, minHeight: 44, cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>🔍</button>
             <button onClick={() => setShowMenu(m => !m)} style={{
               background: C.green, border: 'none', borderRadius: 8,
-              color: '#0a0f0a', width: 36, height: 36, cursor: 'pointer', fontSize: 20, fontWeight: 700,
+              color: '#0a0f0a', minWidth: 44, minHeight: 44, cursor: 'pointer', fontSize: 20, fontWeight: 700,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>+</button>
           </div>

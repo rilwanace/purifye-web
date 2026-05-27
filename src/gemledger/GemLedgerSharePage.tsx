@@ -87,9 +87,9 @@ export default function GemLedgerSharePage() {
           {allPhotos.length > 1 && (
             <>
               <button onClick={() => setImgIdx(i => (i - 1 + allPhotos.length) % allPhotos.length)}
-                style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: 32, height: 32, borderRadius: 16, fontSize: 16, cursor: 'pointer' }}>‹</button>
+                style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', minWidth: 44, minHeight: 44, borderRadius: 22, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
               <button onClick={() => setImgIdx(i => (i + 1) % allPhotos.length)}
-                style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: 32, height: 32, borderRadius: 16, fontSize: 16, cursor: 'pointer' }}>›</button>
+                style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', minWidth: 44, minHeight: 44, borderRadius: 22, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
               <div style={{ position: 'absolute', bottom: 8, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 4 }}>
                 {allPhotos.map((_, i) => (
                   <div key={i} style={{ width: 6, height: 6, borderRadius: 3, background: i === imgIdx ? C.green : 'rgba(255,255,255,0.3)' }} />

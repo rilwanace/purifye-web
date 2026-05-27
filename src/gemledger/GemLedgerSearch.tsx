@@ -17,6 +17,7 @@ export default function GemLedgerSearch({ onClose, onLot }: Props) {
   const [q, setQ] = useState('')
   const [results, setResults] = useState<Lot[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { inputRef.current?.focus() }, [])
@@ -25,9 +26,10 @@ export default function GemLedgerSearch({ onClose, onLot }: Props) {
     if (!q.trim()) { setResults([]); return }
     const t = setTimeout(() => {
       setLoading(true)
+      setError(null)
       gemApi.lots({ search: q, page_size: 50 })
         .then(r => setResults(r.items))
-        .catch(() => {})
+        .catch((err: any) => { setError(err?.message || 'Search failed') })
         .finally(() => setLoading(false))
     }, 300)
     return () => clearTimeout(t)
@@ -61,6 +63,7 @@ export default function GemLedgerSearch({ onClose, onLot }: Props) {
         {results.map(lot => (
           <LotCard key={lot.id} lot={lot} onTap={() => onLot(lot.id)} showApprovalBadge={lot.location === 'on_approval'} />
         ))}
+        {error && <div style={{ color: '#f87171', fontFamily: 'DM Sans', textAlign: 'center', padding: 20, fontSize: 13 }}>{error}</div>}
         {!q && (
           <div style={{ color: C.t3, fontFamily: 'DM Sans', textAlign: 'center', padding: 40, fontSize: 14 }}>
             Type to search your inventory

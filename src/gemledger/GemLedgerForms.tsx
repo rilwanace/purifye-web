@@ -358,6 +358,7 @@ export function GiveApprovalForm({ lotId, onClose, onSaved }: { lotId: string; o
   const [parties, setParties] = useState<Party[]>([])
   const [partyId, setPartyId] = useState('')
   const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState('')
 
   useEffect(() => { gemApi.parties().then(setParties).catch(() => {}) }, [])
 
@@ -365,7 +366,7 @@ export function GiveApprovalForm({ lotId, onClose, onSaved }: { lotId: string; o
     if (!partyId) return
     setLoading(true)
     try { await gemApi.giveApproval(lotId, partyId); onSaved(); onClose() }
-    catch { } finally { setLoading(false) }
+    catch (e: any) { setErr(e.message || 'Failed to save') } finally { setLoading(false) }
   }
 
   return (
@@ -376,6 +377,7 @@ export function GiveApprovalForm({ lotId, onClose, onSaved }: { lotId: string; o
           {parties.map(p => <option key={p.id} value={p.id}>{p.name}{p.location ? ` — ${p.location}` : ''}</option>)}
         </Select>
       </Field>
+      {err && <div style={{ color: C.red, fontSize: 13, marginBottom: 8, fontFamily: 'DM Sans' }}>{err}</div>}
       <SaveBtn onClick={save} loading={loading} label="Give on Approval" />
     </Sheet>
   )
@@ -386,6 +388,7 @@ export function SendCutterForm({ lotId, onClose, onSaved }: { lotId: string; onC
   const [parties, setParties] = useState<Party[]>([])
   const [partyId, setPartyId] = useState('')
   const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState('')
 
   useEffect(() => { gemApi.parties().then(setParties).catch(() => {}) }, [])
 
@@ -393,7 +396,7 @@ export function SendCutterForm({ lotId, onClose, onSaved }: { lotId: string; onC
     if (!partyId) return
     setLoading(true)
     try { await gemApi.sendCutter(lotId, partyId); onSaved(); onClose() }
-    catch { } finally { setLoading(false) }
+    catch (e: any) { setErr(e.message || 'Failed to save') } finally { setLoading(false) }
   }
 
   return (
@@ -404,6 +407,7 @@ export function SendCutterForm({ lotId, onClose, onSaved }: { lotId: string; onC
           {parties.map(p => <option key={p.id} value={p.id}>{p.name}{p.location ? ` — ${p.location}` : ''}</option>)}
         </Select>
       </Field>
+      {err && <div style={{ color: C.red, fontSize: 13, marginBottom: 8, fontFamily: 'DM Sans' }}>{err}</div>}
       <SaveBtn onClick={save} loading={loading} label="Send to Cutter" />
     </Sheet>
   )
@@ -455,12 +459,13 @@ export function AddExpenseForm({ lotId, onClose, onSaved }: { lotId: string; onC
   const [amount, setAmount] = useState('')
   const [expDate, setExpDate] = useState(new Date().toISOString().split('T')[0])
   const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState('')
 
   async function save() {
     if (!description || !amount) return
     setLoading(true)
     try { await gemApi.addExpense(lotId, { description, amount: parseFloat(amount), date: expDate }); onSaved(); onClose() }
-    catch { } finally { setLoading(false) }
+    catch (e: any) { setErr(e.message || 'Failed to save') } finally { setLoading(false) }
   }
 
   return (
@@ -474,6 +479,7 @@ export function AddExpenseForm({ lotId, onClose, onSaved }: { lotId: string; onC
       <Field label="DATE">
         <Input type="date" value={expDate} onChange={setExpDate} />
       </Field>
+      {err && <div style={{ color: C.red, fontSize: 13, marginBottom: 8, fontFamily: 'DM Sans' }}>{err}</div>}
       <SaveBtn onClick={save} loading={loading} label="Add Expense" />
     </Sheet>
   )
@@ -483,6 +489,7 @@ export function AddExpenseForm({ lotId, onClose, onSaved }: { lotId: string; onC
 export function AddPartyForm({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
   const [f, setF] = useState({ name: '', phone: '', location: '', notes: '' })
   const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState('')
   const upd = (k: string) => (v: string) => setF(p => ({ ...p, [k]: v }))
 
   async function save() {
@@ -491,7 +498,7 @@ export function AddPartyForm({ onClose, onSaved }: { onClose: () => void; onSave
     try {
       await gemApi.createParty({ name: f.name, phone: f.phone || null, location: f.location || null, notes: f.notes || null })
       onSaved(); onClose()
-    } catch { } finally { setLoading(false) }
+    } catch (e: any) { setErr(e.message || 'Failed to save') } finally { setLoading(false) }
   }
 
   return (
@@ -500,6 +507,7 @@ export function AddPartyForm({ onClose, onSaved }: { onClose: () => void; onSave
       <Field label="PHONE"><Input value={f.phone} onChange={upd('phone')} placeholder="+94 77 123 4567" /></Field>
       <Field label="LOCATION"><Input value={f.location} onChange={upd('location')} placeholder="Colombo, Bangkok…" /></Field>
       <Field label="NOTES"><Input value={f.notes} onChange={upd('notes')} placeholder="Optional notes" /></Field>
+      {err && <div style={{ color: C.red, fontSize: 13, marginBottom: 8, fontFamily: 'DM Sans' }}>{err}</div>}
       <SaveBtn onClick={save} loading={loading} label="Add Party" />
     </Sheet>
   )
@@ -509,6 +517,7 @@ export function AddPartyForm({ onClose, onSaved }: { onClose: () => void; onSave
 export function AddInvestmentForm({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
   const [f, setF] = useState({ name: '', capital_amount: '', notes: '' })
   const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState('')
   const upd = (k: string) => (v: string) => setF(p => ({ ...p, [k]: v }))
 
   async function save() {
@@ -517,7 +526,7 @@ export function AddInvestmentForm({ onClose, onSaved }: { onClose: () => void; o
     try {
       await gemApi.createInvestment({ name: f.name, capital_amount: parseFloat(f.capital_amount), notes: f.notes || null })
       onSaved(); onClose()
-    } catch { } finally { setLoading(false) }
+    } catch (e: any) { setErr(e.message || 'Failed to save') } finally { setLoading(false) }
   }
 
   return (
@@ -525,6 +534,7 @@ export function AddInvestmentForm({ onClose, onSaved }: { onClose: () => void; o
       <Field label="INVESTOR NAME"><Input value={f.name} onChange={upd('name')} placeholder="Hameed Uncle, Own Capital…" /></Field>
       <Field label="CAPITAL AMOUNT"><Input type="number" value={f.capital_amount} onChange={upd('capital_amount')} placeholder="0.00" /></Field>
       <Field label="NOTES"><Input value={f.notes} onChange={upd('notes')} placeholder="Optional" /></Field>
+      {err && <div style={{ color: C.red, fontSize: 13, marginBottom: 8, fontFamily: 'DM Sans' }}>{err}</div>}
       <SaveBtn onClick={save} loading={loading} label="Add Investment" />
     </Sheet>
   )
@@ -535,6 +545,7 @@ export function ReturnCapitalForm({ investmentId, investmentName, onClose, onSav
   const [amount, setAmount] = useState('')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState('')
 
   async function save() {
     if (!amount) return
@@ -542,7 +553,7 @@ export function ReturnCapitalForm({ investmentId, investmentName, onClose, onSav
     try {
       await gemApi.returnCapital(investmentId, { amount: parseFloat(amount), notes: notes || null })
       onSaved(); onClose()
-    } catch { } finally { setLoading(false) }
+    } catch (e: any) { setErr(e.message || 'Failed to save') } finally { setLoading(false) }
   }
 
   return (
@@ -553,6 +564,7 @@ export function ReturnCapitalForm({ investmentId, investmentName, onClose, onSav
       <Field label="NOTES">
         <Input value={notes} onChange={setNotes} placeholder="Optional" />
       </Field>
+      {err && <div style={{ color: C.red, fontSize: 13, marginBottom: 8, fontFamily: 'DM Sans' }}>{err}</div>}
       <SaveBtn onClick={save} loading={loading} label="Return Capital" />
     </Sheet>
   )

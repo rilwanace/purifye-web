@@ -17,6 +17,7 @@ interface Props {
 export default function GemLedgerLocationDrill({ loc, onBack, onLot }: Props) {
   const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<'rough' | 'cut'>('rough')
 
   const color = loc === 'with_me' ? C.green : C.yellow
@@ -24,9 +25,10 @@ export default function GemLedgerLocationDrill({ loc, onBack, onLot }: Props) {
 
   useEffect(() => {
     setLoading(true)
+    setError(null)
     gemApi.lots({ location: loc, page_size: 200 })
       .then(r => setLots(r.items.filter(l => l.status === 'rough' || l.status === 'cut')))
-      .catch(() => {})
+      .catch((err: any) => { setError(err?.message || 'Failed to load lots') })
       .finally(() => setLoading(false))
   }, [loc])
 
@@ -77,6 +79,7 @@ export default function GemLedgerLocationDrill({ loc, onBack, onLot }: Props) {
 
       <div style={{ padding: '12px 16px', paddingBottom: 80 }}>
         {loading && <div style={{ color: C.t3, textAlign: 'center', padding: 20, fontFamily: 'DM Sans' }}>Loading…</div>}
+        {error && <div style={{ color: '#f87171', textAlign: 'center', padding: 20, fontFamily: 'DM Sans', fontSize: 13 }}>{error}</div>}
         {!loading && byTab.length === 0 && (
           <div style={{ color: C.t3, textAlign: 'center', padding: 20, fontFamily: 'DM Sans' }}>No {tab} lots here</div>
         )}

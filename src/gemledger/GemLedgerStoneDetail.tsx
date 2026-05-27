@@ -42,12 +42,13 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
   const [refreshKey, setRefreshKey] = useState(0)
   const [edit, setEdit] = useState<any>({})
   const [dupWarn, setDupWarn] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const certRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setLoading(true)
-    gemApi.lot(lotId).then(d => { setLot(d); setEdit({ ...d }) }).catch(() => {}).finally(() => setLoading(false))
+    gemApi.lot(lotId).then(d => { setLot(d); setEdit({ ...d }) }).catch((err: any) => { setError(err?.message || 'Failed to load lot') }).finally(() => setLoading(false))
   }, [lotId, refreshKey])
 
   function refresh() { setRefreshKey(k => k + 1); onRefresh() }
@@ -72,7 +73,7 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
       setLot(res)
       setEditing(false)
       onRefresh()
-    } catch { }
+    } catch (e: any) { setError(e.message || 'Failed to save') }
     finally { setSaving(false) }
   }
 
@@ -95,7 +96,7 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
         navigator.clipboard.writeText(r.url)
         alert('Share link copied!')
       }
-    } catch { }
+    } catch (e: any) { setError('Share failed') }
   }
 
   if (loading || !lot) {
@@ -137,6 +138,14 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: C.bg, zIndex: 100, overflowY: 'auto' }}>
+      {error && (
+        <div style={{
+          position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)',
+          background: '#f87171', color: '#0a0f0a', padding: '8px 16px',
+          borderRadius: 8, fontSize: 13, fontWeight: 600, zIndex: 200,
+          maxWidth: '90%', textAlign: 'center', pointerEvents: 'none',
+        }}>{error}</div>
+      )}
       {/* Top bar */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -214,10 +223,10 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
                   style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: `1px solid ${C.border}` }}
                 />
                 <button onClick={() => deletePhoto(p.id)} style={{
-                  position: 'absolute', top: -6, right: -6, width: 20, height: 20,
-                  background: C.red, border: 'none', borderRadius: 10, color: 'white',
-                  fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>✕</button>
+                  position: 'absolute', top: -8, right: -8, minWidth: 44, minHeight: 44,
+                  background: 'transparent', border: 'none', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}><span style={{ width: 20, height: 20, borderRadius: 10, background: C.red, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'white' }}>✕</span></button>
               </div>
             ))}
             <button onClick={() => fileRef.current?.click()} style={{
@@ -238,10 +247,10 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
               <div key={p.id} style={{ position: 'relative' }}>
                 <img src={p.thumb_url || p.url || ''} alt="" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: `1px solid ${C.border}` }} />
                 <button onClick={() => deletePhoto(p.id)} style={{
-                  position: 'absolute', top: -6, right: -6, width: 20, height: 20,
-                  background: C.red, border: 'none', borderRadius: 10, color: 'white', fontSize: 12, cursor: 'pointer',
+                  position: 'absolute', top: -8, right: -8, minWidth: 44, minHeight: 44,
+                  background: 'transparent', border: 'none', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>✕</button>
+                }}><span style={{ width: 20, height: 20, borderRadius: 10, background: C.red, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'white' }}>✕</span></button>
               </div>
             ))}
             <button onClick={() => certRef.current?.click()} style={{
@@ -268,7 +277,7 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
             )}
             {lot.location === 'on_approval' && (
               <>
-                <ActionBtn label="Return to Me" color={C.green} onClick={async () => { await gemApi.returnLot(lot.id); refresh() }} />
+                <ActionBtn label="Return to Me" color={C.green} onClick={async () => { try { await gemApi.returnLot(lot.id); refresh() } catch (e: any) { setError(e.message || 'Failed to return lot') } }} />
                 <ActionBtn label="Record Sale" color={C.yellow} onClick={() => setForm('sell')} />
               </>
             )}
