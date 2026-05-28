@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { gemApi } from './gemledger-api'
 import type { Lot } from './gemledger-types'
-import { LotCard, numFmt, fmtCt } from './GemLedgerCards'
+import { LotCard, fmtCt } from './GemLedgerCards'
 
 const C = {
   bg3: '#1a2a1a', border: '#1e2e1e', t1: '#e0e8e0', t2: '#c0ccc0', t3: '#8a9a8a',

@@ -323,7 +323,7 @@ export function SellForm({ lot, onClose, onSaved }: { lot: any; onClose: () => v
     <Sheet title={`Sell â€” ${lot.name}`} onClose={onClose}>
       <div style={{ background: C.bg3, borderRadius: 10, padding: '12px 14px', marginBottom: 16 }}>
         <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans', marginBottom: 4 }}>CURRENT LOT</div>
-        <div style={{ color: C.t1, fontFamily: 'DM Sans' }}>{lot.stone_count} stones ÂÂÂ· {lot.total_weight_ct} ct ÂÂÂ· Cost: {numFmt(lot.total_cost)}</div>
+        <div style={{ color: C.t1, fontFamily: 'DM Sans' }}>{lot.stone_count} stones Â· {lot.total_weight_ct} ct Â· Cost: {numFmt(lot.total_cost)}</div>
       </div>
       <Field label="SALE PRICE">
         <Input type="number" value={salePrice} onChange={setSalePrice} placeholder="0.00" />
@@ -429,7 +429,7 @@ export function SendForProcessingForm({ lot, onClose, onSaved }: { lot: any; onC
     <Sheet title="Send for Processing" onClose={onClose}>
       <div style={{ background: C.bg3, borderRadius: 10, padding: '12px 14px', marginBottom: 16 }}>
         <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans', marginBottom: 4 }}>LOT</div>
-        <div style={{ color: C.t1, fontFamily: 'DM Sans' }}>{lot.stone_count} stones ÂÂÂ· {lot.total_weight_ct} ct ÂÂÂ· Cost: {numFmt(lot.total_cost)}</div>
+        <div style={{ color: C.t1, fontFamily: 'DM Sans' }}>{lot.stone_count} stones Â· {lot.total_weight_ct} ct Â· Cost: {numFmt(lot.total_cost)}</div>
       </div>
       <Field label="JOB TYPE">
         <Select value={jobType} onChange={setJobType}>
@@ -459,7 +459,7 @@ export function SendForProcessingForm({ lot, onClose, onSaved }: { lot: any; onC
               borderRadius: 8, padding: '10px 14px', marginBottom: 12,
             }}>
               <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans' }}>
-                Remaining: {lot.stone_count - parsedCount} stones ÂÂÂ· {numFmt(parseFloat(lot.total_weight_ct) - parsedWeight)} ct
+                Remaining: {lot.stone_count - parsedCount} stones Â· {numFmt(parseFloat(lot.total_weight_ct) - parsedWeight)} ct
               </div>
             </div>
           )}
