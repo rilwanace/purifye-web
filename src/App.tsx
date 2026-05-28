@@ -29,6 +29,7 @@ import SocialEditor from './social/SocialEditor'
 import SocialOnboarding from './social/SocialOnboarding'
 import PersonalBot from './personal/PersonalBot'
 import GemLedger from './gemledger/GemLedger'
+import GemLedgerSharePage from './gemledger/GemLedgerSharePage'
 import SocialSettings from './social/SocialSettings'
 const EmployeePortal = lazy(() => import('./planner/EmployeePortal'))
 import { AdminProvider, AdminRoute } from './admin/useAdmin'
@@ -82,6 +83,7 @@ export default function App() {
               <Route index element={<InventoryBot />} />
             </Route>
             <Route path="/personal/*" element={<ProtectedRoute><PersonalBot /></ProtectedRoute>} />
+            <Route path="/gemledger/s/:token" element={<GemLedgerSharePage />} />
             <Route path="/gemledger/*" element={<ProtectedRoute><GemLedger /></ProtectedRoute>} />
             <Route path="/social" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
               <Route index element={<Navigate to="/social/analytics" replace />} />
