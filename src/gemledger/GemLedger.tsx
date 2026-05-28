@@ -10,6 +10,7 @@ import GemLedgerSold from './GemLedgerSold'
 import GemLedgerSearch from './GemLedgerSearch'
 import GemLedgerBottomNav from './GemLedgerBottomNav'
 import GemLedgerSharePage from './GemLedgerSharePage'
+import GemLedgerImport from './GemLedgerImport'
 import {
   AddLotForm, AddPartyForm, AddInvestmentForm, ReceiveFromProcessingForm,
 } from './GemLedgerForms'
@@ -34,6 +35,7 @@ function GemLedgerApp() {
   const [activeLotId, setActiveLotId] = useState<string | null>(null)
   const [showSearch, setShowSearch] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const [showImport, setShowImport] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [actionForm, setActionForm] = useState<string | null>(null)
 
@@ -181,10 +183,32 @@ function GemLedgerApp() {
         )}
 
         {tab === 'settings' && (
-          <div style={{ padding: '24px 16px', color: C.t3, fontFamily: 'DM Sans', textAlign: 'center' }}>
-            <div style={{ fontSize: 32, marginBottom: 12 }}>⚙</div>
-            <div style={{ fontSize: 16, color: '#c0ccc0', marginBottom: 8 }}>GemLedger Settings</div>
-            <div style={{ fontSize: 13 }}>Manage stone types, parties, and preferences.</div>
+          <div style={{ padding: '24px 16px', fontFamily: 'DM Sans' }}>
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+              <div style={{ fontSize: 32, marginBottom: 8 }}>⚙</div>
+              <div style={{ fontSize: 16, color: '#c0ccc0', marginBottom: 4 }}>GemLedger Settings</div>
+              <div style={{ fontSize: 13, color: C.t3 }}>Manage stone types, parties, and preferences.</div>
+            </div>
+            <button
+              onClick={() => setShowImport(true)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                padding: '16px', background: '#111a11',
+                border: `1px solid ${C.border}`, borderRadius: 12,
+                cursor: 'pointer', textAlign: 'left', minHeight: 64,
+              }}
+            >
+              <span style={{ fontSize: 24 }}>📊</span>
+              <div>
+                <div style={{ fontSize: 15, color: C.t1, fontWeight: 600, marginBottom: 2 }}>
+                  Import from Excel
+                </div>
+                <div style={{ fontSize: 12, color: C.t3 }}>
+                  Import lots from .xlsx, .xls, or .csv files
+                </div>
+              </div>
+              <span style={{ marginLeft: 'auto', color: C.t3, fontSize: 16 }}>›</span>
+            </button>
           </div>
         )}
       </div>
@@ -201,6 +225,14 @@ function GemLedgerApp() {
       {/* Search overlay */}
       {showSearch && (
         <GemLedgerSearch onClose={() => setShowSearch(false)} onLot={id => { setActiveLotId(id); setShowSearch(false) }} />
+      )}
+
+      {/* Import wizard overlay */}
+      {showImport && (
+        <GemLedgerImport
+          onClose={() => setShowImport(false)}
+          onDone={refresh}
+        />
       )}
 
       {/* Action forms */}

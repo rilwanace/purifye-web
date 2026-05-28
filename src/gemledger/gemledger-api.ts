@@ -2,6 +2,7 @@ import { api, apiFormData } from '../api'
 import type {
   DashboardData, StoneType, Lot, LotListResponse, Party,
   Investment, InvestmentDetail, SoldData,
+  ImportUploadResponse, ImportPreviewResponse, ImportResult, ImportSheetConfig,
 } from './gemledger-types'
 
 const G = '/api/gemledger'
@@ -88,4 +89,21 @@ export const gemApi = {
 
   // Share (public)
   getShare: (token: string) => api(`${G}/share/${token}`),
+
+  // Import
+  importUpload: (file: File) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    return apiFormData<ImportUploadResponse>(`${G}/import/upload`, fd)
+  },
+  importPreview: (body: { upload_id: string; sheets: ImportSheetConfig[] }) =>
+    api<ImportPreviewResponse>(`${G}/import/preview`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  importExecute: (body: { upload_id: string; sheets: ImportSheetConfig[] }) =>
+    api<ImportResult>(`${G}/import/execute`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
 }

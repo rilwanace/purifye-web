@@ -138,3 +138,72 @@ export interface InvestmentDetail extends Investment {
   lots: Lot[]
   returns: Array<{ id: string; amount: string; date: string; is_final: boolean; notes?: string }>
 }
+
+// ── Import types ──────────────────────────────────────────────────────────────
+
+export type LotField =
+  | 'weight_ct' | 'stone_count' | 'total_cost' | 'stone_type'
+  | 'color' | 'origin' | 'shape' | 'treatment' | 'certified'
+  | 'code' | 'dimensions' | 'status'
+
+export const LOT_FIELD_LABELS: Record<LotField, string> = {
+  weight_ct: 'Weight (ct)',
+  stone_count: 'Stone Count',
+  total_cost: 'Total Cost',
+  stone_type: 'Stone Type',
+  color: 'Color',
+  origin: 'Origin',
+  shape: 'Shape',
+  treatment: 'Treatment',
+  certified: 'Certificate / Lab',
+  code: 'Lot Code',
+  dimensions: 'Dimensions',
+  status: 'Status',
+}
+
+export const ALL_LOT_FIELDS: LotField[] = [
+  'weight_ct', 'stone_count', 'total_cost', 'stone_type',
+  'color', 'origin', 'shape', 'treatment', 'certified',
+  'code', 'dimensions', 'status',
+]
+
+export interface ImportSheetInfo {
+  name: string
+  headers: string[]
+  sample_rows: (string | number | null)[][]
+  row_count: number
+  suggested_mapping: Record<string, LotField | null>
+}
+
+export interface ImportUploadResponse {
+  upload_id: string
+  sheets: ImportSheetInfo[]
+}
+
+export interface ImportPreviewSheet {
+  name: string
+  row_count: number
+  preview_rows: Record<string, string>[]
+  error?: string
+}
+
+export interface ImportPreviewResponse {
+  sheets: ImportPreviewSheet[]
+}
+
+export interface ImportError {
+  sheet: string
+  row: number | null
+  error: string
+}
+
+export interface ImportResult {
+  imported: number
+  skipped_dedup: number
+  errors: ImportError[]
+}
+
+export interface ImportSheetConfig {
+  name: string
+  mapping: Record<string, LotField | null>
+}
