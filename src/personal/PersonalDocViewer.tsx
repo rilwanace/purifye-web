@@ -12,6 +12,7 @@ interface DocData {
   related_person?: string
   notes?: string
   created_at: string
+  photo_urls?: PhotoPair[]
 }
 
 interface PhotoPair {
@@ -35,6 +36,7 @@ export default function PersonalDocViewer() {
   const [photos, setPhotos] = useState<PhotoPair[]>([])
   const [page, setPage] = useState(0)
   const [scale, setScale] = useState(1)
+  const [loading, setLoading] = useState(true)
   const [downloading, setDownloading] = useState(false)
   const [showDetail, setShowDetail] = useState(false)
   const imgRef = useRef<HTMLImageElement>(null)
@@ -42,8 +44,11 @@ export default function PersonalDocViewer() {
 
   function loadDoc() {
     if (!id) return
-    api<DocData>(`/api/personal/entry/${id}`).then(setDoc).catch(() => null)
-    api<{ photos: PhotoPair[] }>(`/api/personal/documents/${id}/photos`).then(r => setPhotos(r.photos || [])).catch(() => null)
+    setLoading(true)
+    api<DocData>(`/api/personal/documents/${id}`)
+      .then(data => { setDoc(data); setPhotos((data.photo_urls as PhotoPair[] | undefined) || []) })
+      .catch(() => setDoc(null))
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => { loadDoc() }, [id])
@@ -68,11 +73,18 @@ export default function PersonalDocViewer() {
     }
   }
 
-  if (!doc) {
+  if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80dvh', background: '#131311' }}>
         <div style={{ width: 24, height: 24, border: '2px solid #7068D9', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      </div>
+    )
+  }
+  if (!doc) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '80dvh', background: '#131311', gap: 12 }}>
+        <div style={{ fontSize: 13, fontFamily: 'DM Sans', color: '#6a6a64' }}>Document not found</div>
       </div>
     )
   }

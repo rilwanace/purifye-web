@@ -70,7 +70,8 @@ export default function PersonalEntryDetail({ entry, workflow, onClose, onUpdate
   async function save() {
     setSaving(true)
     try {
-      await api(`/api/personal/entry/${entry.id}`, { method: 'PUT', body: JSON.stringify(fields) })
+      const saveBase = workflow === 'documents' ? 'documents' : 'notes'
+      await api(`/api/personal/${saveBase}/${entry.id}`, { method: 'PUT', body: JSON.stringify(fields) })
       show('Saved', 'success')
       onUpdated()
       onClose()
@@ -84,7 +85,8 @@ export default function PersonalEntryDetail({ entry, workflow, onClose, onUpdate
   async function doDelete() {
     setDeleting(true)
     try {
-      await api(`/api/personal/entry/${entry.id}`, { method: 'DELETE' })
+      const deleteBase = workflow === 'documents' ? 'documents' : 'notes'
+      await api(`/api/personal/${deleteBase}/${entry.id}`, { method: 'DELETE' })
       show('Deleted', 'success')
       onDeleted()
       onClose()
