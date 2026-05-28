@@ -28,9 +28,10 @@ interface Props {
   onDrill: (type: 'stock' | 'location' | 'investments', params: any) => void
   onTypeDrill: (id: string, name: string, color: string) => void
   refreshKey: number
+  wipEnabled?: boolean
 }
 
-export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }: Props) {
+export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey, wipEnabled = true }: Props) {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -59,17 +60,18 @@ export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }:
   const { stock_overview: s, stone_type_breakdown: types, location_summary: loc, investment_summary: inv } = data
   const maxCost = types.reduce((m, t) => Math.max(m, parseFloat(t.total_cost)), 0.01)
 
+  const stockCards = [
+    { key: 'rough' as const, label: 'Rough', color: C.yellow },
+    { key: 'cut' as const, label: 'Cut', color: C.green },
+    ...(wipEnabled ? [{ key: 'wip' as const, label: 'WIP', color: C.purple }] : []),
+  ]
+
   return (
     <div style={{ paddingBottom: 4 }}>
-      {/* Stock Overview */}
       <SectionDivider label="STOCK OVERVIEW" color={C.purple} />
       <div style={{ padding: '12px 16px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-          {([
-            { key: 'rough', label: 'Rough', color: C.yellow },
-            { key: 'cut', label: 'Cut', color: C.green },
-            { key: 'wip', label: 'WIP', color: C.purple },
-          ] as const).map(({ key, label, color }) => {
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${stockCards.length}, 1fr)`, gap: 10 }}>
+          {stockCards.map(({ key, label, color }) => {
             const d = s[key]
             return (
               <button key={key}
@@ -90,7 +92,6 @@ export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }:
         </div>
       </div>
 
-      {/* Stone Type Breakdown */}
       <SectionDivider label="BY STONE TYPE" color="#60a5fa" />
       <div style={{ padding: '12px 16px' }}>
         {types.length === 0 ? (
@@ -116,7 +117,7 @@ export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }:
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <div style={{ color: C.t1, fontSize: 13, fontFamily: 'JetBrains Mono', fontWeight: 600 }}>{numFmt(t.total_cost)}</div>
-                  <div style={{ color: C.t3, fontSize: 11, fontFamily: 'JetBrains Mono' }}>{t.stone_count} · {fmtCt(t.total_ct)} ct</div>
+                  <div style={{ color: C.t3, fontSize: 11, fontFamily: 'JetBrains Mono' }}>{t.stone_count} &middot; {fmtCt(t.total_ct)} ct</div>
                 </div>
               </button>
             )
@@ -124,7 +125,6 @@ export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }:
         )}
       </div>
 
-      {/* Location */}
       <SectionDivider label="LOCATION" color={C.yellow} />
       <div style={{ padding: '12px 16px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -155,7 +155,6 @@ export default function GemLedgerDashboard({ onDrill, onTypeDrill, refreshKey }:
         </div>
       </div>
 
-      {/* Investments */}
       <SectionDivider label="INVESTMENTS" color={C.green} />
       <div style={{ padding: '12px 16px 4px' }}>
         <button

@@ -83,6 +83,8 @@ export interface Transfer {
   result_weight_ct?: string
   cutting_charge?: string
   job_type?: string
+  destination?: string
+  fee?: string
 }
 
 export interface Photo {
@@ -137,6 +139,10 @@ export interface SoldData {
 export interface InvestmentDetail extends Investment {
   lots: Lot[]
   returns: Array<{ id: string; amount: string; date: string; is_final: boolean; notes?: string }>
+}
+
+export interface GemSettings {
+  wip_enabled: string
 }
 
 // ── Import types ──────────────────────────────────────────────────────────────

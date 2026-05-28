@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { gemApi } from './gemledger-api'
 import type { Lot } from './gemledger-types'
-import { LotCard, numFmt } from './GemLedgerCards'
+import { LotCard, numFmt, fmtCt } from './GemLedgerCards'
 
 const C = {
   bg3: '#1a2a1a', border: '#1e2e1e', t1: '#e0e8e0', t2: '#c0ccc0', t3: '#8a9a8a',
@@ -23,10 +23,10 @@ interface Props {
   status: 'rough' | 'cut' | 'wip'
   onBack: () => void
   onLot: (id: string) => void
-  onReceiveProcessing: (lotId: string) => void
+  onTransfer: (lot: Lot) => void
 }
 
-export default function GemLedgerStockDrill({ status, onBack, onLot, onReceiveProcessing }: Props) {
+export default function GemLedgerStockDrill({ status, onBack, onLot, onTransfer }: Props) {
   const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -50,11 +50,9 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onReceivePr
 
   const color = STATUS_COLOR[status]
 
-  // WIP: compute available job type tabs
   const availableJobTabs = JOB_TYPES.filter(jt => lots.some(l => (l.job_type || 'cutting') === jt))
   const activeJobTab = availableJobTabs.includes(jobTab) ? jobTab : (availableJobTabs[0] ?? 'cutting')
 
-  // WIP: filter and group by active job tab
   const wipFiltered = status === 'wip' ? lots.filter(l => (l.job_type || 'cutting') === activeJobTab) : []
   const grouped: Record<string, Lot[]> = {}
   wipFiltered.forEach(l => {
@@ -69,16 +67,14 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onReceivePr
 
   return (
     <div>
-      {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
         borderBottom: `1px solid ${C.border}`, position: 'sticky', top: 0, background: '#0a0f0a', zIndex: 10,
       }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', color: color, fontSize: 14, cursor: 'pointer', fontFamily: 'DM Sans', padding: '4px 0' }}>← Back</button>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', color, fontSize: 14, cursor: 'pointer', fontFamily: 'DM Sans', padding: '4px 0' }}>← Back</button>
         <span style={{ color, fontFamily: 'DM Sans', fontWeight: 700, fontSize: 16, textTransform: 'capitalize' }}>{status}</span>
       </div>
 
-      {/* Location toggles for rough/cut */}
       {status !== 'wip' && (
         <div style={{ padding: '10px 16px', display: 'flex', gap: 8 }}>
           {([
@@ -100,14 +96,13 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onReceivePr
                 fontFamily: 'DM Sans', fontSize: 12, fontWeight: active ? 700 : 400, cursor: 'pointer',
               }}>
                 <div>{label}</div>
-                <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, marginTop: 2 }}>{cnt} · {numFmt(ct)} ct</div>
+                <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, marginTop: 2 }}>{cnt} · {fmtCt(ct)} ct</div>
               </button>
             )
           })}
         </div>
       )}
 
-      {/* Job type tabs for WIP */}
       {status === 'wip' && availableJobTabs.length > 0 && (
         <div style={{ padding: '10px 16px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {availableJobTabs.map(jt => {
@@ -126,7 +121,7 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onReceivePr
               }}>
                 <span>{JOB_TYPE_LABELS[jt]}</span>
                 <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: active ? C.purple : C.t3 }}>
-                  {cnt} · {numFmt(ct)} ct
+                  {cnt} · {fmtCt(ct)} ct
                 </span>
               </button>
             )
@@ -134,7 +129,6 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onReceivePr
         </div>
       )}
 
-      {/* Cards */}
       <div style={{ padding: '4px 16px', paddingBottom: 80 }}>
         {loading && <div style={{ color: C.t3, fontFamily: 'DM Sans', textAlign: 'center', padding: 20 }}>Loading…</div>}
         {error && <div style={{ color: '#f87171', fontFamily: 'DM Sans', textAlign: 'center', padding: 20, fontSize: 13 }}>{error}</div>}
@@ -160,7 +154,7 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onReceivePr
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ color: C.t2, fontFamily: 'JetBrains Mono', fontSize: 13 }}>{partyLots.length} lot{partyLots.length !== 1 ? 's' : ''}</div>
                     <div style={{ color: C.t3, fontFamily: 'JetBrains Mono', fontSize: 11 }}>
-                      {numFmt(partyLots.reduce((a, l) => a + parseFloat(l.total_weight_ct), 0))} ct
+                      {fmtCt(partyLots.reduce((a, l) => a + parseFloat(l.total_weight_ct), 0))} ct
                     </div>
                   </div>
                 </div>
@@ -168,14 +162,14 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onReceivePr
                   <LotCard key={lot.id} lot={lot} showDot={false}
                     action={
                       <button
-                        onClick={e => { e.stopPropagation(); onReceiveProcessing(lot.id) }}
+                        onClick={e => { e.stopPropagation(); onTransfer(lot) }}
                         style={{
                           marginTop: 8, width: '100%', padding: '10px', borderRadius: 8,
                           background: `${C.purple}20`, border: `1px solid ${C.purple}40`,
                           color: C.purple, fontFamily: 'DM Sans', fontWeight: 600, fontSize: 13, cursor: 'pointer',
                           minHeight: 44,
                         }}
-                      >Receive from processing</button>
+                      >Transfer</button>
                     }
                   />
                 ))}

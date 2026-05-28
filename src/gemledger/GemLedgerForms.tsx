@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { gemApi } from './gemledger-api'
-import { numFmt } from './GemLedgerCards'
-import type { StoneType, Party, Investment } from './gemledger-types'
+import { numFmt, fmtCt } from './GemLedgerCards'
+import type { StoneType, Party, Investment, Lot } from './gemledger-types'
 
 const C = {
   bg: '#0a0f0a', bg2: '#111a11', bg3: '#1a2a1a',
@@ -323,7 +323,7 @@ export function SellForm({ lot, onClose, onSaved }: { lot: any; onClose: () => v
     <Sheet title={`Sell — ${lot.name}`} onClose={onClose}>
       <div style={{ background: C.bg3, borderRadius: 10, padding: '12px 14px', marginBottom: 16 }}>
         <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans', marginBottom: 4 }}>CURRENT LOT</div>
-        <div style={{ color: C.t1, fontFamily: 'DM Sans' }}>{lot.stone_count} stones · {lot.total_weight_ct} ct · Cost: {numFmt(lot.total_cost)}</div>
+        <div style={{ color: C.t1, fontFamily: 'DM Sans' }}>{lot.stone_count} stones ��· {lot.total_weight_ct} ct ��· Cost: {numFmt(lot.total_cost)}</div>
       </div>
       <Field label="SALE PRICE">
         <Input type="number" value={salePrice} onChange={setSalePrice} placeholder="0.00" />
@@ -429,7 +429,7 @@ export function SendForProcessingForm({ lot, onClose, onSaved }: { lot: any; onC
     <Sheet title="Send for Processing" onClose={onClose}>
       <div style={{ background: C.bg3, borderRadius: 10, padding: '12px 14px', marginBottom: 16 }}>
         <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans', marginBottom: 4 }}>LOT</div>
-        <div style={{ color: C.t1, fontFamily: 'DM Sans' }}>{lot.stone_count} stones · {lot.total_weight_ct} ct · Cost: {numFmt(lot.total_cost)}</div>
+        <div style={{ color: C.t1, fontFamily: 'DM Sans' }}>{lot.stone_count} stones ��· {lot.total_weight_ct} ct ��· Cost: {numFmt(lot.total_cost)}</div>
       </div>
       <Field label="JOB TYPE">
         <Select value={jobType} onChange={setJobType}>
@@ -459,7 +459,7 @@ export function SendForProcessingForm({ lot, onClose, onSaved }: { lot: any; onC
               borderRadius: 8, padding: '10px 14px', marginBottom: 12,
             }}>
               <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans' }}>
-                Remaining: {lot.stone_count - parsedCount} stones · {numFmt(parseFloat(lot.total_weight_ct) - parsedWeight)} ct
+                Remaining: {lot.stone_count - parsedCount} stones ��· {numFmt(parseFloat(lot.total_weight_ct) - parsedWeight)} ct
               </div>
             </div>
           )}
@@ -713,6 +713,178 @@ export function CloseInvestmentModal({ inv, onClose, onSaved }: { inv: any; onCl
       )}
       {err && <div style={{ color: C.red, fontSize: 13, marginBottom: 8 }}>{err}</div>}
       <SaveBtn onClick={confirm} loading={loading} label="Close & Settle" />
+    </Sheet>
+  )
+}
+
+// ── Transfer ──────────────────────────────────────────────────────────────────
+
+const ALL_DESTINATIONS = [
+  { value: 'rough', label: 'Rough' },
+  { value: 'cut', label: 'Cut' },
+  { value: 'wip_cutting', label: 'WIP (Cutting)' },
+  { value: 'wip_heating', label: 'WIP (Heating)' },
+  { value: 'wip_polishing', label: 'WIP (Polishing)' },
+  { value: 'wip_preform', label: 'WIP (Preform)' },
+  { value: 'on_approval', label: 'On Approval' },
+]
+
+const SHAPE_OPTIONS = ['Oval', 'Cushion', 'Round', 'Pear', 'Emerald', 'Heart', 'Marquise', 'Square', 'Cabochon', 'Freeform', 'Other']
+
+function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button onClick={() => onChange(!on)} style={{
+      width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+      background: on ? C.green : '#2a3a2a', position: 'relative', transition: 'background 0.2s',
+      flexShrink: 0,
+    }}>
+      <div style={{
+        position: 'absolute', top: 2, left: on ? 22 : 2,
+        width: 20, height: 20, borderRadius: 10, background: 'white', transition: 'left 0.2s',
+      }} />
+    </button>
+  )
+}
+
+export function TransferForm({ lot, onClose, onSaved, wipEnabled = true }: {
+  lot: Lot
+  onClose: () => void
+  onSaved: () => void
+  wipEnabled?: boolean
+}) {
+  const [parties, setParties] = useState<Party[]>([])
+  const [destination, setDestination] = useState('')
+  const [qty, setQty] = useState(String(lot.stone_count))
+  const [weight, setWeight] = useState(String(lot.total_weight_ct))
+  const [partyId, setPartyId] = useState('')
+  const [fee, setFee] = useState('')
+  const [heated, setHeated] = useState(true)
+  const [shape, setShape] = useState(lot.shape || '')
+  const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState('')
+
+  useEffect(() => { gemApi.parties().then(setParties).catch(() => {}) }, [])
+
+  const currentDest =
+    lot.location === 'on_approval' ? 'on_approval' :
+    lot.status === 'wip' ? `wip_${lot.job_type || 'cutting'}` :
+    lot.status
+
+  const destinations = ALL_DESTINATIONS.filter(d => {
+    if (!wipEnabled && d.value.startsWith('wip_')) return false
+    if (d.value === currentDest) return false
+    return true
+  })
+
+  const isWipDest = destination.startsWith('wip_')
+  const needsParty = isWipDest || destination === 'on_approval'
+  const showFee = lot.status === 'wip'
+  const showHeated = lot.status === 'wip' && lot.job_type === 'heating'
+  const showShape = destination === 'cut'
+
+  const parsedQty = parseInt(qty) || lot.stone_count
+  const parsedWeight = parseFloat(weight) || parseFloat(lot.total_weight_ct)
+  const isPartial = parsedQty < lot.stone_count || parsedWeight < parseFloat(lot.total_weight_ct) - 0.001
+
+  const remainingStones = lot.stone_count - parsedQty
+  const remainingWt = parseFloat(lot.total_weight_ct) - parsedWeight
+  const remainingCost = parseFloat(lot.total_cost) * (remainingWt / parseFloat(lot.total_weight_ct))
+
+  const statusLabel =
+    lot.location === 'on_approval' ? 'On Approval' :
+    lot.status === 'wip' ? `WIP (${(lot.job_type || 'cutting').charAt(0).toUpperCase() + (lot.job_type || 'cutting').slice(1)})` :
+    lot.status.charAt(0).toUpperCase() + lot.status.slice(1)
+
+  const locationLabel =
+    lot.location === 'with_me' ? 'With me' : (lot.party_name || 'Unknown')
+
+  async function save() {
+    if (!destination) { setErr('Choose a destination'); return }
+    if (needsParty && !partyId) { setErr('Select a party'); return }
+    if (parsedQty > lot.stone_count) { setErr('Qty exceeds lot'); return }
+    if (parsedWeight > parseFloat(lot.total_weight_ct) + 0.001) { setErr('Weight exceeds lot'); return }
+    setLoading(true)
+    try {
+      const body: any = { destination, qty: parsedQty, weight: parsedWeight }
+      if (partyId) body.party_id = partyId
+      if (fee && parseFloat(fee) > 0) body.fee = parseFloat(fee)
+      if (showHeated) body.heated = heated
+      if (showShape && shape) body.shape = shape
+      await gemApi.transferLot(lot.id, body)
+      onSaved(); onClose()
+    } catch (e: any) { setErr(e.message || 'Transfer failed') }
+    finally { setLoading(false) }
+  }
+
+  return (
+    <Sheet title="Transfer" onClose={onClose}>
+      {/* Banner */}
+      <div style={{ background: C.bg3, borderRadius: 10, padding: '10px 14px', marginBottom: 16 }}>
+        <div style={{ color: C.t1, fontFamily: 'DM Sans', fontWeight: 600, fontSize: 14 }}>{lot.code} · {lot.stone_type_name}</div>
+        <div style={{ color: C.t3, fontFamily: 'DM Sans', fontSize: 12, marginTop: 2 }}>{statusLabel} · {locationLabel}</div>
+      </div>
+
+      <Field label="DESTINATION">
+        <Select value={destination} onChange={setDestination}>
+          <option value="">Choose destination…</option>
+          {destinations.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+        </Select>
+      </Field>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <Field label="STONES">
+          <Input type="number" value={qty} onChange={setQty} placeholder={String(lot.stone_count)} />
+        </Field>
+        <Field label="WEIGHT (ct)">
+          <Input type="number" value={weight} onChange={setWeight} placeholder={lot.total_weight_ct} />
+        </Field>
+      </div>
+
+      {isPartial && parsedQty > 0 && parsedWeight > 0 && (
+        <div style={{
+          background: `${C.purple}15`, border: `1px solid ${C.purple}35`,
+          borderRadius: 8, padding: '8px 12px', marginBottom: 12,
+          fontSize: 12, color: C.t3, fontFamily: 'DM Sans',
+        }}>
+          Remaining: {remainingStones} stone{remainingStones !== 1 ? 's' : ''} · {fmtCt(remainingWt)} ct · cost {numFmt(remainingCost)}
+        </div>
+      )}
+
+      {needsParty && (
+        <Field label="PARTY">
+          <Select value={partyId} onChange={setPartyId}>
+            <option value="">Select party…</option>
+            {parties.map(p => <option key={p.id} value={p.id}>{p.name}{p.location ? ` — ${p.location}` : ''}</option>)}
+          </Select>
+        </Field>
+      )}
+
+      {showFee && (
+        <Field label="FEE (added to cost)">
+          <Input type="number" value={fee} onChange={setFee} placeholder="0" />
+        </Field>
+      )}
+
+      {showHeated && (
+        <Field label="STONE WAS HEATED">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 0' }}>
+            <Toggle on={heated} onChange={setHeated} />
+            <span style={{ color: C.t2, fontFamily: 'DM Sans', fontSize: 14 }}>{heated ? 'Yes — mark as Heated' : 'No — leave treatment unchanged'}</span>
+          </div>
+        </Field>
+      )}
+
+      {showShape && (
+        <Field label="SHAPE">
+          <Select value={shape} onChange={setShape}>
+            <option value="">Select shape…</option>
+            {SHAPE_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+          </Select>
+        </Field>
+      )}
+
+      {err && <div style={{ color: C.red, fontSize: 13, marginBottom: 8, fontFamily: 'DM Sans' }}>{err}</div>}
+      <SaveBtn onClick={save} loading={loading} label="Transfer" />
     </Sheet>
   )
 }

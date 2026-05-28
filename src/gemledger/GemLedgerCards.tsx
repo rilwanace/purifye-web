@@ -7,13 +7,12 @@ const C = {
 }
 
 export function numFmt(v: string | number) {
-  const n = parseFloat(String(v))
-  if (Number.isInteger(n)) return n.toLocaleString('en')
-  return n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const n = Math.round(parseFloat(String(v)))
+  return n.toLocaleString('en')
 }
 
 export function fmtCt(v: string | number) {
-  return parseFloat(String(v)).toLocaleString('en', { minimumFractionDigits: 1, maximumFractionDigits: 2 })
+  return parseFloat(String(v)).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 export function LotCard({
@@ -42,15 +41,12 @@ export function LotCard({
         WebkitTapHighlightColor: 'transparent',
       }}
     >
-      {/* Line 1: Name + dot */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
         <span style={{ color: C.t1, fontSize: 14, fontFamily: 'DM Sans', fontWeight: 600, minWidth: 0, flex: 1 }}>{lot.name}</span>
         {showDot && (
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: dot, marginLeft: 8, flexShrink: 0 }} />
         )}
       </div>
-
-      {/* Line 2: Weight + stone count aligned */}
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'flex-end', gap: 16, marginBottom: 4 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, minWidth: 80, justifyContent: 'flex-end' }}>
           <span style={{ color: C.t1, fontFamily: 'JetBrains Mono', fontSize: 14, fontWeight: 600 }}>{fmtCt(lot.total_weight_ct)}</span>
@@ -61,22 +57,16 @@ export function LotCard({
           <span style={{ color: C.t3, fontSize: 10 }}>stone{lot.stone_count !== 1 ? 's' : ''}</span>
         </div>
       </div>
-
-      {/* Line 3: origin · shape · treatment */}
       {badges.length > 0 && (
         <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans', marginBottom: 4 }}>
           {badges.join(' · ')}
         </div>
       )}
-
-      {/* Line 4: approval info */}
       {showApprovalBadge && lot.party_name && (
         <div style={{ color: C.yellow, fontSize: 11, fontFamily: 'DM Sans' }}>
           {lot.party_name}{lot.days_out !== undefined ? ` · ${lot.days_out}d` : ''}
         </div>
       )}
-
-      {/* Action slot (e.g. receive from cutter button) */}
       {action}
     </div>
   )

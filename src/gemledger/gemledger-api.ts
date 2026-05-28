@@ -1,7 +1,7 @@
 import { api, apiFormData } from '../api'
 import type {
   DashboardData, StoneType, Lot, LotListResponse, Party,
-  Investment, InvestmentDetail, SoldData,
+  Investment, InvestmentDetail, SoldData, GemSettings,
   ImportUploadResponse, ImportPreviewResponse, ImportResult, ImportSheetConfig,
 } from './gemledger-types'
 
@@ -33,6 +33,15 @@ export const gemApi = {
     api(`${G}/lots/${id}`, { method: 'DELETE' }),
 
   // Lot actions
+  transferLot: (id: string, body: {
+    destination: string
+    qty: number
+    weight: number
+    party_id?: string
+    fee?: number
+    heated?: boolean
+    shape?: string
+  }) => api(`${G}/lots/${id}/transfer`, { method: 'POST', body: JSON.stringify(body) }),
   giveApproval: (id: string, party_id: string) =>
     api(`${G}/lots/${id}/give-approval`, { method: 'POST', body: JSON.stringify({ party_id }) }),
   returnLot: (id: string) =>
@@ -86,6 +95,11 @@ export const gemApi = {
 
   // Sold
   sold: (period: string = 'month') => api<SoldData>(`${G}/sold?period=${period}`),
+
+  // Settings
+  getSettings: () => api<GemSettings>(`${G}/settings`),
+  saveSettings: (body: { wip_enabled?: boolean }) =>
+    api(`${G}/settings`, { method: 'POST', body: JSON.stringify(body) }),
 
   // Share (public)
   getShare: (token: string) => api(`${G}/share/${token}`),
