@@ -10,39 +10,58 @@ const C = {
 
 const STATUS_COLOR: Record<string, string> = { rough: C.yellow, cut: C.green, wip: C.purple }
 
+const JOB_TYPES = ['cutting', 'heating', 'polishing', 'preform'] as const
+type JobType = typeof JOB_TYPES[number]
+const JOB_TYPE_LABELS: Record<JobType, string> = {
+  cutting: 'Cutting',
+  heating: 'Heating',
+  polishing: 'Polishing',
+  preform: 'Preform',
+}
+
 interface Props {
   status: 'rough' | 'cut' | 'wip'
   onBack: () => void
   onLot: (id: string) => void
-  onReceiveCutter: (lotId: string) => void
+  onReceiveProcessing: (lotId: string) => void
 }
 
-export default function GemLedgerStockDrill({ status, onBack, onLot, onReceiveCutter }: Props) {
+export default function GemLedgerStockDrill({ status, onBack, onLot, onReceiveProcessing }: Props) {
   const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [locTab, setLocTab] = useState<'all' | 'with_me' | 'on_approval'>('all')
+  const [jobTab, setJobTab] = useState<JobType>('cutting')
 
   useEffect(() => {
     setLoading(true)
     setError(null)
     gemApi.lots({ status, page_size: 200 })
-      .then(r => setLots(r.items))
+      .then(r => {
+        setLots(r.items)
+        if (status === 'wip') {
+          const first = JOB_TYPES.find(jt => r.items.some(l => (l.job_type || 'cutting') === jt))
+          if (first) setJobTab(first)
+        }
+      })
       .catch((err: any) => { setError(err?.message || 'Failed to load lots') })
       .finally(() => setLoading(false))
   }, [status])
 
   const color = STATUS_COLOR[status]
 
-  // Group WIP by party
+  // WIP: compute available job type tabs
+  const availableJobTabs = JOB_TYPES.filter(jt => lots.some(l => (l.job_type || 'cutting') === jt))
+  const activeJobTab = availableJobTabs.includes(jobTab) ? jobTab : (availableJobTabs[0] ?? 'cutting')
+
+  // WIP: filter and group by active job tab
+  const wipFiltered = status === 'wip' ? lots.filter(l => (l.job_type || 'cutting') === activeJobTab) : []
   const grouped: Record<string, Lot[]> = {}
-  if (status === 'wip') {
-    lots.forEach(l => {
-      const key = l.location_party_id || 'unknown'
-      if (!grouped[key]) grouped[key] = []
-      grouped[key].push(l)
-    })
-  }
+  wipFiltered.forEach(l => {
+    const key = l.location_party_id || 'unknown'
+    if (!grouped[key]) grouped[key] = []
+    grouped[key].push(l)
+  })
 
   const filtered = status === 'wip' ? lots : lots.filter(l =>
     locTab === 'all' ? true : l.location === locTab
@@ -88,11 +107,41 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onReceiveCu
         </div>
       )}
 
+      {/* Job type tabs for WIP */}
+      {status === 'wip' && availableJobTabs.length > 0 && (
+        <div style={{ padding: '10px 16px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {availableJobTabs.map(jt => {
+            const cnt = lots.filter(l => (l.job_type || 'cutting') === jt).length
+            const ct = lots.filter(l => (l.job_type || 'cutting') === jt)
+              .reduce((a, l) => a + parseFloat(l.total_weight_ct), 0)
+            const active = activeJobTab === jt
+            return (
+              <button key={jt} onClick={() => setJobTab(jt)} style={{
+                flex: 1, minWidth: 80, padding: '8px 10px', borderRadius: 20,
+                border: `1px solid ${active ? C.purple : `${C.purple}40`}`,
+                background: active ? `${C.purple}28` : 'transparent',
+                color: active ? C.purple : `${C.purple}99`,
+                fontFamily: 'DM Sans', fontSize: 12, fontWeight: active ? 700 : 400, cursor: 'pointer',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
+              }}>
+                <span>{JOB_TYPE_LABELS[jt]}</span>
+                <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, color: active ? C.purple : C.t3 }}>
+                  {cnt} · {numFmt(ct)} ct
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       {/* Cards */}
       <div style={{ padding: '4px 16px', paddingBottom: 80 }}>
         {loading && <div style={{ color: C.t3, fontFamily: 'DM Sans', textAlign: 'center', padding: 20 }}>Loading…</div>}
         {error && <div style={{ color: '#f87171', fontFamily: 'DM Sans', textAlign: 'center', padding: 20, fontSize: 13 }}>{error}</div>}
-        {!loading && filtered.length === 0 && (
+        {!loading && !error && status === 'wip' && wipFiltered.length === 0 && (
+          <div style={{ color: C.t3, fontFamily: 'DM Sans', textAlign: 'center', padding: 20 }}>No lots</div>
+        )}
+        {!loading && !error && status !== 'wip' && filtered.length === 0 && (
           <div style={{ color: C.t3, fontFamily: 'DM Sans', textAlign: 'center', padding: 20 }}>No lots</div>
         )}
         {status === 'wip' ? (
@@ -105,7 +154,7 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onReceiveCu
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 }}>
                   <div>
-                    <div style={{ color: C.purple, fontFamily: 'DM Sans', fontWeight: 600, fontSize: 14 }}>{first.party_name || 'Unknown cutter'}</div>
+                    <div style={{ color: C.purple, fontFamily: 'DM Sans', fontWeight: 600, fontSize: 14 }}>{first.party_name || 'Unknown'}</div>
                     {first.party_location && <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans' }}>{first.party_location}</div>}
                   </div>
                   <div style={{ textAlign: 'right' }}>
@@ -119,13 +168,14 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onReceiveCu
                   <LotCard key={lot.id} lot={lot} showDot={false}
                     action={
                       <button
-                        onClick={e => { e.stopPropagation(); onReceiveCutter(lot.id) }}
+                        onClick={e => { e.stopPropagation(); onReceiveProcessing(lot.id) }}
                         style={{
-                          marginTop: 8, width: '100%', padding: '8px', borderRadius: 8,
+                          marginTop: 8, width: '100%', padding: '10px', borderRadius: 8,
                           background: `${C.purple}20`, border: `1px solid ${C.purple}40`,
                           color: C.purple, fontFamily: 'DM Sans', fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                          minHeight: 44,
                         }}
-                      >Receive from cutter</button>
+                      >Receive from processing</button>
                     }
                   />
                 ))}

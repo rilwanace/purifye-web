@@ -60,6 +60,7 @@ export interface Lot {
   location_since?: string
   days_out?: number
   warning?: string
+  job_type?: string
   expenses?: Expense[]
   history?: Transfer[]
   photos?: Photo[]
@@ -81,6 +82,7 @@ export interface Transfer {
   result_stone_count?: number
   result_weight_ct?: string
   cutting_charge?: string
+  job_type?: string
 }
 
 export interface Photo {

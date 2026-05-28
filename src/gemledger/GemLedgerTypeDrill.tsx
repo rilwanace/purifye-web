@@ -14,10 +14,10 @@ interface Props {
   color: string
   onBack: () => void
   onLot: (id: string) => void
-  onReceiveCutter: (lotId: string) => void
+  onReceiveProcessing: (lotId: string) => void
 }
 
-export default function GemLedgerTypeDrill({ stoneTypeId, stoneTypeName, color, onBack, onLot, onReceiveCutter }: Props) {
+export default function GemLedgerTypeDrill({ stoneTypeId, stoneTypeName, color, onBack, onLot, onReceiveProcessing }: Props) {
   const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -99,11 +99,11 @@ export default function GemLedgerTypeDrill({ stoneTypeId, stoneTypeName, color, 
                 {partyLots.map(lot => (
                   <LotCard key={lot.id} lot={lot} showDot={false}
                     action={
-                      <button onClick={e => { e.stopPropagation(); onReceiveCutter(lot.id) }} style={{
+                      <button onClick={e => { e.stopPropagation(); onReceiveProcessing(lot.id) }} style={{
                         marginTop: 8, width: '100%', padding: '8px', borderRadius: 8,
                         background: `${C.purple}20`, border: `1px solid ${C.purple}40`,
                         color: C.purple, fontFamily: 'DM Sans', fontWeight: 600, fontSize: 13, cursor: 'pointer',
-                      }}>Receive from cutter</button>
+                      }}>Receive from processing</button>
                     }
                   />
                 ))}

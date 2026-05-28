@@ -6,10 +6,17 @@ import type { StoneType, Party, Investment } from './gemledger-types'
 const C = {
   bg: '#0a0f0a', bg2: '#111a11', bg3: '#1a2a1a',
   border: '#1e2e1e', t1: '#e0e8e0', t2: '#c0ccc0', t3: '#8a9a8a',
-  green: '#34d399', yellow: '#fbbf24', red: '#f87171',
+  green: '#34d399', yellow: '#fbbf24', red: '#f87171', purple: '#a78bfa',
 }
 
 const SWATCH_COLORS = ['#60a5fa', '#f472b6', '#f87171', '#fbbf24', '#8a9a8a', '#a78bfa', '#22d3ee', '#fb923c']
+
+const JOB_TYPE_OPTIONS = [
+  { value: 'cutting', label: 'Cutting' },
+  { value: 'heating', label: 'Heating' },
+  { value: 'polishing', label: 'Polishing' },
+  { value: 'preform', label: 'Preform' },
+]
 
 function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
@@ -383,38 +390,89 @@ export function GiveApprovalForm({ lotId, onClose, onSaved }: { lotId: string; o
   )
 }
 
-// ── Send to Cutter ────────────────────────────────────────────────────────────
-export function SendCutterForm({ lotId, onClose, onSaved }: { lotId: string; onClose: () => void; onSaved: () => void }) {
+// ── Send for Processing ───────────────────────────────────────────────────────
+export function SendForProcessingForm({ lot, onClose, onSaved }: { lot: any; onClose: () => void; onSaved: () => void }) {
   const [parties, setParties] = useState<Party[]>([])
+  const [jobType, setJobType] = useState('cutting')
   const [partyId, setPartyId] = useState('')
+  const [sendCount, setSendCount] = useState(String(lot.stone_count))
+  const [sendWeight, setSendWeight] = useState(String(lot.total_weight_ct))
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
 
   useEffect(() => { gemApi.parties().then(setParties).catch(() => {}) }, [])
 
+  const parsedCount = parseInt(sendCount) || 0
+  const parsedWeight = parseFloat(sendWeight) || 0
+  const isPartial = parsedCount < lot.stone_count
+
   async function save() {
-    if (!partyId) return
+    if (!partyId) { setErr('Select a party'); return }
+    if (!parsedCount || parsedCount < 1) { setErr('Stone count must be at least 1'); return }
+    if (!parsedWeight || parsedWeight <= 0) { setErr('Weight must be greater than 0'); return }
+    if (parsedCount > lot.stone_count) { setErr('Cannot send more stones than lot contains'); return }
+    if (parsedWeight > parseFloat(lot.total_weight_ct)) { setErr('Cannot send more weight than lot contains'); return }
     setLoading(true)
-    try { await gemApi.sendCutter(lotId, partyId); onSaved(); onClose() }
-    catch (e: any) { setErr(e.message || 'Failed to save') } finally { setLoading(false) }
+    try {
+      const body: any = { party_id: partyId, job_type: jobType }
+      if (isPartial) {
+        body.send_stone_count = parsedCount
+        body.send_weight_ct = parsedWeight
+      }
+      await gemApi.sendProcessing(lot.id, body)
+      onSaved(); onClose()
+    } catch (e: any) { setErr(e.message || 'Failed to send') }
+    finally { setLoading(false) }
   }
 
   return (
-    <Sheet title="Send to Cutter" onClose={onClose}>
-      <Field label="CUTTER">
+    <Sheet title="Send for Processing" onClose={onClose}>
+      <div style={{ background: C.bg3, borderRadius: 10, padding: '12px 14px', marginBottom: 16 }}>
+        <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans', marginBottom: 4 }}>LOT</div>
+        <div style={{ color: C.t1, fontFamily: 'DM Sans' }}>{lot.stone_count} stones · {lot.total_weight_ct} ct · Cost: {numFmt(lot.total_cost)}</div>
+      </div>
+      <Field label="JOB TYPE">
+        <Select value={jobType} onChange={setJobType}>
+          {JOB_TYPE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+        </Select>
+      </Field>
+      <Field label="PROCESSOR / PARTY">
         <Select value={partyId} onChange={setPartyId}>
-          <option value="">Select cutter…</option>
+          <option value="">Select party…</option>
           {parties.map(p => <option key={p.id} value={p.id}>{p.name}{p.location ? ` — ${p.location}` : ''}</option>)}
         </Select>
       </Field>
+      {lot.stone_count > 1 && (
+        <>
+          <div style={{ color: C.t3, fontSize: 12, marginBottom: 10, fontFamily: 'DM Sans' }}>Sending partial lot? Adjust below.</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <Field label="STONES SENDING">
+              <Input type="number" value={sendCount} onChange={setSendCount} />
+            </Field>
+            <Field label="WEIGHT CT">
+              <Input type="number" value={sendWeight} onChange={setSendWeight} />
+            </Field>
+          </div>
+          {isPartial && parsedCount > 0 && (
+            <div style={{
+              background: `${C.purple}18`, border: `1px solid ${C.purple}40`,
+              borderRadius: 8, padding: '10px 14px', marginBottom: 12,
+            }}>
+              <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans' }}>
+                Remaining: {lot.stone_count - parsedCount} stones · {numFmt(parseFloat(lot.total_weight_ct) - parsedWeight)} ct
+              </div>
+            </div>
+          )}
+        </>
+      )}
       {err && <div style={{ color: C.red, fontSize: 13, marginBottom: 8, fontFamily: 'DM Sans' }}>{err}</div>}
-      <SaveBtn onClick={save} loading={loading} label="Send to Cutter" />
+      <SaveBtn onClick={save} loading={loading} label="Send for Processing" />
     </Sheet>
   )
 }
 
-// ── Receive from Cutter ───────────────────────────────────────────────────────
-export function ReceiveCutterForm({ lotId, onClose, onSaved }: { lotId: string; onClose: () => void; onSaved: () => void }) {
+// ── Receive from Processing ───────────────────────────────────────────────────
+export function ReceiveFromProcessingForm({ lotId, onClose, onSaved }: { lotId: string; onClose: () => void; onSaved: () => void }) {
   const [f, setF] = useState({ result_stone_count: '1', result_weight_ct: '', cutting_charge: '0' })
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
@@ -424,18 +482,18 @@ export function ReceiveCutterForm({ lotId, onClose, onSaved }: { lotId: string; 
     if (!f.result_weight_ct) { setErr('Result weight required'); return }
     setLoading(true)
     try {
-      await gemApi.receiveCutter(lotId, {
+      await gemApi.receiveProcessing(lotId, {
         result_stone_count: parseInt(f.result_stone_count),
         result_weight_ct: parseFloat(f.result_weight_ct),
         cutting_charge: parseFloat(f.cutting_charge) || 0,
       })
       onSaved(); onClose()
-    } catch (e: any) { setErr(e.message) }
+    } catch (e: any) { setErr(e.message || 'Failed to receive') }
     finally { setLoading(false) }
   }
 
   return (
-    <Sheet title="Receive from Cutter" onClose={onClose}>
+    <Sheet title="Receive from Processing" onClose={onClose}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <Field label="RESULT STONES">
           <Input type="number" value={f.result_stone_count} onChange={upd('result_stone_count')} />
@@ -444,11 +502,11 @@ export function ReceiveCutterForm({ lotId, onClose, onSaved }: { lotId: string; 
           <Input type="number" value={f.result_weight_ct} onChange={upd('result_weight_ct')} placeholder="0.00" />
         </Field>
       </div>
-      <Field label="CUTTING CHARGE">
+      <Field label="PROCESSING CHARGE">
         <Input type="number" value={f.cutting_charge} onChange={upd('cutting_charge')} placeholder="0.00" />
       </Field>
       {err && <div style={{ color: C.red, fontSize: 13, marginBottom: 8 }}>{err}</div>}
-      <SaveBtn onClick={save} loading={loading} label="Create Cut Lot" />
+      <SaveBtn onClick={save} loading={loading} label="Create Output Lot" />
     </Sheet>
   )
 }

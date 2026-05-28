@@ -3,8 +3,8 @@ import { gemApi } from './gemledger-api'
 import type { Lot } from './gemledger-types'
 import { numFmt, fmtCt } from './GemLedgerCards'
 import {
-  SellForm, GiveApprovalForm, SendCutterForm,
-  ReceiveCutterForm, AddExpenseForm,
+  SellForm, GiveApprovalForm, SendForProcessingForm,
+  ReceiveFromProcessingForm, AddExpenseForm,
 } from './GemLedgerForms'
 
 const C = {
@@ -30,7 +30,7 @@ interface Props {
   onRefresh: () => void
 }
 
-type Form = 'sell' | 'approval' | 'cutter' | 'receive' | 'expense' | null
+type Form = 'sell' | 'approval' | 'processing' | 'receive' | 'expense' | null
 
 export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Props) {
   const [lot, setLot] = useState<Lot | null>(null)
@@ -270,8 +270,8 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
               <>
                 <ActionBtn label="Record Sale" color={C.green} onClick={() => setForm('sell')} />
                 {lot.status !== 'wip' && <ActionBtn label="Give Approval" color={C.yellow} onClick={() => setForm('approval')} />}
-                {lot.status !== 'wip' && lot.status !== 'cut' && <ActionBtn label="Send to Cutter" color={C.purple} onClick={() => setForm('cutter')} />}
-                {lot.status === 'wip' && <ActionBtn label="Receive from Cutter" color={C.purple} onClick={() => setForm('receive')} />}
+                {(lot.status === 'rough' || lot.status === 'cut') && <ActionBtn label="Send for Processing" color={C.purple} onClick={() => setForm('processing')} />}
+                {lot.status === 'wip' && <ActionBtn label="Receive from Processing" color={C.purple} onClick={() => setForm('receive')} />}
                 <ActionBtn label="Add Expense" color={C.t3} onClick={() => setForm('expense')} />
               </>
             )}
@@ -337,8 +337,8 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh }: Prop
       {/* Forms */}
       {form === 'sell' && <SellForm lot={lot} onClose={() => setForm(null)} onSaved={refresh} />}
       {form === 'approval' && <GiveApprovalForm lotId={lot.id} onClose={() => setForm(null)} onSaved={refresh} />}
-      {form === 'cutter' && <SendCutterForm lotId={lot.id} onClose={() => setForm(null)} onSaved={refresh} />}
-      {form === 'receive' && <ReceiveCutterForm lotId={lot.id} onClose={() => setForm(null)} onSaved={refresh} />}
+      {form === 'processing' && <SendForProcessingForm lot={lot} onClose={() => setForm(null)} onSaved={refresh} />}
+      {form === 'receive' && <ReceiveFromProcessingForm lotId={lot.id} onClose={() => setForm(null)} onSaved={refresh} />}
       {form === 'expense' && <AddExpenseForm lotId={lot.id} onClose={() => setForm(null)} onSaved={refresh} />}
     </div>
   )

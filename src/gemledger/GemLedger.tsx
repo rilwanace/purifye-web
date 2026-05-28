@@ -11,7 +11,7 @@ import GemLedgerSearch from './GemLedgerSearch'
 import GemLedgerBottomNav from './GemLedgerBottomNav'
 import GemLedgerSharePage from './GemLedgerSharePage'
 import {
-  AddLotForm, AddPartyForm, AddInvestmentForm, ReceiveCutterForm,
+  AddLotForm, AddPartyForm, AddInvestmentForm, ReceiveFromProcessingForm,
 } from './GemLedgerForms'
 
 const C = {
@@ -45,7 +45,7 @@ function GemLedgerApp() {
 
   function openLot(id: string) { setActiveLotId(id) }
 
-  function openReceiveCutter(lotId: string) {
+  function openReceiveProcessing(lotId: string) {
     setActiveLotId(null)
     setActionForm('receive:' + lotId)
   }
@@ -134,7 +134,7 @@ function GemLedgerApp() {
             status={drill.status}
             onBack={() => setDrill(null)}
             onLot={openLot}
-            onReceiveCutter={openReceiveCutter}
+            onReceiveProcessing={openReceiveProcessing}
           />
         )}
 
@@ -145,7 +145,7 @@ function GemLedgerApp() {
             color={drill.color}
             onBack={() => setDrill(null)}
             onLot={openLot}
-            onReceiveCutter={openReceiveCutter}
+            onReceiveProcessing={openReceiveProcessing}
           />
         )}
 
@@ -208,7 +208,7 @@ function GemLedgerApp() {
       {actionForm === 'party' && <AddPartyForm onClose={() => setActionForm(null)} onSaved={refresh} />}
       {actionForm === 'investment' && <AddInvestmentForm onClose={() => setActionForm(null)} onSaved={refresh} />}
       {actionForm?.startsWith('receive:') && (
-        <ReceiveCutterForm
+        <ReceiveFromProcessingForm
           lotId={actionForm.split(':')[1]}
           onClose={() => setActionForm(null)}
           onSaved={refresh}

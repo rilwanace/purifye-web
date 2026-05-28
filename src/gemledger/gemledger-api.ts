@@ -36,10 +36,10 @@ export const gemApi = {
     api(`${G}/lots/${id}/give-approval`, { method: 'POST', body: JSON.stringify({ party_id }) }),
   returnLot: (id: string) =>
     api(`${G}/lots/${id}/return`, { method: 'POST', body: JSON.stringify({}) }),
-  sendCutter: (id: string, party_id: string) =>
-    api(`${G}/lots/${id}/send-cutter`, { method: 'POST', body: JSON.stringify({ party_id }) }),
-  receiveCutter: (id: string, body: object) =>
-    api(`${G}/lots/${id}/receive-cutter`, { method: 'POST', body: JSON.stringify(body) }),
+  sendProcessing: (id: string, body: object) =>
+    api(`${G}/lots/${id}/send-processing`, { method: 'POST', body: JSON.stringify(body) }),
+  receiveProcessing: (id: string, body: object) =>
+    api(`${G}/lots/${id}/receive-processing`, { method: 'POST', body: JSON.stringify(body) }),
   sellLot: (id: string, body: object) =>
     api(`${G}/lots/${id}/sell`, { method: 'POST', body: JSON.stringify(body) }),
   shareLot: (id: string) =>
