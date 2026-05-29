@@ -84,6 +84,16 @@ export const gemApi = {
     api(`${G}/lots/${lotId}/expenses`, { method: 'POST', body: JSON.stringify(body) }),
   deleteExpense: (id: string) =>
     api(`${G}/expenses/${id}`, { method: 'DELETE' }),
+  updateExpense: (id: string, body: { amount?: number; description?: string }) =>
+    api(`${G}/expenses/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  editSale: (lotId: string, body: { sale_price: number }) =>
+    api<{ sale_price: string; profit: string }>(`${G}/lots/${lotId}/edit-sale`, { method: 'PUT', body: JSON.stringify(body) }),
+  undoSale: (lotId: string) =>
+    api<{ ok: boolean; new_status: string }>(`${G}/lots/${lotId}/undo-sale`, { method: 'POST', body: '{}' }),
+  updateReturn: (returnId: string, body: { amount: number }) =>
+    api(`${G}/investment-returns/${returnId}`, { method: 'PUT', body: JSON.stringify(body) }),
+  deleteReturn: (returnId: string) =>
+    api(`${G}/investment-returns/${returnId}`, { method: 'DELETE' }),
 
   // Photos
   uploadPhoto: (lotId: string, file: File, photoType: string) => {

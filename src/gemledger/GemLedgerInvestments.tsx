@@ -192,12 +192,40 @@ export function InvestorDetail({ investmentId, investmentName, onBack, onLot }: 
   const [closeOpen, setCloseOpen] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [editReturnId, setEditReturnId] = useState<string | null>(null)
+  const [editReturnAmount, setEditReturnAmount] = useState('')
+  const [savingReturn, setSavingReturn] = useState(false)
+  const [deleteReturnId, setDeleteReturnId] = useState<string | null>(null)
+  const [deleteReturnFinal, setDeleteReturnFinal] = useState(false)
+  const [deletingReturn, setDeletingReturn] = useState(false)
 
   useEffect(() => {
     setLoading(true)
     setError(null)
     gemApi.investment(investmentId).then(setInv).catch((err: any) => { setError(err?.message || 'Failed to load investment') }).finally(() => setLoading(false))
   }, [investmentId, refreshKey])
+
+  async function saveReturnEdit() {
+    if (!editReturnId) return
+    setSavingReturn(true)
+    try {
+      await gemApi.updateReturn(editReturnId, { amount: parseFloat(editReturnAmount) })
+      setEditReturnId(null)
+      setRefreshKey(k => k + 1)
+    } catch (e: any) { setError(e?.message || 'Failed to update return') }
+    finally { setSavingReturn(false) }
+  }
+
+  async function doDeleteReturn() {
+    if (!deleteReturnId) return
+    setDeletingReturn(true)
+    try {
+      await gemApi.deleteReturn(deleteReturnId)
+      setDeleteReturnId(null)
+      setRefreshKey(k => k + 1)
+    } catch (e: any) { setError(e?.message || 'Failed to delete return') }
+    finally { setDeletingReturn(false) }
+  }
 
   if (loading) return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
@@ -291,13 +319,19 @@ export function InvestorDetail({ investmentId, investmentName, onBack, onLot }: 
         {histOpen && inv.returns.map(r => (
           <div key={r.id} style={{
             background: C.bg2, border: `1px solid ${C.border}`, borderRadius: 10,
-            padding: '10px 14px', marginBottom: 6, display: 'flex', justifyContent: 'space-between',
+            padding: '10px 14px', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4,
           }}>
-            <div>
+            <div style={{ flex: 1 }}>
               <div style={{ color: C.t2, fontFamily: 'DM Sans', fontSize: 13 }}>{r.is_final ? 'Final settlement' : 'Capital return'}</div>
               <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans' }}>{new Date(r.date).toLocaleDateString()}</div>
             </div>
-            <div style={{ color: C.green, fontFamily: 'JetBrains Mono', fontSize: 14, fontWeight: 600 }}>{numFmt(r.amount)}</div>
+            <div style={{ color: C.green, fontFamily: 'JetBrains Mono', fontSize: 14, fontWeight: 600, marginRight: 4 }}>{numFmt(r.amount)}</div>
+            <button onClick={() => { setEditReturnId(r.id); setEditReturnAmount(r.amount) }}
+              style={{ minWidth: 44, minHeight: 44, background: 'none', border: 'none', cursor: 'pointer', color: '#c0ccc0', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              aria-label="Edit return">&#9998;</button>
+            <button onClick={() => { setDeleteReturnId(r.id); setDeleteReturnFinal(r.is_final) }}
+              style={{ minWidth: 44, minHeight: 44, background: 'none', border: 'none', cursor: 'pointer', color: '#c0ccc0', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              aria-label="Delete return">&#10005;</button>
           </div>
         ))}
 
@@ -318,6 +352,45 @@ export function InvestorDetail({ investmentId, investmentName, onBack, onLot }: 
 
       {returnOpen && <ReturnCapitalForm investmentId={investmentId} investmentName={investmentName} onClose={() => setReturnOpen(false)} onSaved={() => setRefreshKey(k => k + 1)} />}
       {closeOpen && inv && <CloseInvestmentModal inv={inv} onClose={() => setCloseOpen(false)} onSaved={() => { setRefreshKey(k => k + 1); setCloseOpen(false) }} />}
+
+      {editReturnId && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: 430, background: C.bg2, borderRadius: '16px 16px 0 0', border: `1px solid ${C.border}`, padding: 24 }}>
+            <div style={{ color: C.t1, fontFamily: 'DM Sans', fontWeight: 700, fontSize: 16, marginBottom: 16 }}>Edit return amount</div>
+            <div style={{ color: C.t3, fontSize: 11, fontFamily: 'DM Sans', marginBottom: 4 }}>AMOUNT</div>
+            <input type="number" value={editReturnAmount}
+              onChange={e => setEditReturnAmount(e.target.value)}
+              style={{ width: '100%', boxSizing: 'border-box', background: C.bg3, border: `1px solid ${C.border}`, borderRadius: 8, color: C.t1, fontSize: 14, padding: '8px 10px', fontFamily: 'JetBrains Mono', marginBottom: 20 }} />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => setEditReturnId(null)} style={{ flex: 1, padding: '12px', borderRadius: 10, background: 'transparent', border: `1px solid ${C.border}`, color: C.t2, fontFamily: 'DM Sans', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={saveReturnEdit} disabled={savingReturn} style={{ flex: 1, padding: '12px', borderRadius: 10, background: savingReturn ? C.bg3 : C.green, border: 'none', color: '#0a0f0a', fontFamily: 'DM Sans', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>{savingReturn ? 'Saving…' : 'Save'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteReturnId && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ width: '100%', maxWidth: 360, background: C.bg2, borderRadius: 16, border: `1px solid ${C.border}`, padding: 24 }}>
+            {deleteReturnFinal ? (
+              <>
+                <div style={{ color: C.t1, fontFamily: 'DM Sans', fontWeight: 700, fontSize: 15, marginBottom: 8 }}>Delete closing return?</div>
+                <div style={{ color: C.red, fontFamily: 'DM Sans', fontSize: 13, marginBottom: 4 }}>This was the closing return.</div>
+                <div style={{ color: C.t3, fontFamily: 'DM Sans', fontSize: 13, marginBottom: 20 }}>Deleting it will reopen this investment. Are you sure?</div>
+              </>
+            ) : (
+              <>
+                <div style={{ color: C.t1, fontFamily: 'DM Sans', fontWeight: 700, fontSize: 15, marginBottom: 8 }}>Delete this return?</div>
+                <div style={{ color: C.t3, fontFamily: 'DM Sans', fontSize: 13, marginBottom: 20 }}>This cannot be undone.</div>
+              </>
+            )}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => setDeleteReturnId(null)} style={{ flex: 1, padding: '12px', borderRadius: 10, background: 'transparent', border: `1px solid ${C.border}`, color: C.t2, fontFamily: 'DM Sans', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={doDeleteReturn} disabled={deletingReturn} style={{ flex: 1, padding: '12px', borderRadius: 10, background: deletingReturn ? '#2a1a1a' : C.red, border: 'none', color: 'white', fontFamily: 'DM Sans', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>{deletingReturn ? 'Deleting…' : 'Delete'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
