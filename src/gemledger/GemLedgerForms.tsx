@@ -145,7 +145,10 @@ export function AddLotForm({ onClose, onSaved, prefill }: { onClose: () => void;
   }
 
   async function save() {
-    if (!f.stone_type_id || !f.total_weight_ct) { setErr('Stone type and weight are required'); return }
+    if (!f.stone_type_id) { setErr('Stone type is required'); return }
+    if (!f.total_weight_ct || parseFloat(f.total_weight_ct) <= 0) { setErr('Weight must be a positive number'); return }
+    if (!f.total_cost || parseFloat(f.total_cost) <= 0) { setErr('Total cost must be a positive number'); return }
+    if (!f.status || !['rough', 'cut'].includes(f.status)) { setErr('Status must be rough or cut'); return }
     setLoading(true)
     try {
       const body: any = {
@@ -153,7 +156,7 @@ export function AddLotForm({ onClose, onSaved, prefill }: { onClose: () => void;
         stone_type_id: f.stone_type_id,
         stone_count: parseInt(f.stone_count) || 1,
         total_weight_ct: parseFloat(f.total_weight_ct),
-        total_cost: parseFloat(f.total_cost) || 0,
+        total_cost: parseFloat(f.total_cost),
         status: f.status,
         shape: f.shape || null,
         color: f.color || null,
@@ -168,13 +171,13 @@ export function AddLotForm({ onClose, onSaved, prefill }: { onClose: () => void;
       await gemApi.createLot(body)
       onSaved()
       onClose()
-    } catch (e: any) { setErr(e.message) }
+    } catch (e: any) { setErr(e.message || 'Failed to save') }
     finally { setLoading(false) }
   }
 
   return (
     <Sheet title="Add Stone / Lot" onClose={onClose}>
-      <Field label="STONE TYPE">
+      <Field label="STONE TYPE *">
         <Select value={f.stone_type_id} onChange={(v: string) => {
           if (v === '__new__') { setShowCustomInput(true); upd('stone_type_id')('') }
           else { setShowCustomInput(false); upd('stone_type_id')(v) }
@@ -220,14 +223,14 @@ export function AddLotForm({ onClose, onSaved, prefill }: { onClose: () => void;
         <Field label="STONES">
           <Input type="number" value={f.stone_count} onChange={upd('stone_count')} placeholder="1" />
         </Field>
-        <Field label="TOTAL CT">
+        <Field label="TOTAL CT *">
           <Input type="number" value={f.total_weight_ct} onChange={upd('total_weight_ct')} placeholder="0.00" />
         </Field>
       </div>
-      <Field label="TOTAL COST">
+      <Field label="TOTAL COST *">
         <Input type="number" value={f.total_cost} onChange={upd('total_cost')} placeholder="0.00" />
       </Field>
-      <Field label="STATUS">
+      <Field label="STATUS *">
         <div style={{ display: 'flex', gap: 8 }}>
           {['rough', 'cut'].map(s => (
             <button key={s} onClick={() => upd('status')(s)} style={{

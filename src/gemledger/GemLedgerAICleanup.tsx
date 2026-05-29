@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { gemApi } from './gemledger-api'
 
 const C = {
@@ -7,6 +7,12 @@ const C = {
   green: '#34d399', greenDim: '#1a4a2a', err: '#f87171',
 }
 
+const PROGRESS_MESSAGES = [
+  'Analyzing your spreadsheet…',
+  'Mapping columns…',
+  'Generating cleaned file…',
+]
+
 interface Props {
   onClose: () => void
 }
@@ -14,10 +20,17 @@ interface Props {
 export default function GemLedgerAICleanup({ onClose }: Props) {
   const [dragging, setDragging] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [msgIdx, setMsgIdx] = useState(0)
   const [err, setErr] = useState<string | null>(null)
   const [done, setDone] = useState(false)
   const [cleanedBlob, setCleanedBlob] = useState<Blob | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (!loading) { setMsgIdx(0); return }
+    const t = setInterval(() => setMsgIdx(i => (i + 1) % PROGRESS_MESSAGES.length), 3500)
+    return () => clearInterval(t)
+  }, [loading])
 
   const handleFile = useCallback(async (file: File) => {
     setErr(null)
@@ -66,6 +79,13 @@ export default function GemLedgerAICleanup({ onClose }: Props) {
       background: C.bg, overflowY: 'auto',
       fontFamily: 'DM Sans, sans-serif',
     }}>
+      <style>{`
+        @keyframes glCleanupSlide {
+          0%   { left: -50%; }
+          100% { left: 110%; }
+        }
+      `}</style>
+
       {/* Header */}
       <div style={{
         padding: '14px 16px', borderBottom: '1px solid ' + C.border,
@@ -85,41 +105,31 @@ export default function GemLedgerAICleanup({ onClose }: Props) {
         {/* Explainer */}
         <div style={{ padding: '14px 16px', background: C.card, border: '1px solid ' + C.border, borderRadius: 10, marginBottom: 20 }}>
           <div style={{ fontSize: 13, color: C.t2, lineHeight: 1.6 }}>
-            Upload your messy spreadsheet. AI will parse it and return a new Excel file in our template format — yellow cells are uncertain, red cells need your attention. Then use "Import Excel" to bring it in.
+            Upload your messy spreadsheet. AI will parse it and return a cleaned Excel file in our template format — red cells need your attention (required field missing). Then use "Import Excel" to bring it in.
           </div>
         </div>
 
-        {/* Upload area */}
-        {!done && (
+        {/* Upload area — hidden while loading or done */}
+        {!done && !loading && (
           <>
             <div
               onDragOver={e => { e.preventDefault(); setDragging(true) }}
               onDragLeave={() => setDragging(false)}
               onDrop={onDrop}
-              onClick={() => !loading && fileInputRef.current?.click()}
+              onClick={() => fileInputRef.current?.click()}
               style={{
                 border: '2px dashed ' + (dragging ? C.green : C.border),
                 borderRadius: 16, padding: '40px 20px', textAlign: 'center',
-                cursor: loading ? 'default' : 'pointer',
+                cursor: 'pointer',
                 background: dragging ? C.greenDim : C.card,
                 transition: 'all 0.15s',
                 minHeight: 200, display: 'flex', flexDirection: 'column',
                 alignItems: 'center', justifyContent: 'center', gap: 14,
               }}
             >
-              {loading ? (
-                <>
-                  <div style={{ fontSize: 40 }}>⏳</div>
-                  <div style={{ fontSize: 15, color: C.t1, fontWeight: 600 }}>Cleaning up your data…</div>
-                  <div style={{ fontSize: 12, color: C.t3 }}>This may take 30–60 seconds for large files</div>
-                </>
-              ) : (
-                <>
-                  <div style={{ fontSize: 40 }}>🤖</div>
-                  <div style={{ fontSize: 15, color: C.t1, fontWeight: 600 }}>Tap to upload or drag file here</div>
-                  <div style={{ fontSize: 12, color: C.t3 }}>Supports .xlsx, .xls, .csv — max 10 MB</div>
-                </>
-              )}
+              <div style={{ fontSize: 40 }}>🤖</div>
+              <div style={{ fontSize: 15, color: C.t1, fontWeight: 600 }}>Tap to upload or drag file here</div>
+              <div style={{ fontSize: 12, color: C.t3 }}>Supports .xlsx, .xls, .csv — max 10 MB</div>
             </div>
             <input
               ref={fileInputRef}
@@ -131,10 +141,49 @@ export default function GemLedgerAICleanup({ onClose }: Props) {
           </>
         )}
 
+        {/* Progress indicator */}
+        {loading && (
+          <div style={{
+            padding: '32px 20px', background: C.card,
+            border: '1px solid ' + C.border, borderRadius: 16,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
+          }}>
+            <div style={{ fontSize: 36 }}>🤖</div>
+            <div style={{ fontSize: 15, color: C.t1, fontWeight: 600, textAlign: 'center' }}>
+              {PROGRESS_MESSAGES[msgIdx]}
+            </div>
+            {/* Indeterminate progress bar */}
+            <div style={{
+              width: '100%', height: 6, background: C.border,
+              borderRadius: 3, overflow: 'hidden', position: 'relative',
+            }}>
+              <div style={{
+                position: 'absolute', top: 0, height: '100%',
+                width: '50%', background: C.green, borderRadius: 3,
+                animation: 'glCleanupSlide 1.6s ease-in-out infinite',
+              }} />
+            </div>
+            <div style={{ fontSize: 12, color: C.t3 }}>This may take 10–30 seconds for large files</div>
+          </div>
+        )}
+
         {/* Error */}
         {err && (
-          <div style={{ marginTop: 14, padding: '12px 14px', background: '#2a1010', border: '1px solid #5a2020', borderRadius: 8, color: C.err, fontSize: 13 }}>
-            {err}
+          <div style={{ marginTop: 14 }}>
+            <div style={{ padding: '12px 14px', background: '#2a1010', border: '1px solid #5a2020', borderRadius: 8, color: C.err, fontSize: 13, marginBottom: 10 }}>
+              {err}
+            </div>
+            <button
+              onClick={() => { setErr(null); fileInputRef.current?.click() }}
+              style={{
+                width: '100%', padding: '13px 0',
+                background: 'transparent', color: C.t2,
+                border: '1px solid ' + C.border, borderRadius: 10, cursor: 'pointer',
+                fontSize: 14, fontFamily: 'DM Sans, sans-serif', minHeight: 44,
+              }}
+            >
+              Try again
+            </button>
           </div>
         )}
 
@@ -146,7 +195,7 @@ export default function GemLedgerAICleanup({ onClose }: Props) {
               Cleanup complete
             </div>
             <div style={{ fontSize: 13, color: C.t3, marginBottom: 24 }}>
-              Yellow cells = uncertain mapping. Red cells = couldn't parse or required field missing. Fix those, then import.
+              Red cells = required field missing or couldn't parse. Fix those, then use "Import Excel".
             </div>
             <button
               onClick={handleDownload}
