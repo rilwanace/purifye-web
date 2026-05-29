@@ -170,7 +170,7 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh, wipEna
   const isSold = lot.status === 'sold' || lot.status === 'processed'
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: C.bg, zIndex: 100, overflowY: 'auto' }}>
+    <div style={{ position: 'fixed', inset: 0, background: C.bg, zIndex: 100, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {error && (
         <div style={{
           position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)',
@@ -182,7 +182,7 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh, wipEna
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '14px 16px', borderBottom: `1px solid ${C.border}`,
-        position: 'sticky', top: 0, background: C.bg, zIndex: 10,
+        background: C.bg, zIndex: 10, flexShrink: 0,
       }}>
         <button onClick={onClose} style={{ background: 'none', border: 'none', color: C.t2, fontFamily: 'DM Sans', fontSize: 14, cursor: 'pointer', padding: '4px 0' }}>← Back</button>
         {editing ? (
@@ -198,6 +198,7 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh, wipEna
         )}
       </div>
 
+      <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
       <div style={{ padding: '16px', maxWidth: 430, margin: '0 auto' }}>
         <div style={{ marginBottom: 16 }}>
           <div style={{ fontSize: 22, fontWeight: 700, color: C.t1, fontFamily: 'DM Sans', marginBottom: 8 }}>{lot.name}</div>
@@ -347,6 +348,7 @@ export default function GemLedgerStoneDetail({ lotId, onClose, onRefresh, wipEna
             ))}
           </div>
         )}
+      </div>
       </div>
 
       {form === 'sell' && <SellForm lot={lot} onClose={() => setForm(null)} onSaved={refresh} />}
