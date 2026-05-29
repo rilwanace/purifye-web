@@ -43,7 +43,7 @@ self.addEventListener('fetch', e => {
     })
   );
 });
-﻿
+
 self.addEventListener('push', function(event) {
   if (!event.data) return;
   const data = event.data.json();
