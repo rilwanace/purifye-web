@@ -15,9 +15,10 @@ interface Props {
   onBack: () => void
   onLot: (id: string) => void
   onTransfer: (lot: Lot) => void
+  refreshKey?: number
 }
 
-export default function GemLedgerTypeDrill({ stoneTypeId, stoneTypeName, color, onBack, onLot, onTransfer }: Props) {
+export default function GemLedgerTypeDrill({ stoneTypeId, stoneTypeName, color, onBack, onLot, onTransfer, refreshKey }: Props) {
   const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -30,7 +31,7 @@ export default function GemLedgerTypeDrill({ stoneTypeId, stoneTypeName, color, 
       .then(r => setLots(r.items.filter(l => !['sold', 'processed'].includes(l.status))))
       .catch((err: any) => { setError(err?.message || 'Failed to load lots') })
       .finally(() => setLoading(false))
-  }, [stoneTypeId])
+  }, [stoneTypeId, refreshKey])
 
   const byTab = lots.filter(l => l.status === tab)
   const roughLots = lots.filter(l => l.status === 'rough')
@@ -96,6 +97,7 @@ export default function GemLedgerTypeDrill({ stoneTypeId, stoneTypeName, color, 
                 </div>
                 {partyLots.map(lot => (
                   <LotCard key={lot.id} lot={lot} showDot={false}
+                    onTap={() => onLot(lot.id)}
                     action={
                       <button onClick={e => { e.stopPropagation(); onTransfer(lot) }} style={{
                         marginTop: 8, width: '100%', padding: '8px', borderRadius: 8, minHeight: 44,

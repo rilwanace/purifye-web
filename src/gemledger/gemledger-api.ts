@@ -41,6 +41,8 @@ export const gemApi = {
     fee?: number
     heated?: boolean
     shape?: string
+    output_stone_count?: number
+    output_weight_ct?: number
   }) => api(`${G}/lots/${id}/transfer`, { method: 'POST', body: JSON.stringify(body) }),
   giveApproval: (id: string, party_id: string) =>
     api(`${G}/lots/${id}/give-approval`, { method: 'POST', body: JSON.stringify({ party_id }) }),

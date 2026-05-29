@@ -756,6 +756,8 @@ export function TransferForm({ lot, onClose, onSaved, wipEnabled = true }: {
   const [destination, setDestination] = useState('')
   const [qty, setQty] = useState(String(lot.stone_count))
   const [weight, setWeight] = useState(String(lot.total_weight_ct))
+  const [outputQty, setOutputQty] = useState(String(lot.stone_count))
+  const [outputWeight, setOutputWeight] = useState(String(lot.total_weight_ct))
   const [partyId, setPartyId] = useState('')
   const [fee, setFee] = useState('')
   const [heated, setHeated] = useState(true)
@@ -778,6 +780,7 @@ export function TransferForm({ lot, onClose, onSaved, wipEnabled = true }: {
 
   const isWipDest = destination.startsWith('wip_')
   const needsParty = isWipDest || destination === 'on_approval'
+  const isWipSource = lot.status === 'wip'
   const showFee = lot.status === 'wip'
   const showHeated = lot.status === 'wip' && lot.job_type === 'heating'
   const showShape = destination === 'cut'
@@ -810,6 +813,10 @@ export function TransferForm({ lot, onClose, onSaved, wipEnabled = true }: {
       if (fee && parseFloat(fee) > 0) body.fee = parseFloat(fee)
       if (showHeated) body.heated = heated
       if (showShape && shape) body.shape = shape
+      if (isWipSource) {
+        body.output_stone_count = parseInt(outputQty) || parsedQty
+        body.output_weight_ct = parseFloat(outputWeight) || parsedWeight
+      }
       await gemApi.transferLot(lot.id, body)
       onSaved(); onClose()
     } catch (e: any) { setErr(e.message || 'Transfer failed') }
@@ -831,14 +838,41 @@ export function TransferForm({ lot, onClose, onSaved, wipEnabled = true }: {
         </Select>
       </Field>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        <Field label="STONES">
-          <Input type="number" value={qty} onChange={setQty} placeholder={String(lot.stone_count)} />
-        </Field>
-        <Field label="WEIGHT (ct)">
-          <Input type="number" value={weight} onChange={setWeight} placeholder={lot.total_weight_ct} />
-        </Field>
-      </div>
+      {isWipSource ? (
+        <>
+          <div style={{ background: '#162016', border: '1px solid #1e2e1e', borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>
+            <div style={{ fontSize: 11, color: '#8a9a8a', fontFamily: 'DM Sans', fontWeight: 600, letterSpacing: '0.04em', marginBottom: 8 }}>INPUT ??? stones returning from processor</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <Field label="INPUT QTY">
+                <Input type="number" value={qty} onChange={setQty} placeholder={String(lot.stone_count)} />
+              </Field>
+              <Field label="INPUT WEIGHT (ct)">
+                <Input type="number" value={weight} onChange={setWeight} placeholder={lot.total_weight_ct} />
+              </Field>
+            </div>
+          </div>
+          <div style={{ background: '#162016', border: '1px solid #1e2e1e', borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>
+            <div style={{ fontSize: 11, color: '#8a9a8a', fontFamily: 'DM Sans', fontWeight: 600, letterSpacing: '0.04em', marginBottom: 8 }}>OUTPUT ??? actual stones produced</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <Field label="OUTPUT QTY">
+                <Input type="number" value={outputQty} onChange={setOutputQty} placeholder={String(lot.stone_count)} />
+              </Field>
+              <Field label="OUTPUT WEIGHT (ct)">
+                <Input type="number" value={outputWeight} onChange={setOutputWeight} placeholder={lot.total_weight_ct} />
+              </Field>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <Field label="STONES">
+            <Input type="number" value={qty} onChange={setQty} placeholder={String(lot.stone_count)} />
+          </Field>
+          <Field label="WEIGHT (ct)">
+            <Input type="number" value={weight} onChange={setWeight} placeholder={lot.total_weight_ct} />
+          </Field>
+        </div>
+      )}
 
       {isPartial && parsedQty > 0 && parsedWeight > 0 && (
         <div style={{

@@ -94,12 +94,6 @@ function GemLedgerApp() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {drill && (
-              <button onClick={() => {
-                if (drill.kind === 'investor') setDrill({ kind: 'investments' })
-                else setDrill(null)
-              }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', color: C.t3, fontSize: 18 }}>&#8592;</button>
-            )}
             <div style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, fontSize: 18 }}>
               <span style={{ color: C.green }}>&#128142; </span>
               <span style={{ color: C.t1 }}>{title}</span>
@@ -162,6 +156,7 @@ function GemLedgerApp() {
             onBack={() => setDrill(null)}
             onLot={openLot}
             onTransfer={openTransfer}
+            refreshKey={refreshKey}
           />
         )}
 
@@ -173,6 +168,7 @@ function GemLedgerApp() {
             onBack={() => setDrill(null)}
             onLot={openLot}
             onTransfer={openTransfer}
+            refreshKey={refreshKey}
           />
         )}
 

@@ -24,9 +24,10 @@ interface Props {
   onBack: () => void
   onLot: (id: string) => void
   onTransfer: (lot: Lot) => void
+  refreshKey?: number
 }
 
-export default function GemLedgerStockDrill({ status, onBack, onLot, onTransfer }: Props) {
+export default function GemLedgerStockDrill({ status, onBack, onLot, onTransfer, refreshKey }: Props) {
   const [lots, setLots] = useState<Lot[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -46,7 +47,7 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onTransfer 
       })
       .catch((err: any) => { setError(err?.message || 'Failed to load lots') })
       .finally(() => setLoading(false))
-  }, [status])
+  }, [status, refreshKey])
 
   const color = STATUS_COLOR[status]
 
@@ -160,6 +161,7 @@ export default function GemLedgerStockDrill({ status, onBack, onLot, onTransfer 
                 </div>
                 {partyLots.map(lot => (
                   <LotCard key={lot.id} lot={lot} showDot={false}
+                    onTap={() => onLot(lot.id)}
                     action={
                       <button
                         onClick={e => { e.stopPropagation(); onTransfer(lot) }}
