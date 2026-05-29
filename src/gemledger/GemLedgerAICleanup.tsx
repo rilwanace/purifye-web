@@ -23,8 +23,9 @@ export default function GemLedgerAICleanup({ onClose }: Props) {
   const [msgIdx, setMsgIdx] = useState(0)
   const [err, setErr] = useState<string | null>(null)
   const [done, setDone] = useState(false)
-  const [cleanedBlob, setCleanedBlob] = useState<Blob | null>(null)
+  const [jobId, setJobId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (!loading) { setMsgIdx(0); return }
@@ -32,20 +33,61 @@ export default function GemLedgerAICleanup({ onClose }: Props) {
     return () => clearInterval(t)
   }, [loading])
 
+  useEffect(() => {
+    return () => {
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current)
+    }
+  }, [])
+
   const handleFile = useCallback(async (file: File) => {
     setErr(null)
     setDone(false)
-    setCleanedBlob(null)
+    setJobId(null)
     setLoading(true)
-    try {
-      const blob = await gemApi.importAiCleanup(file)
-      setCleanedBlob(blob)
-      setDone(true)
-    } catch (e: any) {
-      setErr(e.message || 'Cleanup failed')
-    } finally {
-      setLoading(false)
+    if (pollTimerRef.current) {
+      clearTimeout(pollTimerRef.current)
+      pollTimerRef.current = null
     }
+
+    let jid: string
+    try {
+      const result = await gemApi.importAiCleanupStart(file)
+      jid = result.job_id
+    } catch (e: any) {
+      setErr(e.message || 'Upload failed')
+      setLoading(false)
+      return
+    }
+
+    let failCount = 0
+    const poll = async () => {
+      try {
+        const s = await gemApi.importCleanupStatus(jid)
+        failCount = 0
+        if (s.status === 'completed') {
+          setJobId(jid)
+          setDone(true)
+          setLoading(false)
+        } else if (s.status === 'failed') {
+          setErr(s.error || 'Cleanup failed')
+          setLoading(false)
+        } else if (s.status === 'expired') {
+          setErr(s.error || 'Job expired. Please upload again.')
+          setLoading(false)
+        } else {
+          pollTimerRef.current = setTimeout(poll, 3000)
+        }
+      } catch {
+        failCount++
+        if (failCount >= 5) {
+          setErr('Connection lost. Please try again.')
+          setLoading(false)
+        } else {
+          pollTimerRef.current = setTimeout(poll, 3000)
+        }
+      }
+    }
+    pollTimerRef.current = setTimeout(poll, 3000)
   }, [])
 
   const onDrop = useCallback((e: React.DragEvent) => {
@@ -63,14 +105,19 @@ export default function GemLedgerAICleanup({ onClose }: Props) {
     }
   }, [handleFile])
 
-  const handleDownload = () => {
-    if (!cleanedBlob) return
-    const url = URL.createObjectURL(cleanedBlob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'cleaned_inventory.xlsx'
-    a.click()
-    URL.revokeObjectURL(url)
+  const handleDownload = async () => {
+    if (!jobId) return
+    try {
+      const blob = await gemApi.importCleanupDownload(jobId)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'cleaned_inventory.xlsx'
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (e: any) {
+      setErr(e.message || 'Download failed')
+    }
   }
 
   return (
@@ -105,7 +152,7 @@ export default function GemLedgerAICleanup({ onClose }: Props) {
         {/* Explainer */}
         <div style={{ padding: '14px 16px', background: C.card, border: '1px solid ' + C.border, borderRadius: 10, marginBottom: 20 }}>
           <div style={{ fontSize: 13, color: C.t2, lineHeight: 1.6 }}>
-            Upload your messy spreadsheet. AI will parse it and return a cleaned Excel file in our template format — red cells need your attention (required field missing). Then use "Import Excel" to bring it in.
+            Upload your messy spreadsheet. AI will parse it and return a cleaned Excel file in our template format — red cells need your attention (required field missing). Then use “Import Excel” to bring it in.
           </div>
         </div>
 
@@ -163,7 +210,7 @@ export default function GemLedgerAICleanup({ onClose }: Props) {
                 animation: 'glCleanupSlide 1.6s ease-in-out infinite',
               }} />
             </div>
-            <div style={{ fontSize: 12, color: C.t3 }}>This may take 10–30 seconds for large files</div>
+            <div style={{ fontSize: 12, color: C.t3 }}>This may take 10–60 seconds for large files</div>
           </div>
         )}
 
@@ -188,14 +235,14 @@ export default function GemLedgerAICleanup({ onClose }: Props) {
         )}
 
         {/* Success */}
-        {done && cleanedBlob && (
+        {done && (
           <div style={{ textAlign: 'center', paddingTop: 16 }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>✓</div>
             <div style={{ fontSize: 18, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, color: C.t1, marginBottom: 6 }}>
               Cleanup complete
             </div>
             <div style={{ fontSize: 13, color: C.t3, marginBottom: 24 }}>
-              Red cells = required field missing or couldn't parse. Fix those, then use "Import Excel".
+              Red cells = required field missing or couldn’t parse. Fix those, then use “Import Excel”.
             </div>
             <button
               onClick={handleDownload}
@@ -210,7 +257,7 @@ export default function GemLedgerAICleanup({ onClose }: Props) {
               Download cleaned_inventory.xlsx
             </button>
             <button
-              onClick={() => { setDone(false); setCleanedBlob(null); setErr(null) }}
+              onClick={() => { setDone(false); setJobId(null); setErr(null) }}
               style={{
                 width: '100%', padding: '14px 0',
                 background: 'transparent', color: C.t3,

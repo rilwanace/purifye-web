@@ -124,10 +124,30 @@ export const gemApi = {
     }),
 
   // AI Cleanup + Template Import
-  importAiCleanup: async (file: File): Promise<Blob> => {
+  importAiCleanupStart: async (file: File): Promise<{ job_id: string; status: string }> => {
     const fd = new FormData()
     fd.append('file', file)
     const resp = await fetch(`${G}/import/ai-cleanup`, { method: 'POST', body: fd, credentials: 'include' })
+    if (!resp.ok) {
+      let msg = `Request failed: ${resp.status}`
+      try { const t = await resp.text(); if (t) msg = t } catch {}
+      throw new Error(msg)
+    }
+    return resp.json()
+  },
+
+  importCleanupStatus: async (jobId: string): Promise<{ status: string; message?: string; download_url?: string; error?: string }> => {
+    const resp = await fetch(`${G}/import/cleanup-status/${jobId}`, { credentials: 'include' })
+    if (!resp.ok) {
+      let msg = `Request failed: ${resp.status}`
+      try { const t = await resp.text(); if (t) msg = t } catch {}
+      throw new Error(msg)
+    }
+    return resp.json()
+  },
+
+  importCleanupDownload: async (jobId: string): Promise<Blob> => {
+    const resp = await fetch(`${G}/import/cleanup-download/${jobId}`, { credentials: 'include' })
     if (!resp.ok) {
       let msg = `Request failed: ${resp.status}`
       try { const t = await resp.text(); if (t) msg = t } catch {}
