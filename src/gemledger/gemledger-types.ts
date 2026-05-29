@@ -213,3 +213,19 @@ export interface ImportSheetConfig {
   name: string
   mapping: Record<string, LotField | null>
 }
+
+// ── Template import types ──────────────────────────────────────────────────────
+
+export interface TemplateUploadResponse {
+  upload_id: string
+  lot_count: number
+  party_names: string[]
+  errors: string[]
+}
+
+export interface TemplateImportResult {
+  imported: number
+  imported_parties: number
+  skipped_dedup: number
+  failed_rows: Array<{ row: number; error: string }>
+}

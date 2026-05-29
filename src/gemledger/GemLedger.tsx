@@ -11,6 +11,8 @@ import GemLedgerSearch from './GemLedgerSearch'
 import GemLedgerBottomNav from './GemLedgerBottomNav'
 import GemLedgerSharePage from './GemLedgerSharePage'
 import GemLedgerImport from './GemLedgerImport'
+import GemLedgerAICleanup from './GemLedgerAICleanup'
+import GemLedgerTemplateImport from './GemLedgerTemplateImport'
 import { AddLotForm, AddPartyForm, AddInvestmentForm, TransferForm } from './GemLedgerForms'
 import { gemApi } from './gemledger-api'
 import type { Lot } from './gemledger-types'
@@ -51,6 +53,8 @@ function GemLedgerApp() {
   const [showSearch, setShowSearch] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
   const [showImport, setShowImport] = useState(false)
+  const [showAiCleanup, setShowAiCleanup] = useState(false)
+  const [showTemplateImport, setShowTemplateImport] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [actionForm, setActionForm] = useState<string | null>(null)
   const [transferLot, setTransferLot] = useState<Lot | null>(null)
@@ -226,7 +230,49 @@ function GemLedgerApp() {
             </div>
 
             <button
-              onClick={() => setShowImport(true)}
+              onClick={() => setShowAiCleanup(true)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                padding: '16px', background: C.bg2,
+                border: `1px solid ${C.border}`, borderRadius: 12,
+                cursor: 'pointer', textAlign: 'left', minHeight: 64, marginBottom: 10,
+              }}
+            >
+              <span style={{ fontSize: 24 }}>🤖</span>
+              <div>
+                <div style={{ fontSize: 15, color: C.t1, fontWeight: 600, marginBottom: 2 }}>Clean up Excel</div>
+                <div style={{ fontSize: 12, color: C.t3 }}>AI maps your messy spreadsheet to our format</div>
+              </div>
+              <span style={{ marginLeft: 'auto', color: C.t3, fontSize: 16 }}>&#8250;</span>
+            </button>
+
+            <button
+              onClick={() => setShowTemplateImport(true)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                padding: '16px', background: C.bg2,
+                border: `1px solid ${C.border}`, borderRadius: 12,
+                cursor: 'pointer', textAlign: 'left', minHeight: 64, marginBottom: 10,
+              }}
+            >
+              <span style={{ fontSize: 24 }}>&#128202;</span>
+              <div>
+                <div style={{ fontSize: 15, color: C.t1, fontWeight: 600, marginBottom: 2 }}>Import Excel</div>
+                <div style={{ fontSize: 12, color: C.t3 }}>Import a cleaned template file directly</div>
+              </div>
+              <span style={{ marginLeft: 'auto', color: C.t3, fontSize: 16 }}>&#8250;</span>
+            </button>
+
+            <button
+              onClick={async () => {
+                try {
+                  const blob = await gemApi.importTemplateDownload()
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url; a.download = 'gemledger_template.xlsx'; a.click()
+                  URL.revokeObjectURL(url)
+                } catch (e: any) { alert(e.message || 'Download failed') }
+              }}
               style={{
                 width: '100%', display: 'flex', alignItems: 'center', gap: 14,
                 padding: '16px', background: C.bg2,
@@ -234,10 +280,10 @@ function GemLedgerApp() {
                 cursor: 'pointer', textAlign: 'left', minHeight: 64,
               }}
             >
-              <span style={{ fontSize: 24 }}>&#128202;</span>
+              <span style={{ fontSize: 24 }}>&#128462;</span>
               <div>
-                <div style={{ fontSize: 15, color: C.t1, fontWeight: 600, marginBottom: 2 }}>Import from Excel</div>
-                <div style={{ fontSize: 12, color: C.t3 }}>Import lots from .xlsx, .xls, or .csv files</div>
+                <div style={{ fontSize: 15, color: C.t1, fontWeight: 600, marginBottom: 2 }}>Download blank template</div>
+                <div style={{ fontSize: 12, color: C.t3 }}>Excel template with column guide</div>
               </div>
               <span style={{ marginLeft: 'auto', color: C.t3, fontSize: 16 }}>&#8250;</span>
             </button>
@@ -261,6 +307,19 @@ function GemLedgerApp() {
       {showImport && (
         <GemLedgerImport
           onClose={() => setShowImport(false)}
+          onDone={refresh}
+        />
+      )}
+
+      {showAiCleanup && (
+        <GemLedgerAICleanup
+          onClose={() => setShowAiCleanup(false)}
+        />
+      )}
+
+      {showTemplateImport && (
+        <GemLedgerTemplateImport
+          onClose={() => setShowTemplateImport(false)}
           onDone={refresh}
         />
       )}

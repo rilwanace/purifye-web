@@ -122,4 +122,39 @@ export const gemApi = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
+
+  // AI Cleanup + Template Import
+  importAiCleanup: async (file: File): Promise<Blob> => {
+    const fd = new FormData()
+    fd.append('file', file)
+    const resp = await fetch(`${G}/import/ai-cleanup`, { method: 'POST', body: fd, credentials: 'include' })
+    if (!resp.ok) {
+      let msg = `Request failed: ${resp.status}`
+      try { const t = await resp.text(); if (t) msg = t } catch {}
+      throw new Error(msg)
+    }
+    return resp.blob()
+  },
+
+  importTemplateDownload: async (): Promise<Blob> => {
+    const resp = await fetch(`${G}/import/template-download`, { credentials: 'include' })
+    if (!resp.ok) {
+      let msg = `Request failed: ${resp.status}`
+      try { const t = await resp.text(); if (t) msg = t } catch {}
+      throw new Error(msg)
+    }
+    return resp.blob()
+  },
+
+  importTemplateUpload: (file: File) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    return apiFormData<import('./gemledger-types').TemplateUploadResponse>(`${G}/import/template-upload`, fd)
+  },
+
+  importTemplateExecute: (body: { upload_id: string }) =>
+    api<import('./gemledger-types').TemplateImportResult>(`${G}/import/template-execute`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
 }
