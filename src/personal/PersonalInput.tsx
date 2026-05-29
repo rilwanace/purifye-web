@@ -40,7 +40,7 @@ export default function PersonalInput({ mode, onSaved }: Props) {
       const form = new FormData()
       form.append('input_type', 'text')
       form.append('text_input', text.trim())
-      const result = await apiFormData<ParsedData>('/api/personal/parse', form)
+      const result = await apiFormData<ParsedData>('/api/personal/input', form)
       setParsed(result)
       setText('')
     } catch {
@@ -56,7 +56,7 @@ export default function PersonalInput({ mode, onSaved }: Props) {
       const form = new FormData()
       form.append('input_type', inputType)
       form.append('file', file, file.name)
-      const result = await apiFormData<ParsedData>('/api/personal/parse', form)
+      const result = await apiFormData<ParsedData>('/api/personal/input', form)
       setParsed(result)
     } catch (err) {
       const msg = err instanceof Error ? err.message : ''
