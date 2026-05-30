@@ -113,22 +113,35 @@ export default function PersonalConfirmCard({ parsed, onClose, onSaved }: Props)
   async function save() {
     setSaving(true)
     try {
-      const baseFields: Record<string, unknown> = { ...fields }
       if (workflow === "documents") {
-        baseFields.key_details = keyDetails
-        baseFields.extracted_text = extractedText
+        await api("/api/personal/documents", {
+          method: "POST",
+          body: JSON.stringify({
+            source_input_id: parsed.source_input_id,
+            thread_id: threadId,
+            doc_type: fields.doc_type || null,
+            extracted_text: extractedText || null,
+            key_details: keyDetails,
+            expiry_date: fields.expiry_date || null,
+            issued_date: fields.issued_date || null,
+            related_person: fields.related_person || null,
+            notes: fields.notes || null,
+            r2_key: parsed.r2_key,
+            preview_key: parsed.preview_key,
+          }),
+        })
+      } else {
+        await api("/api/personal/notes", {
+          method: "POST",
+          body: JSON.stringify({
+            source_input_id: parsed.source_input_id,
+            thread_id: threadId,
+            content: fields.content || "",
+            r2_key: parsed.r2_key,
+            preview_key: parsed.preview_key,
+          }),
+        })
       }
-      await api("/api/personal/confirm", {
-        method: "POST",
-        body: JSON.stringify({
-          source_input_id: parsed.source_input_id,
-          workflow,
-          fields: baseFields,
-          r2_key: parsed.r2_key,
-          preview_key: parsed.preview_key,
-          thread_id: threadId,
-        }),
-      })
       onSaved()
       onClose()
     } catch {
