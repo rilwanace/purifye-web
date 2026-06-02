@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { meal } from './mealApi'
-import type { Preferences } from './mealApi'
 import MealOnboarding from './MealOnboarding'
 import RecipeList from './RecipeList'
 import RecipeDetail from './RecipeDetail'
@@ -12,26 +11,14 @@ type Tab = 'recipes' | 'plan' | 'grocery'
 
 export default function MealBot() {
   const [loading, setLoading] = useState(true)
-  const [prefs, setPrefs] = useState<Preferences | null>(null)
-  const [hasPrefs, setHasPrefs] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [tab, setTab] = useState<Tab>('recipes')
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null)
 
   useEffect(() => {
     meal.preferences()
-      .then(p => {
-        if (p === null) {
-          setShowOnboarding(true)
-        } else {
-          setPrefs(p)
-          setHasPrefs(true)
-        }
-      })
-      .catch(() => {
-        // On fetch error show main UI (free recipes still work)
-        setHasPrefs(true)
-      })
+      .then(p => { if (p === null) setShowOnboarding(true) })
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
@@ -45,13 +32,7 @@ export default function MealBot() {
 
   if (showOnboarding) {
     return (
-      <MealOnboarding
-        onComplete={(p) => {
-          setPrefs(p)
-          setHasPrefs(true)
-          setShowOnboarding(false)
-        }}
-      />
+      <MealOnboarding onComplete={() => setShowOnboarding(false)} />
     )
   }
 
@@ -66,7 +47,7 @@ export default function MealBot() {
 
   const tabs: { key: Tab; label: string; icon: string }[] = [
     { key: 'recipes', label: 'Recipes', icon: '🍳' },
-    { key: 'plan', label: 'Plan', icon: '📅' },
+    { key: 'plan',    label: 'Plan',    icon: '📅' },
     { key: 'grocery', label: 'Grocery', icon: '🛒' },
   ]
 
@@ -93,8 +74,7 @@ export default function MealBot() {
 
       {/* Tab bar */}
       <div style={{
-        display: 'flex', gap: 4,
-        padding: '8px 16px',
+        display: 'flex', gap: 4, padding: '8px 16px',
         position: 'sticky', top: 53, zIndex: 99,
         background: 'var(--bg-primary)',
         borderBottom: '1px solid var(--border)',
@@ -104,8 +84,7 @@ export default function MealBot() {
             key={t.key}
             onClick={() => { setTab(t.key); window.scrollTo(0, 0) }}
             style={{
-              flex: 1,
-              padding: '8px 4px',
+              flex: 1, padding: '8px 4px',
               fontSize: 11,
               fontWeight: tab === t.key ? 600 : 500,
               fontFamily: 'var(--font-mono)',
@@ -130,7 +109,7 @@ export default function MealBot() {
         {tab === 'recipes' && (
           <RecipeList onSelectRecipe={(id) => { setSelectedRecipeId(id); window.scrollTo(0, 0) }} />
         )}
-        {tab === 'plan' && <MealPlan />}
+        {tab === 'plan'    && <MealPlan />}
         {tab === 'grocery' && <GroceryList />}
       </div>
     </div>
