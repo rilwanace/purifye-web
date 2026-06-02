@@ -75,6 +75,16 @@ const BOTS = [
     emoji: "💎",
     glow: "rgba(52,211,153,0.3)",
   },
+  {
+    id: "ledger",
+    label: "Simple Ledger",
+    subtitle: "Track income & expenses",
+    path: "/ledger",
+    accent: "#F59E0B",
+    gradient: "linear-gradient(135deg, #F59E0B, #D97706)",
+    emoji: "📒",
+    glow: "rgba(245,158,11,0.3)",
+  },
 ]
 
 function greeting() {
