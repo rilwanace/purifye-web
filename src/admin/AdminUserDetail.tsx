@@ -3,13 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom'
 
 const BOT_ICONS: Record<string, string> = {
   accounting: '📊', inventory: '📦', social: '📱', planner: '📅', customers: '👥',
-  personal: '🤖', gemledger: '💎',
+  personal: '🤖', gemledger: '💎', meal: '🍳',
 }
 const BOT_NAMES: Record<string, string> = {
   accounting: 'Accounting', inventory: 'Inventory', social: 'Social',
-  planner: 'Planner', customers: 'Customers', personal: 'Personal', gemledger: 'GemLedger',
+  planner: 'Planner', customers: 'Customers', personal: 'Personal', gemledger: 'GemLedger', meal: 'Meal Bot',
 }
-const ALL_BOT_IDS = ['accounting', 'inventory', 'social', 'customers', 'planner', 'personal', 'gemledger']
+const ALL_BOT_IDS = ['accounting', 'inventory', 'social', 'customers', 'planner', 'personal', 'gemledger', 'meal']
 const STATUS_PILL: Record<string, { label: string; color: string; bg: string }> = {
   active:  { label: 'Active',  color: '#064e3b', bg: '#6ee7b7' },
   trial:   { label: 'Trial',   color: '#78350f', bg: '#fcd34d' },

@@ -85,6 +85,16 @@ const BOTS = [
     emoji: "📒",
     glow: "rgba(245,158,11,0.3)",
   },
+  {
+    id: "meal",
+    label: "Meal Bot",
+    subtitle: "Meal plans & recipes",
+    path: "/meal",
+    accent: "#E8734A",
+    gradient: "linear-gradient(145deg, #E8734A, #B84D22)",
+    emoji: "🍳",
+    glow: "rgba(232,115,74,0.3)",
+  },
 ]
 
 function greeting() {
