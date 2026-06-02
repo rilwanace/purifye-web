@@ -7,6 +7,7 @@ const BOTS = [
   { id: 'social',     label: 'Social',     gradient: 'linear-gradient(145deg, #7068D9, #4840A3)', path: '/social',     active: true,  icon: '📣' },
   { id: 'planner',    label: 'Planner',    gradient: 'linear-gradient(145deg, #D4A843, #9E7B28)', path: '/planner',    active: true,  icon: '📅' },
   { id: 'customers',  label: 'Customers',  gradient: 'linear-gradient(145deg, #CF5BA0, #8A3063)', path: '/customers',  active: true,  icon: '👥' },
+  { id: 'meal',       label: 'Meal',       gradient: 'linear-gradient(145deg, #E8734A, #B84D22)', path: '/meal',       active: true,  icon: '🍳' },
 ]
 
 export default function BotTabBar() {

@@ -28,6 +28,7 @@ import SocialLibrary from './social/SocialLibrary'
 import SocialEditor from './social/SocialEditor'
 import SocialOnboarding from './social/SocialOnboarding'
 import PersonalBot from './personal/PersonalBot'
+import MealBot from './meal/MealBot'
 import GemLedger from './gemledger/GemLedger'
 import GemLedgerSharePage from './gemledger/GemLedgerSharePage'
 import SimpleLedger from './ledger/SimpleLedger'
@@ -84,6 +85,9 @@ export default function App() {
               <Route index element={<InventoryBot />} />
             </Route>
             <Route path="/personal/*" element={<ProtectedRoute><PersonalBot /></ProtectedRoute>} />
+            <Route path="/meal" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
+              <Route index element={<MealBot />} />
+            </Route>
             <Route path="/gemledger/s/:token" element={<GemLedgerSharePage />} />
             <Route path="/gemledger/*" element={<ProtectedRoute><GemLedger /></ProtectedRoute>} />
             <Route path="/ledger" element={<ProtectedRoute><SimpleLedger /></ProtectedRoute>} />
