@@ -182,8 +182,6 @@ export default function RecipeList({ onSelectRecipe }: Props) {
             No recipes found
           </div>
         ) : filtered.map(r => {
-          const totalTime = (r.prep_time_min || 0) + (r.cook_time_min || 0)
-          const pColor = PROTEIN_COLORS[(r.protein_type || '').toLowerCase()] || '#888'
           const placeholderBg = getPlaceholderColor(r)
           return (
             <button
@@ -207,26 +205,13 @@ export default function RecipeList({ onSelectRecipe }: Props) {
                   {proteinEmoji(r.protein_type)}
                 </div>
               )}
-              <div style={{ padding: 10 }}>
+              <div style={{ padding: '8px 8px 10px' }}>
                 <div style={{
-                  fontSize: 13, fontWeight: 600, lineHeight: 1.3, marginBottom: 6,
+                  fontSize: 13, fontWeight: 600, lineHeight: 1.3,
                   overflow: 'hidden', display: '-webkit-box',
                   WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const,
                 }}>
                   {r.name}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
-                  {r.protein_type && (
-                    <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 10, background: `${pColor}20`, color: pColor, fontFamily: 'var(--font-mono)' }}>
-                      {r.protein_type}
-                    </span>
-                  )}
-                  <EffortDots level={r.effort_level || 1} />
-                  <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-dim)' }}>
-                    {totalTime}m
-                  </span>
-                  {r.kid_friendly && <span style={{ fontSize: 11 }}>⭐</span>}
-                  {r.batch_prep_friendly && <span style={{ fontSize: 11 }}>🔄</span>}
                 </div>
               </div>
             </button>

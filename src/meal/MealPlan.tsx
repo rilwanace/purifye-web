@@ -192,29 +192,28 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed }
                 const pc = PROTEIN_COLORS[(slot.protein_type || '').toLowerCase()] || '#888'
                 const isDessert = slot.meal_slot === 'dessert'
                 return (
-                  <div key={slot.id} onClick={() => openSwap(slot)} style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--bg-card)', border: '1px solid var(--border)', cursor: slot.is_locked ? 'default' : 'pointer' }}>
-                    <div style={{ position: 'relative', height: 120, overflow: 'hidden' }}>
+                  <div key={slot.id} onClick={() => openSwap(slot)} style={{ display: 'flex', flexDirection: 'row', height: 100, background: 'var(--bg-card)', borderRadius: 10, overflow: 'hidden', border: '1px solid var(--border)', cursor: slot.is_locked ? 'default' : 'pointer' }}>
+                    <div style={{ position: 'relative', width: 100, height: '100%', flexShrink: 0, overflow: 'hidden' }}>
                       {slot.image_url ? (
                         <img src={slot.image_url} alt={slot.recipe_name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                       ) : (
-                        <div style={{ width: '100%', height: '100%', background: isDessert ? 'linear-gradient(135deg,rgba(112,104,217,0.3),rgba(112,104,217,0.6))' : `linear-gradient(135deg,${pc}33,${pc}66)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>
+                        <div style={{ width: '100%', height: '100%', background: isDessert ? 'linear-gradient(135deg,rgba(112,104,217,0.3),rgba(112,104,217,0.6))' : `linear-gradient(135deg,${pc}33,${pc}66)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>
                           {isDessert ? '🍰' : slot.meal_slot === 'breakfast' ? '🌅' : '🍽️'}
                         </div>
                       )}
-                      <div style={{ position: 'absolute', top: 8, left: 8, background: 'rgba(0,0,0,0.55)', borderRadius: 6, padding: '3px 7px', fontSize: 9, fontFamily: 'var(--font-mono)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                      <div style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(0,0,0,0.6)', borderRadius: 4, padding: '2px 5px', fontSize: 8, fontFamily: 'var(--font-mono)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                         {slot.meal_slot}
                       </div>
-                      <button onClick={e => handleLock(slot.id, e)} disabled={lockingSlotId === slot.id} style={{ position: 'absolute', top: 6, right: 8, background: 'rgba(0,0,0,0.45)', border: 'none', borderRadius: 6, cursor: 'pointer', padding: '3px 5px', fontSize: 13, lineHeight: 1, opacity: slot.is_locked ? 1 : 0.6 }}>
+                      <button onClick={e => handleLock(slot.id, e)} disabled={lockingSlotId === slot.id} style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: 4, cursor: 'pointer', padding: '2px 4px', fontSize: 11, lineHeight: 1, opacity: slot.is_locked ? 1 : 0.65 }}>
                         {slot.is_locked ? '🔒' : '🔓'}
                       </button>
                     </div>
-                    <div style={{ padding: '10px 12px 12px' }}>
-                      <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.3, marginBottom: 4, fontFamily: 'var(--font-sans)' }}>{slot.recipe_name}</div>
+                    <div style={{ flex: 1, padding: 10, display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden', gap: 4 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.3, fontFamily: 'var(--font-sans)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{slot.recipe_name}</div>
                       {slot.description && (
-                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontFamily: 'var(--font-sans)' }}>{slot.description}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-secondary)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontFamily: 'var(--font-sans)' }}>{slot.description}</div>
                       )}
-                      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', alignItems: 'center' }}>
-                        {slot.protein_type && <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 10, background: pc + '22', color: pc, fontFamily: 'var(--font-mono)' }}>{slot.protein_type}</span>}
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'center' }}>
                         {slot.batch_prep_friendly && <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', background: 'rgba(232,115,74,0.15)', color: '#E8734A', padding: '2px 6px', borderRadius: 6 }}>batch</span>}
                         {slot.kid_friendly && <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', background: 'rgba(93,202,165,0.15)', color: '#5DCAA5', padding: '2px 6px', borderRadius: 6 }}>kid</span>}
                         {((slot.prep_time_min || 0) + (slot.cook_time_min || 0)) <= 20 && <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)', padding: '2px 6px', borderRadius: 6 }}>quick</span>}
