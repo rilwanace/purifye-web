@@ -80,7 +80,7 @@ export default function RecipeDetail({ recipeId, onBack }: Props) {
   const sortedSteps = [...(recipe.steps || [])].sort((a, b) => a.step_number - b.step_number)
 
   return (
-    <div style={{ paddingBottom: 72 }}>
+    <div style={{ paddingBottom: 80 }}>
       {cookingMode && <CookingMode recipe={recipe} onClose={() => setCookingMode(false)} />}
 
       <div style={{ padding: '12px 16px 0' }}>
@@ -209,7 +209,7 @@ export default function RecipeDetail({ recipeId, onBack }: Props) {
         )}
       </div>
 
-      <div style={{ position: 'fixed', bottom: 64, left: 0, right: 0, padding: '10px 16px', background: 'var(--bg-primary)', borderTop: '1px solid var(--border)', zIndex: 40 }}>
+      <div style={{ position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, padding: '0 16px', zIndex: 40, boxSizing: 'border-box' }}>
         <button
           onClick={() => setCookingMode(true)}
           style={{ width: '100%', height: 48, borderRadius: 12, background: '#E8734A', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px', fontFamily: 'var(--font-sans)' }}

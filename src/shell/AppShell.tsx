@@ -9,6 +9,7 @@ export default function AppShell() {
   const [isOffline, setIsOffline] = useState(!navigator.onLine)
   const location = useLocation()
   const isAccounting = location.pathname.startsWith('/accounting')
+  const isMeal = location.pathname.startsWith('/meal')
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -54,10 +55,10 @@ export default function AppShell() {
         </div>
       )}
       {!isAccounting && <TopBar />}
-      <div style={{ flex: 1, overflowY: isAccounting ? 'visible' : 'auto', paddingBottom: isAccounting ? 0 : 72 }}>
+      <div style={{ flex: 1, overflowY: isAccounting ? 'visible' : 'auto', paddingBottom: isAccounting || isMeal ? 0 : 72 }}>
         <Outlet />
       </div>
-      {!isAccounting && <BotTabBar />}
+      {!isAccounting && !isMeal && <BotTabBar />}
     </div>
   )
 }

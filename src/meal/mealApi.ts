@@ -84,12 +84,13 @@ export interface PlanSlot {
   cook_time_min: number
   batch_prep_friendly: boolean
   kid_friendly: boolean
+  image_url: string | null
 }
 
 export interface PlanDay {
   day: number
   slots: PlanSlot[]
-  batch_prep_notes: string[]
+  batch_prep_note: string
 }
 
 export interface MealPlan {
@@ -186,6 +187,9 @@ export const meal = {
 
   fetchGroceryList: (planId: string) =>
     api<GroceryList>(`${BASE}/plans/${encodeURIComponent(planId)}/grocery`),
+
+  slotRecommendations: (planId: string, slotId: string) =>
+    api<{ recommended: Recipe[], all: Recipe[] }>(`${BASE}/plans/${encodeURIComponent(planId)}/slots/${encodeURIComponent(slotId)}/recommendations`),
 
   toggleGroceryItem: (itemId: string) =>
     api<{ id: string; is_checked: boolean }>(
