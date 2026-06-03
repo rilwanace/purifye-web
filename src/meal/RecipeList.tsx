@@ -50,18 +50,6 @@ function proteinEmoji(pt: string): string {
   return '\u{1F37D}️'
 }
 
-function EffortDots({ level }: { level: number }) {
-  return (
-    <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-      {[1,2,3,4,5].map(n => (
-        <div key={n} style={{
-          width: 5, height: 5, borderRadius: '50%',
-          background: n <= level ? '#E8734A' : 'rgba(255,255,255,0.12)',
-        }} />
-      ))}
-    </div>
-  )
-}
 
 function SkeletonCard() {
   return (
