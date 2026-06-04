@@ -42,13 +42,11 @@ function QuickAddNote({ onClose, onSaved, threads }: { onClose: () => void; onSa
     if (!content.trim()) return
     setSaving(true)
     try {
-      await api('/api/personal/confirm', {
+      await api('/api/personal/notes', {
         method: 'POST',
         body: JSON.stringify({
-          source_input_id: null,
-          workflow: 'notes',
+          content: content.trim(),
           thread_id: threadId || null,
-          fields: { content: content.trim() },
         }),
       })
       show('Saved', 'success')
@@ -89,12 +87,13 @@ function QuickAddNote({ onClose, onSaved, threads }: { onClose: () => void; onSa
   )
 }
 
-function ThreadFilter({ threads, threadFilter, onSelect, totalCount, accentColor }: {
+function ThreadFilter({ threads, threadFilter, onSelect, totalCount, accentColor, onManage }: {
   threads: Thread[]
   threadFilter: string | null
   onSelect: (id: string | null) => void
   totalCount: number
   accentColor: string
+  onManage: () => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const activeThread = threads.find(t => t.id === threadFilter)
@@ -108,14 +107,22 @@ function ThreadFilter({ threads, threadFilter, onSelect, totalCount, accentColor
   return (
     <div style={{ marginBottom: 0 }}>
       {/* Collapsed row */}
-      <button
-        onClick={() => setExpanded(e => !e)}
-        style={{ width: '100%', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, padding: '0 0 8px 0', height: 36 }}
-      >
-        <span style={{ fontSize: 10, fontFamily: 'DM Mono', color: '#9c9b95', letterSpacing: '0.06em', flexShrink: 0 }}>THREAD</span>
-        <span style={{ fontSize: 12, fontFamily: 'DM Sans', color: accentColor, fontWeight: 500, flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{activeLabel}</span>
-        <span style={{ fontSize: 10, color: '#9c9b95', flexShrink: 0 }}>{expanded ? '▴' : '▾'}</span>
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '0 0 8px 0', height: 36 }}>
+        <button
+          onClick={() => setExpanded(e => !e)}
+          style={{ flex: 1, background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, height: '100%', padding: 0, minWidth: 0 }}
+        >
+          <span style={{ fontSize: 10, fontFamily: 'DM Mono', color: '#9c9b95', letterSpacing: '0.06em', flexShrink: 0 }}>THREAD</span>
+          <span style={{ fontSize: 12, fontFamily: 'DM Sans', color: accentColor, fontWeight: 500, flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{activeLabel}</span>
+          <span style={{ fontSize: 10, color: '#9c9b95', flexShrink: 0 }}>{expanded ? '▴' : '▾'}</span>
+        </button>
+        <button
+          onClick={onManage}
+          style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, fontFamily: 'DM Mono', color: '#9c9b95', padding: '0 0 0 10px', height: '100%' }}
+        >
+          Manage
+        </button>
+      </div>
 
       {/* Expanded list */}
       {expanded && (
@@ -213,6 +220,7 @@ export default function PersonalNotes() {
         onSelect={handleThreadSelect}
         totalCount={totalCount}
         accentColor={NOTE_COLOR}
+        onManage={() => setShowManager(true)}
       />
 
       {/* Note cards */}

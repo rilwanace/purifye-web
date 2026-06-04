@@ -59,7 +59,7 @@ export default function ThreadManager({ workflow, onClose, onChanged }: Props) {
     if (!name) return
     try {
       await api(`/api/personal/threads/${id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         body: JSON.stringify({ name }),
       })
       load()
