@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { api } from '../../api'
 import { useToast } from '../../shared/components/Toast'
 
@@ -52,8 +52,22 @@ const ENTRY_GROUPS = [
   ]},
 ]
 
+
+interface ExpenseRow {
+  vendor: string
+  category: string
+  amount: string
+  tax_amount: string
+  showTax: boolean
+}
+
 function emptyItem(isSale: boolean): LineItem {
   return isSale ? { product: '', qty: 1, unit_price: 0 } : { product: '', qty: 1, unit_cost: 0 }
+}
+
+
+function emptyExpenseRow(): ExpenseRow {
+  return { vendor: '', category: '', amount: '', tax_amount: '', showTax: false }
 }
 
 function defaultFields(type: string): Record<string, any> {
@@ -263,9 +277,7 @@ function validate(type: string, f: Record<string, any>): Set<string> {
       if ((f.credit_period ?? 0) === 0 && empty(f.account)) err.add('account')
       break
     case 'other_expense':
-      if (empty(f.category)) err.add('category')
-      if (noAmt(f.amount)) err.add('amount')
-      if (empty(f.account)) err.add('account')
+      // per-row validation handled in handleExpenseSave
       break
     case 'payment_received':
       if (empty(f.customer)) err.add('customer')
@@ -341,6 +353,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
   const [conversionPending, setConversionPending] = useState<{ token: string; details: any } | null>(null)
   const [localMaster, setLocalMaster] = useState(masterData)
   const [payrollAdvances, setPayrollAdvances] = useState<Record<string, number>>({})
+  const [expenseRows, setExpenseRows] = useState<ExpenseRow[]>([emptyExpenseRow()])
 
   useEffect(() => { setLocalMaster(masterData) }, [masterData])
 
@@ -362,6 +375,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
     setType(t)
     setFieldsAll({ ...defaultFields(t), ...prefill.fields })
     setConversionPending(null)
+    if (t === 'other_expense') setExpenseRows([emptyExpenseRow()])
   }, [prefill])
 
   function setField(key: string, val: any) {
@@ -373,6 +387,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
     setType(t)
     setFieldsAll(defaultFields(t))
     setConversionPending(null)
+    if (t === 'other_expense') setExpenseRows([emptyExpenseRow()])
   }
 
   async function handlePayrollSave() {
@@ -424,8 +439,57 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
     }
   }
 
+
+  async function handleExpenseSave() {
+    setLoading(true)
+    try {
+      const rows = expenseRows.filter(r => r.category.trim() || parseFloat(r.amount) > 0)
+      if (!rows.length) { show('Add at least one expense', 'error'); return }
+      for (const r of rows) {
+        if (!r.category.trim()) { show('Category required for all expenses', 'error'); return }
+        if (!(parseFloat(r.amount) > 0)) { show('Amount must be greater than zero for all expenses', 'error'); return }
+      }
+      if (rows.length === 1) {
+        const r = rows[0]
+        const body: any = {
+          type: 'other_expense',
+          fields: {
+            date: f.date,
+            vendor: r.vendor,
+            category: r.category,
+            amount: r.amount,
+            tax_amount: r.tax_amount,
+          },
+        }
+        if (f.account) body.fields.account = f.account
+        await api<any>('/api/entry/save', { method: 'POST', body: JSON.stringify(body) })
+      } else {
+        const body = {
+          date: f.date,
+          account: f.account || null,
+          expenses: rows.map(r => ({
+            ...(r.vendor ? { vendor: r.vendor } : {}),
+            category: r.category,
+            amount: parseFloat(r.amount),
+            tax_amount: parseFloat(r.tax_amount || '0') || 0,
+          })),
+        }
+        await api<any>('/api/entry/save-expenses', { method: 'POST', body: JSON.stringify(body) })
+      }
+      show('Expenses saved', 'success')
+      setFieldsAll(defaultFields('other_expense'))
+      setExpenseRows([emptyExpenseRow()])
+      onSaved?.()
+    } catch (err: any) {
+      show(err.message || 'Save failed', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   async function handleSave(confirmToken?: string, withInvoice = false) {
     if (type === 'payroll') { await handlePayrollSave(); return }
+    if (type === 'other_expense') { await handleExpenseSave(); return }
     setLoading(true)
     try {
       const body: any = { type, fields: { ...fields } }
@@ -554,20 +618,81 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
 
       case 'other_expense': return (
         <>
-          <Field name="Vendor">
-            <EntityPicker value={f.vendor || ''} onChange={v => sf('vendor', v)}
-              options={localMaster.suppliers} placeholder="Select vendor"
-              onAddNew={v => setLocalMaster(m => ({ ...m, suppliers: [...m.suppliers, v] }))} />
-          </Field>
-          <Field name="Category" error={errors.has('category')}>
-            <select value={f.category || ''} onChange={e => sf('category', e.target.value)} style={inp}>
-              <option value="">Select category</option>
-              {localMaster.categories.map(c => <option key={c} value={c}>{c}</option>)}
+          {expenseRows.map((row, idx) => {
+            function updRow(key: string, val: any) {
+              setExpenseRows(rows => rows.map((r, i) => i === idx ? { ...r, [key]: val } : r))
+            }
+            return (
+              <div key={idx} style={{ border: '1px solid rgba(93,202,165,0.15)', borderRadius: 12, padding: '12px 14px', marginBottom: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--accent)' }}>
+                    EXPENSE {idx + 1}
+                  </span>
+                  {expenseRows.length > 1 && (
+                    <button onClick={() => setExpenseRows(rows => rows.filter((_, i) => i !== idx))}
+                      style={{ background: 'none', border: 'none', color: '#D85A30', cursor: 'pointer', fontSize: 18, padding: 0, lineHeight: 1 }}>
+                      ×
+                    </button>
+                  )}
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <label style={lbl}>Vendor</label>
+                  <EntityPicker value={row.vendor} onChange={v => updRow('vendor', v)}
+                    options={localMaster.suppliers} placeholder="Select vendor"
+                    onAddNew={v => { setLocalMaster(m => ({ ...m, suppliers: [...m.suppliers, v] })); updRow('vendor', v) }} />
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={lbl}>Category *</label>
+                    <select value={row.category} onChange={e => updRow('category', e.target.value)} style={inp}>
+                      <option value="">Select</option>
+                      {localMaster.categories.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={lbl}>Amount *</label>
+                    <input type="number" value={row.amount} onChange={e => updRow('amount', e.target.value)} placeholder="0.00" style={inp} />
+                  </div>
+                </div>
+                {!row.showTax ? (
+                  <button onClick={() => updRow('showTax', true)}
+                    style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '2px 0' }}>
+                    + tax
+                  </button>
+                ) : (
+                  <div>
+                    <label style={lbl}>Tax Amount</label>
+                    <input type="number" value={row.tax_amount} onChange={e => updRow('tax_amount', e.target.value)} placeholder="0" style={inp} />
+                  </div>
+                )}
+              </div>
+            )
+          })}
+
+          <button onClick={() => setExpenseRows(rows => [...rows, emptyExpenseRow()])}
+            style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '4px 0', marginBottom: 14 }}>
+            + Add expense
+          </button>
+
+          <div style={{ marginBottom: 10 }}>
+            <label style={lbl}>Pay from</label>
+            <select value={f.account || ''} onChange={e => sf('account', e.target.value)} style={inp}>
+              <option value="">Leave blank to record as payable</option>
+              {accts.map(a => <option key={a} value={a}>{a}</option>)}
             </select>
-          </Field>
-          <Field name="Amount" error={errors.has('amount')}><TextInput type="number" value={f.amount || ''} onChange={v => sf('amount', v)} placeholder="0.00" /></Field>
-          <Field name="Tax Amount (Rs.)"><TextInput type="number" value={f.tax_amount || ''} onChange={v => sf('tax_amount', v)} placeholder="0" /></Field>
-          <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>optional — leave blank to record as payable</div>
+          </div>
+
+          {expenseRows.length > 0 && (
+            <div style={{ background: 'var(--bg-card)', borderRadius: 10, padding: '10px 14px', marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)' }}>
+                TOTAL ({expenseRows.length} expense{expenseRows.length !== 1 ? 's' : ''})
+              </span>
+              <span style={{ fontWeight: 700, fontSize: 14 }}>
+                Rs. {expenseRows.reduce((s, r) => s + (parseFloat(r.amount) || 0) + (parseFloat(r.tax_amount) || 0), 0).toLocaleString()}
+              </span>
+            </div>
+          )}
         </>
       )
 
@@ -873,7 +998,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
         <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
           <button onClick={() => handleSave()} disabled={loading || errors.size > 0}
             style={{ flex: 1, padding: '13px', background: errors.size > 0 ? '#3a3a38' : 'var(--accent)', color: errors.size > 0 ? '#6a6a64' : '#000', border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 15, cursor: (loading || errors.size > 0) ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Saving...' : editEntryGroup ? 'Update Entry' : 'Save Entry'}
+            {loading ? 'Saving...' : editEntryGroup ? 'Update Entry' : (type === 'other_expense' && expenseRows.length > 1 ? 'Save all' : 'Save Entry')}
           </button>
           {type === 'sale' && !editEntryGroup && (
             <button onClick={() => handleSave(undefined, true)} disabled={loading || errors.size > 0}
