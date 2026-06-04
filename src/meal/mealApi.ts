@@ -104,6 +104,15 @@ export interface MealPlan {
   days: PlanDay[]
 }
 
+export interface GroceryItemPricing {
+  marginal_cost: number | null
+  pack_price: number
+  pack_size: number | null
+  pack_unit: string | null
+  product_name: string
+  supermarket: string
+}
+
 export interface GroceryItem {
   id: string
   ingredient_name: string
@@ -115,11 +124,13 @@ export interface GroceryItem {
   is_optional: boolean
   is_checked: boolean
   display_order: number
+  pricing: GroceryItemPricing | null
 }
 
 export interface GroceryList {
   grocery_list_id: string
   plan_id: string
+  meal_cost_total: number
   categories: Record<string, GroceryItem[]>
 }
 

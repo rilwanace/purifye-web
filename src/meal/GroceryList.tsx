@@ -49,7 +49,8 @@ export default function GroceryList({ plan }: Props) {
       if (!items?.length) continue
       text += cat.toUpperCase() + '\n'
       for (const item of items) {
-        text += '  ' + item.total_quantity + ' ' + item.unit + ' ' + item.ingredient_name + (item.is_optional ? ' (optional)' : '') + '\n'
+        const priceStr = item.pricing?.marginal_cost != null ? ` — Rs ${item.pricing.marginal_cost}` : ''
+        text += '  ' + item.total_quantity + ' ' + item.unit + ' ' + item.ingredient_name + (item.is_optional ? ' (optional)' : '') + priceStr + '\n'
       }
       text += '\n'
     }
@@ -120,33 +121,63 @@ export default function GroceryList({ plan }: Props) {
                 {cat} ({items.length} item{items.length !== 1 ? 's' : ''})
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {items.map(item => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleToggle(item.id, item.is_checked)}
-                    style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 12px', background: 'var(--bg-card)', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%' }}
-                  >
-                    <div style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1, background: item.is_checked ? '#5DCAA5' : 'transparent', border: item.is_checked ? 'none' : '2px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {item.is_checked && <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                    </div>
-                    <div style={{ flex: 1, opacity: item.is_checked ? 0.4 : 1, transition: 'opacity 0.2s' }}>
-                      <div style={{ fontSize: 14, fontWeight: 500, textDecoration: item.is_checked ? 'line-through' : 'none', fontFamily: 'var(--font-sans)' }}>
-                        {item.ingredient_name}
-                        {item.is_optional && <span style={{ fontSize: 11, color: 'var(--text-dim)', marginLeft: 6, fontFamily: 'var(--font-sans)' }}>(optional)</span>}
+                {items.map(item => {
+                  const pricing = item.pricing
+                  const hasPricing = !!(pricing && pricing.marginal_cost != null)
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleToggle(item.id, item.is_checked)}
+                      style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 12px', background: 'var(--bg-card)', borderRadius: 8, border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%' }}
+                    >
+                      <div style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1, background: item.is_checked ? '#5DCAA5' : 'transparent', border: item.is_checked ? 'none' : '2px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {item.is_checked && <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                       </div>
-                      {item.is_premade && item.premade_note && (
-                        <div style={{ fontSize: 11, color: '#5DCAA5', marginTop: 2, fontFamily: 'var(--font-sans)' }}>↳ {item.premade_note}</div>
+                      <div style={{ flex: 1, opacity: item.is_checked ? 0.4 : 1, transition: 'opacity 0.2s', minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 500, textDecoration: item.is_checked ? 'line-through' : 'none', fontFamily: 'var(--font-sans)' }}>
+                          {item.ingredient_name}
+                          {item.is_optional && <span style={{ fontSize: 11, color: 'var(--text-dim)', marginLeft: 6, fontFamily: 'var(--font-sans)' }}>(optional)</span>}
+                        </div>
+                        {item.is_premade && item.premade_note && (
+                          <div style={{ fontSize: 11, color: '#5DCAA5', marginTop: 2, fontFamily: 'var(--font-sans)' }}>↳ {item.premade_note}</div>
+                        )}
+                        {hasPricing && pricing ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3 }}>
+                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>
+                              {pricing.pack_size ? `${pricing.pack_size}${pricing.pack_unit || 'g'}` : pricing.product_name} · Rs {pricing.pack_price.toLocaleString()}
+                            </span>
+                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
+                              {item.total_quantity} {item.unit}
+                            </span>
+                          </div>
+                        ) : null}
+                      </div>
+                      {hasPricing && pricing ? (
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 600, color: '#5DCAA5', flexShrink: 0, paddingTop: 1, minWidth: 60, textAlign: 'right' }}>
+                          Rs {(pricing.marginal_cost as number).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        </div>
+                      ) : (
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#E8734A', flexShrink: 0, paddingTop: 1 }}>
+                          {item.total_quantity} {item.unit}
+                        </div>
                       )}
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, color: '#E8734A', flexShrink: 0, paddingTop: 1 }}>
-                      {item.total_quantity} {item.unit}
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )
         })}
+        {(grocery.meal_cost_total ?? 0) > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderTop: '2px solid rgba(255,255,255,0.15)' }}>
+            <span style={{ fontFamily: 'var(--font-sans)', fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>
+              Meal cost this week
+            </span>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 18, fontWeight: 700, color: '#5DCAA5' }}>
+              Rs {grocery.meal_cost_total.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )
