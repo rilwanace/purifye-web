@@ -104,13 +104,21 @@ export interface MealPlan {
   days: PlanDay[]
 }
 
+export interface GroceryItemProduct {
+  supermarket: string
+  product_name: string
+  price: number
+  unit_size: number | null
+  unit: string | null
+}
+
 export interface GroceryItemPricing {
-  marginal_cost: number | null
+  marginal_cost: number
   pack_price: number
   pack_size: number | null
   pack_unit: string | null
-  product_name: string
-  supermarket: string
+  product_name: string | null
+  supermarket: string | null
 }
 
 export interface GroceryItem {
@@ -124,7 +132,8 @@ export interface GroceryItem {
   is_optional: boolean
   is_checked: boolean
   display_order: number
-  pricing: GroceryItemPricing | null
+  pricing: GroceryItemPricing
+  products: GroceryItemProduct[]
 }
 
 export interface GroceryList {
