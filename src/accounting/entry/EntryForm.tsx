@@ -375,7 +375,16 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
     setType(t)
     setFieldsAll({ ...defaultFields(t), ...prefill.fields })
     setConversionPending(null)
-    if (t === 'other_expense') setExpenseRows([emptyExpenseRow()])
+    if (t === 'other_expense') {
+      const pf = prefill.fields || {}
+      setExpenseRows([{
+        vendor: pf.vendor || '',
+        category: pf.category || '',
+        amount: pf.amount != null ? String(pf.amount) : '',
+        tax_amount: pf.tax_amount != null ? String(pf.tax_amount) : '',
+        showTax: !!(pf.tax_amount && parseFloat(String(pf.tax_amount)) > 0),
+      }])
+    }
   }, [prefill])
 
   function setField(key: string, val: any) {
@@ -462,7 +471,9 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
           },
         }
         if (f.account) body.fields.account = f.account
-        await api<any>('/api/entry/save', { method: 'POST', body: JSON.stringify(body) })
+        const endpoint = editEntryGroup ? '/api/entry/replace' : '/api/entry/save'
+        if (editEntryGroup) body.original_entry_group = editEntryGroup
+        await api<any>(endpoint, { method: 'POST', body: JSON.stringify(body) })
       } else {
         const body = {
           date: f.date,
@@ -476,9 +487,10 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
         }
         await api<any>('/api/entry/save-expenses', { method: 'POST', body: JSON.stringify(body) })
       }
-      show('Expenses saved', 'success')
+      show(editEntryGroup ? 'Entry updated' : 'Expenses saved', 'success')
       setFieldsAll(defaultFields('other_expense'))
       setExpenseRows([emptyExpenseRow()])
+      setEditEntryGroup(null)
       onSaved?.()
     } catch (err: any) {
       show(err.message || 'Save failed', 'error')
