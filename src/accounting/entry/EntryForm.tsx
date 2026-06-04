@@ -474,7 +474,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
           </Field>
           <Field name="Tax Amount (Rs.)"><TextInput type="number" value={f.tax_amount || ''} onChange={v => sf('tax_amount', v)} placeholder="0" /></Field>
           <Field name="Payment Terms">
-            <Pill value={f.credit_period ?? 0} options={[0, 7, 14, 30]} onChange={v => sf('credit_period', v)} />
+            <Pill value={f.credit_period ?? 0} options={[0, 30, 60, 90]} onChange={v => sf('credit_period', v)} />
           </Field>
           {(f.credit_period ?? 0) === 0 && (
             <Field name="Cash Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
@@ -495,7 +495,7 @@ export default function EntryForm({ masterData, prefill, onSaved }: Props) {
           </Field>
           <Field name="Tax Amount (Rs.)"><TextInput type="number" value={f.tax_amount || ''} onChange={v => sf('tax_amount', v)} placeholder="0" /></Field>
           <Field name="Payment Terms">
-            <Pill value={f.credit_period ?? 0} options={[0, 7, 14, 30]} onChange={v => sf('credit_period', v)} />
+            <Pill value={f.credit_period ?? 0} options={[0, 30, 60, 90]} onChange={v => sf('credit_period', v)} />
           </Field>
           {(f.credit_period ?? 0) === 0 && (
             <Field name="Account" error={errors.has('account')}><AccountSelect value={f.account || ''} onChange={v => sf('account', v)} accounts={accts} /></Field>
