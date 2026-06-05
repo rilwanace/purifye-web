@@ -17,9 +17,10 @@ interface Props {
   planLoaded: boolean
   onPlanChange: (p: MealPlanType) => void
   onConfirmed: () => void
+  onViewRecipe?: (recipeId: string) => void
 }
 
-export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed }: Props) {
+export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, onViewRecipe }: Props) {
   const [loading, setLoading] = useState(false)
   const [activeDay, setActiveDay] = useState(0)
   const [swapModal, setSwapModal] = useState<{ slot: PlanSlot } | null>(null)
@@ -29,6 +30,8 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed }
   const [swapLoading, setSwapLoading] = useState(false)
   const [lockingSlotId, setLockingSlotId] = useState<string | null>(null)
   const touchStartX = useRef<number | null>(null)
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const longPressTriggeredRef = useRef(false)
 
   const openSwap = async (slot: PlanSlot) => {
     if (slot.is_locked || !plan) return
@@ -94,6 +97,31 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed }
       if (confirmed) { onPlanChange(confirmed); onConfirmed() }
     } catch {}
     setLoading(false)
+  }
+
+  const handleSlotTouchStart = (slot: PlanSlot) => {
+    if (slot.is_locked) return
+    longPressTriggeredRef.current = false
+    longPressTimerRef.current = setTimeout(() => {
+      longPressTriggeredRef.current = true
+      openSwap(slot)
+    }, 500)
+  }
+
+  const handleSlotTouchEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current)
+      longPressTimerRef.current = null
+    }
+  }
+
+  const handleSlotClick = (slot: PlanSlot) => {
+    if (longPressTriggeredRef.current) {
+      longPressTriggeredRef.current = false
+      return
+    }
+    if (slot.is_locked) return
+    onViewRecipe?.(slot.recipe_id)
   }
 
   const onTouchStart = (e: React.TouchEvent) => {
@@ -192,7 +220,15 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed }
                 const pc = PROTEIN_COLORS[(slot.protein_type || '').toLowerCase()] || '#888'
                 const isDessert = slot.meal_slot === 'dessert'
                 return (
-                  <div key={slot.id} onClick={() => openSwap(slot)} style={{ display: 'flex', flexDirection: 'row', height: 100, background: 'var(--bg-card)', borderRadius: 10, overflow: 'hidden', border: '1px solid var(--border)', cursor: slot.is_locked ? 'default' : 'pointer' }}>
+                  <div
+                    key={slot.id}
+                    onClick={() => handleSlotClick(slot)}
+                    onTouchStart={() => handleSlotTouchStart(slot)}
+                    onTouchEnd={handleSlotTouchEnd}
+                    onTouchCancel={handleSlotTouchEnd}
+                    onContextMenu={e => e.preventDefault()}
+                    style={{ display: 'flex', flexDirection: 'row', height: 100, background: 'var(--bg-card)', borderRadius: 10, overflow: 'hidden', border: '1px solid var(--border)', cursor: slot.is_locked ? 'default' : 'pointer', userSelect: 'none' }}
+                  >
                     <div style={{ position: 'relative', width: 100, height: '100%', flexShrink: 0, overflow: 'hidden' }}>
                       {slot.image_url ? (
                         <img src={slot.image_url} alt={slot.recipe_name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
@@ -208,7 +244,14 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed }
                         {slot.is_locked ? '🔒' : '🔓'}
                       </button>
                     </div>
-                    <div style={{ flex: 1, padding: 10, display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden', gap: 4 }}>
+                    <div style={{ flex: 1, padding: 10, display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden', gap: 4, position: 'relative' }}>
+                      {!slot.is_locked && (
+                        <button
+                          onClick={e => { e.stopPropagation(); openSwap(slot) }}
+                          title="Swap recipe"
+                          style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '2px 5px', fontSize: 11, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', lineHeight: 1, fontFamily: 'var(--font-mono)' }}
+                        >↔</button>
+                      )}
                       <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.3, fontFamily: 'var(--font-sans)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{slot.recipe_name}</div>
                       {slot.description && (
                         <div style={{ fontSize: 11, color: 'var(--text-secondary)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontFamily: 'var(--font-sans)' }}>{slot.description}</div>

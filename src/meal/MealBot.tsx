@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { meal } from './mealApi'
 import type { MealPlan as MealPlanType } from './mealApi'
 import MealOnboarding from './MealOnboarding'
@@ -17,6 +17,13 @@ export default function MealBot() {
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null)
   const [plan, setPlan] = useState<MealPlanType | null>(null)
   const [planLoaded, setPlanLoaded] = useState(false)
+  const prevTabRef = useRef<Tab>('recipes')
+
+  const viewRecipe = (id: string) => {
+    prevTabRef.current = tab
+    setSelectedRecipeId(id)
+    window.scrollTo(0, 0)
+  }
 
   useEffect(() => {
     Promise.all([
@@ -37,11 +44,11 @@ export default function MealBot() {
     return <MealOnboarding onComplete={() => setShowOnboarding(false)} />
   }
 
-  if (selectedRecipeId && tab === 'recipes') {
+  if (selectedRecipeId) {
     return (
       <RecipeDetail
         recipeId={selectedRecipeId}
-        onBack={() => { setSelectedRecipeId(null); window.scrollTo(0, 0) }}
+        onBack={() => { setTab(prevTabRef.current); setSelectedRecipeId(null); window.scrollTo(0, 0) }}
       />
     )
   }
@@ -75,7 +82,7 @@ export default function MealBot() {
 
       <div>
         {tab === 'recipes' && (
-          <RecipeList onSelectRecipe={(id) => { setSelectedRecipeId(id); window.scrollTo(0, 0) }} />
+          <RecipeList onSelectRecipe={viewRecipe} />
         )}
         {tab === 'plan' && (
           <MealPlan
@@ -83,6 +90,7 @@ export default function MealBot() {
             planLoaded={planLoaded}
             onPlanChange={p => setPlan(p)}
             onConfirmed={() => { setTab('grocery'); window.scrollTo(0, 0) }}
+            onViewRecipe={viewRecipe}
           />
         )}
         {tab === 'grocery' && <GroceryList plan={plan} />}
