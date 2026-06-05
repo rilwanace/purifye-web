@@ -265,11 +265,29 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
                   </div>
                 )
               })}
-              {currentDayData.batch_prep_note && (
-                <div style={{ padding: '10px 12px', background: 'var(--bg-surface)', borderRadius: 10, borderLeft: '3px solid ' + ACC, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, fontFamily: 'var(--font-sans)' }}>
-                  ⏰ {currentDayData.batch_prep_note}
-                </div>
-              )}
+              {currentDayData.batch_prep_note && (() => {
+                const parts = (currentDayData.batch_prep_note as string).split('\n');
+                const header = parts[0];
+                const noteLines = parts.slice(1).filter((l: string) => l.trim());
+                return (
+                  <div style={{ padding: '10px 12px', background: 'var(--bg-surface)', borderRadius: 10, borderLeft: '3px solid ' + ACC, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, fontFamily: 'var(--font-sans)' }}>
+                    <div style={{ color: ACC, fontWeight: 700, marginBottom: noteLines.length ? 6 : 0 }}>⏰ {header}</div>
+                    {noteLines.map((line: string, i: number) => {
+                      const colonIdx = line.indexOf(':');
+                      if (colonIdx > 0) {
+                        const recipeName = line.slice(0, colonIdx);
+                        const noteText = line.slice(colonIdx + 1).trim();
+                        return (
+                          <div key={i} style={{ marginTop: i > 0 ? 6 : 0 }}>
+                            <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{recipeName}:</span> {noteText}
+                          </div>
+                        );
+                      }
+                      return <div key={i} style={{ marginTop: i > 0 ? 6 : 0 }}>{line}</div>;
+                    })}
+                  </div>
+                );
+              })()}
               <div style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', paddingBottom: 4 }}>
                 Total prep: {totalPrep}min · Cook: {totalCook}min
               </div>
