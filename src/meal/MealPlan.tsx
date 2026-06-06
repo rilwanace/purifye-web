@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react'
 import { meal } from './mealApi'
-import type { MealPlan as MealPlanType, PlanSlot, Recipe } from './mealApi'
+import type { MealPlan as MealPlanType, PlanSlot, PlanDay, ComboData, Recipe } from './mealApi'
 
 const ACC = '#E8734A'
+const PLAN_ACC = '#5DCAA5'
 const DAY_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const SLOT_ORDER = ['breakfast', 'lunch', 'dinner', 'dessert']
 const PROTEIN_COLORS: Record<string, string> = {
@@ -12,23 +13,130 @@ const PROTEIN_COLORS: Record<string, string> = {
 
 interface SwapRec extends Recipe { swap_reason?: string }
 
+// ── Morning Prep Card ──────────────────────────────────────────────────────
+function MorningPrepCard({
+  combo, dayKey, checkedMap, setCheckedMap, isOpen, toggleOpen,
+}: {
+  combo: ComboData
+  dayKey: string
+  checkedMap: Record<string, boolean[]>
+  setCheckedMap: React.Dispatch<React.SetStateAction<Record<string, boolean[]>>>
+  isOpen: boolean
+  toggleOpen: () => void
+}) {
+  const steps = combo.batch_prep_steps || []
+  const checked = checkedMap[dayKey] || steps.map(() => false)
+
+  const toggleStep = (idx: number) => {
+    setCheckedMap(prev => {
+      const cur = prev[dayKey] || steps.map(() => false)
+      const next = [...cur]
+      next[idx] = !next[idx]
+      return { ...prev, [dayKey]: next }
+    })
+  }
+
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+      <button
+        onClick={toggleOpen}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 16 }}>&#9728;</span>
+          <span style={{ color: PLAN_ACC, fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 700 }}>
+            Morning Prep ({combo.batch_prep_time_min} min)
+          </span>
+        </div>
+        <span style={{
+          color: 'rgba(255,255,255,0.4)', fontSize: 14,
+          display: 'inline-block',
+          transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
+          transition: 'transform 0.2s ease',
+        }}>&#9660;</span>
+      </button>
+
+      <div style={{ maxHeight: isOpen ? 1200 : 0, overflow: 'hidden', transition: 'max-height 0.2s ease' }}>
+        <div style={{ padding: '0 16px 16px' }}>
+          {combo.theme && (
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--font-sans)', marginBottom: 12, fontStyle: 'italic' }}>
+              &ldquo;{combo.theme}&rdquo;
+            </div>
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {steps.map((step, idx) => (
+              <button
+                key={idx}
+                onClick={() => toggleStep(idx)}
+                style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0 }}
+              >
+                <span style={{ fontSize: 18, lineHeight: 1.3, color: checked[idx] ? PLAN_ACC : 'rgba(255,255,255,0.35)', flexShrink: 0 }}>
+                  {checked[idx] ? '☑' : '☐'}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <span style={{
+                    fontSize: 14, fontFamily: 'var(--font-sans)', lineHeight: 1.45,
+                    color: checked[idx] ? 'rgba(255,255,255,0.35)' : 'var(--text-primary)',
+                    textDecoration: checked[idx] ? 'line-through' : 'none',
+                  }}>
+                    {step.instruction}
+                  </span>
+                  {step.time_minutes > 0 && (
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-sans)', marginLeft: 6 }}>
+                      ({step.time_minutes} min)
+                    </span>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+          {combo.shared_ingredients && combo.shared_ingredients.length > 0 && (
+            <div style={{ marginTop: 14, fontSize: 12, fontFamily: 'var(--font-sans)' }}>
+              <span style={{ color: 'rgba(255,255,255,0.45)' }}>Shared: </span>
+              <span style={{ color: 'var(--text-primary)' }}>{combo.shared_ingredients.join(', ')}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function isComboIntact(dayData: PlanDay): boolean {
+  const nonDessert = dayData.slots.filter(m => m.meal_slot !== 'dessert')
+  if (nonDessert.length === 0) return false
+  const comboIds = new Set(nonDessert.map(m => m.combo_id))
+  return comboIds.size === 1 && !comboIds.has(null) && nonDessert.length === 3
+}
+
+// ── Main component ─────────────────────────────────────────────────────────
 interface Props {
   plan: MealPlanType | null
   planLoaded: boolean
   onPlanChange: (p: MealPlanType) => void
   onConfirmed: () => void
-  onViewRecipe?: (recipeId: string) => void
+  onViewRecipe?: (recipeId: string, elevationNote?: string | null) => void
 }
 
 export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, onViewRecipe }: Props) {
   const [loading, setLoading] = useState(false)
   const [activeDay, setActiveDay] = useState(0)
+
   const [swapModal, setSwapModal] = useState<{ slot: PlanSlot } | null>(null)
   const [swapRecs, setSwapRecs] = useState<SwapRec[]>([])
   const [swapAll, setSwapAll] = useState<Recipe[]>([])
   const [swapSearch, setSwapSearch] = useState('')
   const [swapLoading, setSwapLoading] = useState(false)
   const [lockingSlotId, setLockingSlotId] = useState<string | null>(null)
+
+  const [prepCheckedMap, setPrepCheckedMap] = useState<Record<string, boolean[]>>({})
+  const [prepOpenMap, setPrepOpenMap] = useState<Record<string, boolean>>({})
+
+  const [dessertPicker, setDessertPicker] = useState<{ dayNumber: number } | null>(null)
+  const [dessertRecs, setDessertRecs] = useState<Recipe[]>([])
+  const [dessertLoading, setDessertLoading] = useState(false)
+
   const touchStartX = useRef<number | null>(null)
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggeredRef = useRef(false)
@@ -39,9 +147,15 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
     setSwapSearch('')
     setSwapLoading(true)
     try {
-      const data = await meal.slotRecommendations(plan.id, slot.id)
-      setSwapRecs(data.recommended)
-      setSwapAll(data.all)
+      if (slot.recipe_id) {
+        const data = await meal.slotRecommendations(plan.id, slot.id)
+        setSwapRecs(data.recommended)
+        setSwapAll(data.all)
+      } else {
+        const fallback = await meal.recipes({ meal_slot: slot.meal_slot })
+        setSwapRecs([])
+        setSwapAll(fallback)
+      }
     } catch {
       const fallback = await meal.recipes({ meal_slot: slot.meal_slot })
       setSwapRecs([])
@@ -50,7 +164,7 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
     setSwapLoading(false)
   }
 
-  const handleSwap = async (newRecipeId: string) => {
+  const handleSwap = async (newRecipeId: string | null) => {
     if (!plan || !swapModal) return
     try {
       const updated = await meal.swapSlot(plan.id, swapModal.slot.id, newRecipeId)
@@ -99,6 +213,25 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
     setLoading(false)
   }
 
+  const openDessertPicker = async (dayNumber: number) => {
+    setDessertPicker({ dayNumber })
+    setDessertLoading(true)
+    try {
+      const recs = await meal.recipes({ meal_slot: 'dessert' })
+      setDessertRecs(recs)
+    } catch {}
+    setDessertLoading(false)
+  }
+
+  const handleAddDessert = async (recipeId: string) => {
+    if (!plan || !dessertPicker) return
+    try {
+      const updated = await meal.addDessert(plan.id, dessertPicker.dayNumber, recipeId)
+      onPlanChange(updated)
+      setDessertPicker(null)
+    } catch {}
+  }
+
   const handleSlotTouchStart = (slot: PlanSlot) => {
     if (slot.is_locked) return
     longPressTriggeredRef.current = false
@@ -121,7 +254,11 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
       return
     }
     if (slot.is_locked) return
-    onViewRecipe?.(slot.recipe_id)
+    if (!slot.recipe_id) {
+      openSwap(slot)
+      return
+    }
+    onViewRecipe?.(slot.recipe_id, slot.elevation_note)
   }
 
   const onTouchStart = (e: React.TouchEvent) => {
@@ -150,7 +287,7 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
   if (!plan) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 24px 40px', textAlign: 'center' }}>
-        <div style={{ fontSize: 52, marginBottom: 16 }}>✨</div>
+        <div style={{ fontSize: 52, marginBottom: 16 }}>&#10024;</div>
         <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 8px', letterSpacing: '-0.3px', fontFamily: 'var(--font-sans)' }}>
           Generate weekly plan
         </h2>
@@ -158,7 +295,7 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
           Get an intelligent 7-day meal plan with batch prep optimization
         </p>
         <button onClick={handleGenerate} style={{ width: '100%', maxWidth: 280, height: 48, borderRadius: 12, background: ACC, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px', fontFamily: 'var(--font-sans)' }}>
-          ✨ Generate weekly plan
+          &#10024; Generate weekly plan
         </button>
       </div>
     )
@@ -183,7 +320,7 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
           <div>
             <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.3px', fontFamily: 'var(--font-sans)' }}>This week</div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: 2 }}>
-              {fmtDate(weekStart)} — {fmtDate(weekEnd)} · {plan.family_adults}A + {plan.family_kids}K
+              {fmtDate(weekStart)} &mdash; {fmtDate(weekEnd)} &middot; {plan.family_adults}A + {plan.family_kids}K
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -191,7 +328,7 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
               {plan.status}
             </span>
             <button onClick={handleRegenerate} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>
-              ✨ Regenerate
+              &#10024; Regenerate
             </button>
           </div>
         </div>
@@ -208,15 +345,58 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
         </div>
       </div>
 
-      {/* Day content — swipeable */}
+      {/* Day content */}
       <div onTouchStart={onTouchStart} onTouchEnd={e => onTouchEnd(e, dayCount)} style={{ padding: '12px 12px 0' }}>
         {currentDayData && (() => {
           const sortedSlots = [...currentDayData.slots].sort((a, b) => SLOT_ORDER.indexOf(a.meal_slot) - SLOT_ORDER.indexOf(b.meal_slot))
           const totalPrep = currentDayData.slots.reduce((s, sl) => s + (sl.prep_time_min || 0), 0)
           const totalCook = currentDayData.slots.reduce((s, sl) => s + (sl.cook_time_min || 0), 0)
+          const dayKey = `day-${currentDayData.day}`
+          const comboIntact = isComboIntact(currentDayData)
+          const isPrepOpen = prepOpenMap[dayKey] !== false
+          const hasDessert = sortedSlots.some(s => s.meal_slot === 'dessert')
+          const isWeekday = currentDayData.day <= 5
+
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {/* Task A: Morning Prep Card — only when combo is intact */}
+              {comboIntact && currentDayData.combo && (
+                <MorningPrepCard
+                  combo={currentDayData.combo}
+                  dayKey={dayKey}
+                  checkedMap={prepCheckedMap}
+                  setCheckedMap={setPrepCheckedMap}
+                  isOpen={isPrepOpen}
+                  toggleOpen={() => setPrepOpenMap(prev => ({ ...prev, [dayKey]: !isPrepOpen }))}
+                />
+              )}
+
+              {/* Meal slots */}
               {sortedSlots.map(slot => {
+                // Task D: No Food slot
+                if (!slot.recipe_id) {
+                  return (
+                    <div
+                      key={slot.id}
+                      onClick={() => openSwap(slot)}
+                      onTouchStart={() => handleSlotTouchStart(slot)}
+                      onTouchEnd={handleSlotTouchEnd}
+                      onTouchCancel={handleSlotTouchEnd}
+                      style={{ display: 'flex', alignItems: 'center', gap: 14, height: 72, background: 'rgba(255,255,255,0.03)', borderRadius: 10, border: '1px dashed rgba(255,255,255,0.15)', cursor: 'pointer', padding: '0 16px', userSelect: 'none' }}
+                    >
+                      <span style={{ fontSize: 22 }}>&#128683;</span>
+                      <div>
+                        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-sans)', fontWeight: 500, textTransform: 'capitalize' }}>
+                          {slot.meal_slot}: No Food
+                        </div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', fontFamily: 'var(--font-sans)', marginTop: 2 }}>
+                          Tap to add a meal
+                        </div>
+                      </div>
+                    </div>
+                  )
+                }
+
                 const pc = PROTEIN_COLORS[(slot.protein_type || '').toLowerCase()] || '#888'
                 const isDessert = slot.meal_slot === 'dessert'
                 return (
@@ -231,32 +411,40 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
                   >
                     <div style={{ position: 'relative', width: 100, height: '100%', flexShrink: 0, overflow: 'hidden' }}>
                       {slot.image_url ? (
-                        <img src={slot.image_url} alt={slot.recipe_name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                        <img src={slot.image_url} alt={slot.recipe_name || ''} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                       ) : (
                         <div style={{ width: '100%', height: '100%', background: isDessert ? 'linear-gradient(135deg,rgba(112,104,217,0.3),rgba(112,104,217,0.6))' : `linear-gradient(135deg,${pc}33,${pc}66)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>
-                          {isDessert ? '🍰' : slot.meal_slot === 'breakfast' ? '🌅' : '🍽️'}
+                          {isDessert ? '&#127856;' : slot.meal_slot === 'breakfast' ? '&#127749;' : '&#127869;&#65039;'}
                         </div>
                       )}
                       <div style={{ position: 'absolute', top: 6, left: 6, background: 'rgba(0,0,0,0.6)', borderRadius: 4, padding: '2px 5px', fontSize: 8, fontFamily: 'var(--font-mono)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                         {slot.meal_slot}
                       </div>
                       <button onClick={e => handleLock(slot.id, e)} disabled={lockingSlotId === slot.id} style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: 4, cursor: 'pointer', padding: '2px 4px', fontSize: 11, lineHeight: 1, opacity: slot.is_locked ? 1 : 0.65 }}>
-                        {slot.is_locked ? '🔒' : '🔓'}
+                        {slot.is_locked ? '&#128274;' : '&#128275;'}
                       </button>
                     </div>
-                    <div style={{ flex: 1, padding: 10, display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden', gap: 4, position: 'relative' }}>
+                    <div style={{ flex: 1, padding: 10, display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden', gap: 2, position: 'relative' }}>
                       {!slot.is_locked && (
                         <button
                           onClick={e => { e.stopPropagation(); openSwap(slot) }}
                           title="Swap recipe"
                           style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '2px 5px', fontSize: 11, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', lineHeight: 1, fontFamily: 'var(--font-mono)' }}
-                        >↔</button>
+                        >&#8644;</button>
                       )}
-                      <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.3, fontFamily: 'var(--font-sans)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{slot.recipe_name}</div>
-                      {slot.description && (
+                      <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.3, fontFamily: 'var(--font-sans)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                        {slot.recipe_name}
+                      </div>
+                      {/* Task B: Elevation subtitle */}
+                      {slot.elevation_note && (
+                        <div style={{ fontSize: 12, fontStyle: 'italic', color: PLAN_ACC, fontFamily: 'var(--font-sans)', lineHeight: 1.2 }}>
+                          with {slot.elevation_note}
+                        </div>
+                      )}
+                      {!slot.elevation_note && slot.description && (
                         <div style={{ fontSize: 11, color: 'var(--text-secondary)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', fontFamily: 'var(--font-sans)' }}>{slot.description}</div>
                       )}
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'center', marginTop: 2 }}>
                         {slot.batch_prep_friendly && <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', background: 'rgba(232,115,74,0.15)', color: '#E8734A', padding: '2px 6px', borderRadius: 6 }}>batch</span>}
                         {slot.kid_friendly && <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', background: 'rgba(93,202,165,0.15)', color: '#5DCAA5', padding: '2px 6px', borderRadius: 6 }}>kid</span>}
                         {((slot.prep_time_min || 0) + (slot.cook_time_min || 0)) <= 20 && <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', background: 'rgba(255,255,255,0.08)', color: 'var(--text-muted)', padding: '2px 6px', borderRadius: 6 }}>quick</span>}
@@ -265,31 +453,19 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
                   </div>
                 )
               })}
-              {currentDayData.batch_prep_note && (() => {
-                const parts = (currentDayData.batch_prep_note as string).split('\n');
-                const header = parts[0];
-                const noteLines = parts.slice(1).filter((l: string) => l.trim());
-                return (
-                  <div style={{ padding: '10px 12px', background: 'var(--bg-surface)', borderRadius: 10, borderLeft: '3px solid ' + ACC, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, fontFamily: 'var(--font-sans)' }}>
-                    <div style={{ color: ACC, fontWeight: 700, marginBottom: noteLines.length ? 6 : 0 }}>⏰ {header}</div>
-                    {noteLines.map((line: string, i: number) => {
-                      const colonIdx = line.indexOf(':');
-                      if (colonIdx > 0) {
-                        const recipeName = line.slice(0, colonIdx);
-                        const noteText = line.slice(colonIdx + 1).trim();
-                        return (
-                          <div key={i} style={{ marginTop: i > 0 ? 6 : 0 }}>
-                            <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{recipeName}:</span> {noteText}
-                          </div>
-                        );
-                      }
-                      return <div key={i} style={{ marginTop: i > 0 ? 6 : 0 }}>{line}</div>;
-                    })}
-                  </div>
-                );
-              })()}
+
+              {/* Task C: Add Dessert (weekdays only, when no dessert slot) */}
+              {isWeekday && !hasDessert && (
+                <button
+                  onClick={() => openDessertPicker(currentDayData.day)}
+                  style={{ width: '100%', padding: '10px 0', background: 'none', border: 'none', borderBottom: '1px dashed rgba(93,202,165,0.3)', cursor: 'pointer', fontSize: 13, color: PLAN_ACC, fontFamily: 'var(--font-sans)', textAlign: 'center' }}
+                >
+                  &#65291; Add Dessert
+                </button>
+              )}
+
               <div style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', paddingBottom: 4 }}>
-                Total prep: {totalPrep}min · Cook: {totalCook}min
+                Total prep: {totalPrep}min &middot; Cook: {totalCook}min
               </div>
             </div>
           )
@@ -300,11 +476,11 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
       <div style={{ position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, padding: '0 16px', zIndex: 90, boxSizing: 'border-box' }}>
         {plan.status === 'draft' ? (
           <button onClick={handleConfirm} style={{ width: '100%', height: 48, borderRadius: 12, background: ACC, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px', fontFamily: 'var(--font-sans)', boxShadow: '0 4px 16px rgba(232,115,74,0.35)' }}>
-            ✓ Confirm Plan
+            &#10003; Confirm Plan
           </button>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, background: 'var(--bg-primary)', borderRadius: 12, padding: '10px 16px', border: '1px solid var(--border)' }}>
-            <span style={{ fontSize: 13, color: '#5DCAA5', fontFamily: 'var(--font-sans)' }}>Plan confirmed ✓</span>
+            <span style={{ fontSize: 13, color: '#5DCAA5', fontFamily: 'var(--font-sans)' }}>Plan confirmed &#10003;</span>
             <button onClick={handleGenerate} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 10, padding: '8px 16px', cursor: 'pointer', fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)' }}>
               New plan
             </button>
@@ -318,13 +494,32 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', borderRadius: '16px 16px 0 0', padding: '20px 16px 40px', maxHeight: '80vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ width: 36, height: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 2, margin: '0 auto' }} />
             <div>
-              <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Swapping</div>
-              <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-sans)' }}>{swapModal.slot.recipe_name}</div>
+              <div style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+                {swapModal.slot.recipe_id ? 'Swapping' : 'Add meal for'}
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-sans)', textTransform: 'capitalize' }}>
+                {swapModal.slot.recipe_name || swapModal.slot.meal_slot}
+              </div>
             </div>
+
             {swapLoading ? (
               <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '20px 0', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>Loading recommendations...</div>
             ) : (
               <>
+                {/* Task D: No Food option — only for slots that currently have a recipe */}
+                {swapModal.slot.recipe_id && (
+                  <>
+                    <button
+                      onClick={() => handleSwap(null)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
+                    >
+                      <span style={{ fontSize: 18 }}>&#128683;</span>
+                      <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-sans)' }}>No Food for this slot</span>
+                    </button>
+                    <div style={{ height: 1, background: 'var(--border)' }} />
+                  </>
+                )}
+
                 {swapRecs.length > 0 && (
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, fontFamily: 'var(--font-sans)', color: 'var(--text-secondary)' }}>Recommended swaps</div>
@@ -336,7 +531,7 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
                             {r.image_url ? (
                               <img src={r.image_url} alt={r.name} style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
                             ) : (
-                              <div style={{ width: 60, height: 60, borderRadius: 8, background: pc + '33', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>🍽️</div>
+                              <div style={{ width: 60, height: 60, borderRadius: 8, background: pc + '33', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>&#127869;&#65039;</div>
                             )}
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)', marginBottom: 2 }}>{r.name}</div>
@@ -352,7 +547,9 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
                     </div>
                   </div>
                 )}
+
                 {swapRecs.length > 0 && <div style={{ height: 1, background: 'var(--border)' }} />}
+
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, fontFamily: 'var(--font-sans)', color: 'var(--text-secondary)' }}>All options</div>
                   <input value={swapSearch} onChange={e => setSwapSearch(e.target.value)} placeholder="Search recipes..." style={{ width: '100%', padding: '10px 12px', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 10, fontSize: 13, color: 'var(--text-primary)', fontFamily: 'var(--font-sans)', marginBottom: 8, boxSizing: 'border-box', outline: 'none' }} />
@@ -377,6 +574,38 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
               </>
             )}
             <button onClick={() => setSwapModal(null)} style={{ width: '100%', padding: '12px', borderRadius: 10, background: 'var(--bg-surface)', border: '1px solid var(--border)', cursor: 'pointer', fontSize: 14, color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)' }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Task C: Dessert picker modal */}
+      {dessertPicker && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.75)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }} onClick={() => setDessertPicker(null)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', borderRadius: '16px 16px 0 0', padding: '20px 16px 40px', maxHeight: '75vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ width: 36, height: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 2, margin: '0 auto' }} />
+            <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'var(--font-sans)' }}>Pick a Dessert</div>
+            {dessertLoading ? (
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', padding: '20px 0', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>Loading desserts...</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {dessertRecs.map(r => (
+                  <button key={r.id} onClick={() => handleAddDessert(r.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: 'var(--bg-surface)', borderRadius: 10, border: '1px solid var(--border)', cursor: 'pointer', textAlign: 'left' }}>
+                    {r.image_url ? (
+                      <img src={r.image_url} alt={r.name} style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                    ) : (
+                      <div style={{ width: 56, height: 56, borderRadius: 8, background: 'rgba(112,104,217,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>&#127856;</div>
+                    )}
+                    <div style={{ fontSize: 13, fontWeight: 600, fontFamily: 'var(--font-sans)' }}>{r.name}</div>
+                  </button>
+                ))}
+                {dessertRecs.length === 0 && (
+                  <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: '16px 0', textAlign: 'center', fontFamily: 'var(--font-sans)' }}>No dessert recipes available</div>
+                )}
+              </div>
+            )}
+            <button onClick={() => setDessertPicker(null)} style={{ width: '100%', padding: '12px', borderRadius: 10, background: 'var(--bg-surface)', border: '1px solid var(--border)', cursor: 'pointer', fontSize: 14, color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)' }}>
               Cancel
             </button>
           </div>

@@ -5,6 +5,7 @@ import CookingMode from './CookingMode'
 
 interface Props {
   recipeId: string
+  elevationNote?: string | null
   onBack: () => void
 }
 
@@ -43,7 +44,7 @@ function BackBtn({ onBack }: { onBack: () => void }) {
   )
 }
 
-export default function RecipeDetail({ recipeId, onBack }: Props) {
+export default function RecipeDetail({ recipeId, elevationNote, onBack }: Props) {
   const [recipe, setRecipe] = useState<RecipeDetailType | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -96,7 +97,10 @@ export default function RecipeDetail({ recipeId, onBack }: Props) {
       )}
 
       <div style={{ padding: '16px 16px 0' }}>
-        <h1 style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 700, letterSpacing: '-0.4px', lineHeight: 1.2 }}>{recipe.name}</h1>
+        <h1 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 700, letterSpacing: '-0.4px', lineHeight: 1.2 }}>{recipe.name}</h1>
+        {elevationNote && (
+          <div style={{ fontSize: 13, fontStyle: 'italic', color: '#5DCAA5', fontFamily: 'var(--font-sans)', marginBottom: 8 }}>with {elevationNote}</div>
+        )}
         {recipe.description && (
           <p style={{ margin: '0 0 12px', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{recipe.description}</p>
         )}

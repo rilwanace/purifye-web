@@ -69,16 +69,33 @@ export interface RecipeFilters {
   search?: string
 }
 
+export interface BatchPrepStep {
+  step: number
+  instruction: string
+  time_minutes: number
+}
+
+export interface ComboData {
+  id: string
+  name: string
+  theme: string
+  batch_prep_steps: BatchPrepStep[]
+  batch_prep_time_min: number
+  shared_ingredients: string[]
+}
+
 export interface PlanSlot {
   id: string
   day_number: number
   meal_slot: string
   is_locked: boolean
   is_swapped: boolean
-  recipe_id: string
-  recipe_name: string
-  description: string
-  protein_type: string
+  recipe_id: string | null
+  recipe_name: string | null
+  elevation_note: string | null
+  combo_id: string | null
+  description: string | null
+  protein_type: string | null
   effort_level: number
   prep_time_min: number
   cook_time_min: number
@@ -90,7 +107,8 @@ export interface PlanSlot {
 export interface PlanDay {
   day: number
   slots: PlanSlot[]
-  batch_prep_note: string
+  batch_prep_note: string | null
+  combo: ComboData | null
 }
 
 export interface MealPlan {
@@ -190,7 +208,7 @@ export const meal = {
   confirmPlan: (planId: string) =>
     api<MealPlan>(`${BASE}/plans/${encodeURIComponent(planId)}/confirm`, { method: 'PUT' }),
 
-  swapSlot: (planId: string, slotId: string, newRecipeId: string) =>
+  swapSlot: (planId: string, slotId: string, newRecipeId: string | null) =>
     api<MealPlan>(
       `${BASE}/plans/${encodeURIComponent(planId)}/slots/${encodeURIComponent(slotId)}/swap`,
       { method: 'PUT', body: JSON.stringify({ new_recipe_id: newRecipeId }) },
@@ -215,5 +233,11 @@ export const meal = {
     api<{ id: string; is_checked: boolean }>(
       `${BASE}/grocery/${encodeURIComponent(itemId)}/check`,
       { method: 'PUT' },
+    ),
+
+  addDessert: (planId: string, dayNumber: number, recipeId: string) =>
+    api<MealPlan>(
+      `${BASE}/plans/${encodeURIComponent(planId)}/slot`,
+      { method: 'POST', body: JSON.stringify({ day_number: dayNumber, meal_slot: 'dessert', recipe_id: recipeId }) },
     ),
 }

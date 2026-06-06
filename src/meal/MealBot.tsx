@@ -15,13 +15,15 @@ export default function MealBot() {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [tab, setTab] = useState<Tab>('recipes')
   const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null)
+  const [selectedElevationNote, setSelectedElevationNote] = useState<string | null>(null)
   const [plan, setPlan] = useState<MealPlanType | null>(null)
   const [planLoaded, setPlanLoaded] = useState(false)
   const prevTabRef = useRef<Tab>('recipes')
 
-  const viewRecipe = (id: string) => {
+  const viewRecipe = (id: string, elevationNote?: string | null) => {
     prevTabRef.current = tab
     setSelectedRecipeId(id)
+    setSelectedElevationNote(elevationNote ?? null)
     window.scrollTo(0, 0)
   }
 
@@ -48,7 +50,13 @@ export default function MealBot() {
     return (
       <RecipeDetail
         recipeId={selectedRecipeId}
-        onBack={() => { setTab(prevTabRef.current); setSelectedRecipeId(null); window.scrollTo(0, 0) }}
+        elevationNote={selectedElevationNote}
+        onBack={() => {
+          setTab(prevTabRef.current)
+          setSelectedRecipeId(null)
+          setSelectedElevationNote(null)
+          window.scrollTo(0, 0)
+        }}
       />
     )
   }
