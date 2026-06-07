@@ -353,24 +353,12 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
           const totalCook = currentDayData.slots.reduce((s, sl) => s + (sl.cook_time_min || 0), 0)
           const dayKey = `day-${currentDayData.day}`
           const comboIntact = isComboIntact(currentDayData)
-          const isPrepOpen = prepOpenMap[dayKey] !== false
+          const isPrepOpen = prepOpenMap[dayKey] === true
           const hasDessert = sortedSlots.some(s => s.meal_slot === 'dessert')
           const isWeekday = currentDayData.day <= 5
 
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {/* Task A: Morning Prep Card — only when combo is intact */}
-              {comboIntact && currentDayData.combo && (
-                <MorningPrepCard
-                  combo={currentDayData.combo}
-                  dayKey={dayKey}
-                  checkedMap={prepCheckedMap}
-                  setCheckedMap={setPrepCheckedMap}
-                  isOpen={isPrepOpen}
-                  toggleOpen={() => setPrepOpenMap(prev => ({ ...prev, [dayKey]: !isPrepOpen }))}
-                />
-              )}
-
               {/* Meal slots */}
               {sortedSlots.map(slot => {
                 // Task D: No Food slot
@@ -453,6 +441,18 @@ export default function MealPlan({ plan, planLoaded, onPlanChange, onConfirmed, 
                   </div>
                 )
               })}
+
+              {/* Morning prep card — below all meals, collapsed by default */}
+              {comboIntact && currentDayData.combo && (
+                <MorningPrepCard
+                  combo={currentDayData.combo}
+                  dayKey={dayKey}
+                  checkedMap={prepCheckedMap}
+                  setCheckedMap={setPrepCheckedMap}
+                  isOpen={isPrepOpen}
+                  toggleOpen={() => setPrepOpenMap(prev => ({ ...prev, [dayKey]: !isPrepOpen }))}
+                />
+              )}
 
               {/* Task C: Add Dessert (weekdays only, when no dessert slot) */}
               {isWeekday && !hasDessert && (
