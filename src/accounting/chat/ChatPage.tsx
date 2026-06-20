@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
 import { api, apiFormData } from '../../api'
 import { useToast } from '../../shared/components/Toast'
 import EntryForm from '../entry/EntryForm'
@@ -41,6 +42,8 @@ const AccountingIcon = () => (
 
 export default function ChatPage() {
   const { show } = useToast()
+  const location = useLocation()
+  const pendingPrefill = useRef<any>(null)
   const [subTab, setSubTab] = useState<SubTab>('entry')
   const [masterData, setMasterData] = useState<MasterData | null>(null)
   const [masterDataLoading, setMasterDataLoading] = useState(true)
@@ -78,7 +81,21 @@ export default function ChatPage() {
     })
   }
 
-  useEffect(() => { fetchMasterData() }, [])
+  useEffect(() => {
+    if (location.state?.prefill) {
+      pendingPrefill.current = location.state.prefill
+      window.history.replaceState({}, document.title)
+    }
+    fetchMasterData()
+  }, [])
+
+  useEffect(() => {
+    if (masterData && pendingPrefill.current) {
+      setPrefill(pendingPrefill.current)
+      setSheetOpen(true)
+      pendingPrefill.current = null
+    }
+  }, [masterData])
 
   const clearTimer = () => { if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null } }
 

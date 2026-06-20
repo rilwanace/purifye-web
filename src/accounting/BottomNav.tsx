@@ -1,7 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
 import { useState, useEffect } from 'react'
-import { api } from '../api'
 
 const GRAD = 'linear-gradient(135deg, #28997A, #13654C)'
 
@@ -15,23 +14,14 @@ export default function BottomNav() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuth()
-  const [hasUnread, setHasUnread] = useState(false)
 
   const path = location.pathname
   const onDash = path.startsWith('/accounting/dashboard')
   const onEntry = path.startsWith('/accounting/entry')
-  const onNotif = path.startsWith('/accounting/notifications')
+  const onPD = path.startsWith('/accounting/pd-cheques')
   const onSettings = path.startsWith('/accounting/settings')
 
-  useEffect(() => {
-    const lastRead = localStorage.getItem('briefs_last_read')
-    api<any>('/api/briefs/morning').then(res => {
-      const briefs = res.briefs || []
-      if (!briefs.length) return
-      const latest = briefs[0]?.generated_at
-      if (latest && (!lastRead || new Date(latest) > new Date(lastRead))) setHasUnread(true)
-    }).catch(() => {})
-  }, [])
+
 
   const initials = user?.name
     ? user.name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
@@ -46,11 +36,7 @@ export default function BottomNav() {
     flexShrink: 0, ...noSel,
   })
 
-  function handleBell() {
-    setHasUnread(false)
-    localStorage.setItem('briefs_last_read', new Date().toISOString())
-    navigate('/accounting/notifications')
-  }
+
 
   return (
     <div style={{
@@ -99,21 +85,14 @@ export default function BottomNav() {
         </div>
       </div>
 
-      <div onClick={handleBell} style={{ ...iconBox(onNotif), position: 'relative' }}>
+      <div onClick={() => navigate('/accounting/pd-cheques')} style={iconBox(onPD)}>
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
-          stroke={onNotif ? '#fff' : '#9c9b95'} strokeWidth="1.8"
+          stroke={onPD ? '#fff' : '#9c9b95'} strokeWidth="1.8"
           strokeLinecap="round" strokeLinejoin="round">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          <rect x="2" y="6" width="20" height="14" rx="2"/>
+          <line x1="6" y1="11" x2="14" y2="11"/>
+          <line x1="6" y1="15" x2="10" y2="15"/>
         </svg>
-        {hasUnread && (
-          <span style={{
-            position: 'absolute', top: 8, right: 8,
-            width: 7, height: 7, borderRadius: '50%',
-            background: '#5DCAA5', border: '1.5px solid #131311',
-            pointerEvents: 'none',
-          }} />
-        )}
       </div>
 
       <div onClick={() => navigate('/accounting/settings')} style={iconBox(onSettings)}>

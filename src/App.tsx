@@ -15,6 +15,7 @@ import ReportsPage from './accounting/reports/ReportsPage'
 import SettingsPage from './accounting/settings/SettingsPage'
 import ChatPage from './accounting/chat/ChatPage'
 import NotificationsPage from './accounting/notifications/NotificationsPage'
+import PDChequesPage from './accounting/PDChequesPage'
 import PlannerLayout from './planner/PlannerLayout'
 import PlannerTeamSettings from './planner/PlannerTeamSettings'
 import CustomerBot from './customer/CustomerBot'
@@ -60,6 +61,7 @@ export default function App() {
                 <Route path="chat" element={<Navigate to="/accounting/entry" replace />} />
                 <Route path="history" element={<Navigate to="/accounting/entry" replace />} />
                 <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="pd-cheques" element={<PDChequesPage />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="recipes" element={<RecipesPage />} />
                 <Route path="settings" element={
