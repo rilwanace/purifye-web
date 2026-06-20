@@ -74,8 +74,8 @@ export default function PDChequesPage() {
 
   useEffect(() => {
     load()
-    api<any>('/api/entry/master-data')
-      .then(r => setCustomers((r.customers || []).map((c: any) => c.name ?? c)))
+    api<any>('/api/pd-cheques/customers')
+      .then(r => setCustomers(r.customers || []))
       .catch(() => {})
   }, [])
 
@@ -164,7 +164,7 @@ export default function PDChequesPage() {
         <div style={{ padding: '16px 16px 80px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
             <span style={lbl}>Customer</span>
-            <input list="pd-customers" value={fCustomer} onChange={e => setFCustomer(e.target.value)}
+            <input list="pd-customers" autoComplete="off" value={fCustomer} onChange={e => setFCustomer(e.target.value)}
               placeholder="Customer name" style={inp} />
             <datalist id="pd-customers">
               {customers.map(c => <option key={c} value={c} />)}
