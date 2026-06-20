@@ -1,6 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth'
-import { useState, useEffect } from 'react'
 
 const GRAD = 'linear-gradient(135deg, #28997A, #13654C)'
 
