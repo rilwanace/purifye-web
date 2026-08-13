@@ -4,7 +4,7 @@ import { api, apiBlob } from '../../api'
 import { useAuth } from '../../auth/useAuth'
 // promptWhatsApp import removed — WaShareBtn now uses navigator.share
 
-type Period = 'this_month' | 'last_month' | 'all'
+type Period = 'this_month' | 'custom' | 'all'
 type Tab = 'pnl' | 'bs' | 'cf' | 'tb' | 'ledger'
 
 function fmt(n: number | string | null | undefined) {
@@ -22,6 +22,21 @@ function fmtDate(s: string) {
   }
   try { return new Date(s).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }) }
   catch { return s }
+}
+
+function isoDate(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+function monthStartISO() { const d = new Date(); return isoDate(new Date(d.getFullYear(), d.getMonth(), 1)) }
+function todayISO() { return isoDate(new Date()) }
+
+// Build the query string for a report request. Returns null when a custom
+// range is selected but incomplete/inverted, so callers skip the fetch.
+function periodQS(period: Period, from: string, to: string, asOf = false): string | null {
+  if (period !== 'custom') return `period=${period}`
+  if (asOf) return to ? `period=custom&to=${encodeURIComponent(to)}` : null
+  if (!from || !to || from > to) return null
+  return `period=custom&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
 }
 
 const REPORT_TABS = [
@@ -66,7 +81,7 @@ const TabBar = ({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
 )
 
 const PeriodPills = ({ period, onChange }: { period: Period; onChange: (p: Period) => void }) => {
-  const opts: [Period, string][] = [['this_month', 'This Month'], ['last_month', 'Last Month'], ['all', 'All']]
+  const opts: [Period, string][] = [['this_month', 'This Month'], ['custom', 'Custom'], ['all', 'All']]
   return (
     <div style={{ display: 'flex', gap: 6, padding: '8px 16px', overflowX: 'auto', scrollbarWidth: 'none' }}>
       {opts.map(([id, label]) => (
@@ -77,6 +92,33 @@ const PeriodPills = ({ period, onChange }: { period: Period; onChange: (p: Perio
           whiteSpace: 'nowrap', cursor: 'pointer', flexShrink: 0, fontFamily: 'var(--font-sans)',
         }}>{label}</button>
       ))}
+    </div>
+  )
+}
+
+const CustomDateRange = ({ from, to, onChange, asOf }: {
+  from: string; to: string; onChange: (from: string, to: string) => void; asOf?: boolean
+}) => {
+  const inp: React.CSSProperties = {
+    flex: 1, minWidth: 0, boxSizing: 'border-box',
+    background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 10,
+    padding: 12, fontSize: 13, color: 'var(--text-primary)', fontFamily: 'var(--font-sans)',
+    colorScheme: 'dark',
+  }
+  return (
+    <div style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '0 16px 6px' }}>
+      {asOf ? (
+        <>
+          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '.1em', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>AS OF</span>
+          <input type="date" value={to} onChange={e => onChange(from, e.target.value)} style={inp} />
+        </>
+      ) : (
+        <>
+          <input type="date" value={from} max={to || undefined} onChange={e => onChange(e.target.value, to)} style={inp} />
+          <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>–</span>
+          <input type="date" value={to} min={from || undefined} onChange={e => onChange(from, e.target.value)} style={inp} />
+        </>
+      )}
     </div>
   )
 }
@@ -94,10 +136,16 @@ const ReportSkeleton = () => (
 
 const Err = ({ msg }: { msg: string }) => <div style={{ padding: 20, color: 'var(--danger)', textAlign: 'center' }}>{msg}</div>
 
-async function downloadPdf(type: string, period: string, setPdfLoading: (v: boolean) => void) {
+async function downloadPdf(type: string, period: string, from: string, to: string, setPdfLoading: (v: boolean) => void) {
   setPdfLoading(true)
   try {
-    const res = await apiBlob(`/api/reports/pdf?type=${type}&period=${period}`)
+    let qs = `type=${type}&period=${period}`
+    if (period === 'custom') {
+      qs = type === 'bs'
+        ? `type=${type}&period=custom&to=${encodeURIComponent(to)}`
+        : `type=${type}&period=custom&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
+    }
+    const res = await apiBlob(`/api/reports/pdf?${qs}`)
     if (!res.ok) throw new Error('PDF generation failed')
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
@@ -115,10 +163,10 @@ async function downloadPdf(type: string, period: string, setPdfLoading: (v: bool
   }
 }
 
-const PdfBtn = ({ type, period }: { type: string; period: string }) => {
+const PdfBtn = ({ type, period, from, to }: { type: string; period: string; from: string; to: string }) => {
   const [loading, setLoading] = useState(false)
   return (
-    <button onClick={() => downloadPdf(type, period, setLoading)} disabled={loading} style={{
+    <button onClick={() => downloadPdf(type, period, from, to, setLoading)} disabled={loading} style={{
       padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(93,202,165,0.3)',
       background: 'rgba(93,202,165,0.08)', color: 'var(--accent)',
       fontSize: 12, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer',
@@ -127,10 +175,12 @@ const PdfBtn = ({ type, period }: { type: string; period: string }) => {
   )
 }
 
-const WaShareBtn = ({ data, bizName, tab, period }: { data: any; bizName: string; tab: string; period: string }) => {
+const WaShareBtn = ({ data, bizName, tab, period, from, to }: { data: any; bizName: string; tab: string; period: string; from: string; to: string }) => {
   const d = data?.data || {}
   function buildMsg() {
-    const p = period === 'this_month' ? 'This Month' : period === 'last_month' ? 'Last Month' : 'All Time'
+    const p = period === 'this_month' ? 'This Month'
+      : period === 'custom' ? (tab === 'bs' ? `As of ${to}` : `${from} to ${to}`)
+      : 'All Time'
     if (tab === 'pnl') {
       const rev = Math.round(d.total_revenue ?? 0).toLocaleString('en-US')
       const np = Math.round(d.net_profit ?? 0).toLocaleString('en-US')
@@ -290,16 +340,19 @@ function CollapsibleSection({ groups, accent, danger }: {
 
 // ─── P&L ────────────────────────────────────────────────────────────────────
 
-function PnlReport({ period, onData }: { period: Period; onData?: (d: any) => void }) {
+function PnlReport({ period, from, to, onData }: { period: Period; from: string; to: string; onData?: (d: any) => void }) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   useEffect(() => {
     let stale = false
-    setLoading(true); setErr(''); setData(null)
-    api(`/api/reports/pnl?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
+    setErr(''); setData(null)
+    const qs = periodQS(period, from, to)
+    if (!qs) { setLoading(false); return }
+    setLoading(true)
+    api(`/api/reports/pnl?${qs}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
     return () => { stale = true }
-  }, [period])
+  }, [period, from, to])
   if (loading) return <ReportSkeleton />
   if (err) return <Err msg={err} />
   const d = data?.data || {}
@@ -338,16 +391,19 @@ function sortBsGroups<T extends { category: string }>(groups: T[], order: string
 
 // ─── Balance Sheet ───────────────────────────────────────────────────────────
 
-function BsReport({ period, onData }: { period: Period; onData?: (d: any) => void }) {
+function BsReport({ period, from, to, onData }: { period: Period; from: string; to: string; onData?: (d: any) => void }) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   useEffect(() => {
     let stale = false
-    setLoading(true); setErr(''); setData(null)
-    api(`/api/reports/bs?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
+    setErr(''); setData(null)
+    const qs = periodQS(period, from, to, true)
+    if (!qs) { setLoading(false); return }
+    setLoading(true)
+    api(`/api/reports/bs?${qs}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
     return () => { stale = true }
-  }, [period])
+  }, [period, from, to])
   if (loading) return <ReportSkeleton />
   if (err) return <Err msg={err} />
   const d = data?.data || {}
@@ -380,16 +436,19 @@ function BsReport({ period, onData }: { period: Period; onData?: (d: any) => voi
 
 // ─── Cash Flow ───────────────────────────────────────────────────────────────
 
-function CfReport({ period, onData }: { period: Period; onData?: (d: any) => void }) {
+function CfReport({ period, from, to, onData }: { period: Period; from: string; to: string; onData?: (d: any) => void }) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   useEffect(() => {
     let stale = false
-    setLoading(true); setErr(''); setData(null)
-    api(`/api/reports/cf?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
+    setErr(''); setData(null)
+    const qs = periodQS(period, from, to)
+    if (!qs) { setLoading(false); return }
+    setLoading(true)
+    api(`/api/reports/cf?${qs}`).then(d => { if (!stale) { setData(d); setLoading(false); onData?.(d) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
     return () => { stale = true }
-  }, [period])
+  }, [period, from, to])
   if (loading) return <ReportSkeleton />
   if (err) return <Err msg={err} />
   const d = data?.data || {}
@@ -423,16 +482,19 @@ function CfReport({ period, onData }: { period: Period; onData?: (d: any) => voi
 
 // ─── Trial Balance ────────────────────────────────────────────────────────────
 
-function TbReport({ period }: { period: Period }) {
+function TbReport({ period, from, to }: { period: Period; from: string; to: string }) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
   useEffect(() => {
     let stale = false
-    setLoading(true); setErr(''); setData(null)
-    api(`/api/reports/tb?period=${period}`).then(d => { if (!stale) { setData(d); setLoading(false) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
+    setErr(''); setData(null)
+    const qs = periodQS(period, from, to)
+    if (!qs) { setLoading(false); return }
+    setLoading(true)
+    api(`/api/reports/tb?${qs}`).then(d => { if (!stale) { setData(d); setLoading(false) } }).catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
     return () => { stale = true }
-  }, [period])
+  }, [period, from, to])
   if (loading) return <ReportSkeleton />
   if (err) return <Err msg={err} />
   const d = data?.data || {}
@@ -483,6 +545,8 @@ function LedgerReport() {
   const [accounts, setAccounts] = useState<string[]>([])
   const [account, setAccount] = useState('')
   const [period, setPeriod] = useState<Period>('this_month')
+  const [from, setFrom] = useState<string>(monthStartISO)
+  const [to, setTo] = useState<string>(todayISO)
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -500,24 +564,29 @@ function LedgerReport() {
   useEffect(() => {
     if (!account) return
     let stale = false
-    setLoading(true); setErr(''); setData(null); setOffset(0)
-    api(`/api/reports/account-ledger?account=${encodeURIComponent(account)}&period=${period}&offset=0&limit=50`)
+    setErr(''); setData(null); setOffset(0)
+    const qs = periodQS(period, from, to)
+    if (!qs) { setLoading(false); return }
+    setLoading(true)
+    api(`/api/reports/account-ledger?account=${encodeURIComponent(account)}&${qs}&offset=0&limit=50`)
       .then(d => { if (!stale) { setData(d); setLoading(false) } })
       .catch(e => { if (!stale) { setErr(e.message); setLoading(false) } })
     return () => { stale = true }
-  }, [account, period])
+  }, [account, period, from, to])
 
   const loadMore = useCallback(async () => {
     if (!data?.has_more || loadingMore) return
+    const qs = periodQS(period, from, to)
+    if (!qs) return
     const nextOffset = offset + 50
     setLoadingMore(true)
     try {
-      const more = await api(`/api/reports/account-ledger?account=${encodeURIComponent(account)}&period=${period}&offset=${nextOffset}&limit=50`)
+      const more = await api(`/api/reports/account-ledger?account=${encodeURIComponent(account)}&${qs}&offset=${nextOffset}&limit=50`)
       setData((prev: any) => ({ ...prev, transactions: [...(prev.transactions || []), ...(more.transactions || [])], has_more: !!more.has_more }))
       setOffset(nextOffset)
     } catch { }
     setLoadingMore(false)
-  }, [account, period, offset, data, loadingMore])
+  }, [account, period, from, to, offset, data, loadingMore])
 
   const [acctSearch, setAcctSearch] = useState('')
   const filteredAccounts = acctSearch
@@ -550,6 +619,7 @@ function LedgerReport() {
         </>
       )}
       <PeriodPills period={period} onChange={p => setPeriod(p)} />
+      {period === 'custom' && <CustomDateRange from={from} to={to} onChange={(f, t) => { setFrom(f); setTo(t) }} />}
       {loading && <ReportSkeleton />}
       {err && <Err msg={err} />}
       {data && !loading && (
@@ -602,6 +672,8 @@ export default function ReportsPage() {
   const initTab = (searchParams.get('tab') as Tab) || 'pnl'
   const [tab, setTab] = useState<Tab>(initTab)
   const [period, setPeriod] = useState<Period>('this_month')
+  const [from, setFrom] = useState<string>(monthStartISO)
+  const [to, setTo] = useState<string>(todayISO)
   const [reportData, setReportData] = useState<any>(null)
 
   const showPdf = tab === 'pnl' || tab === 'bs' || tab === 'cf'
@@ -618,18 +690,23 @@ export default function ReportsPage() {
       <TabBar active={tab} onChange={t => { setTab(t); setReportData(null) }} />
       <div style={{ padding: '12px 16px' }}>
         {tab !== 'ledger' && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <PeriodPills period={period} onChange={p => { setPeriod(p); setReportData(null) }} />
-            <div style={{ display: 'flex', gap: 6 }}>
-              {showWa && reportData && <WaShareBtn data={reportData} bizName={bizName} tab={tab} period={period} />}
-              {showPdf && <PdfBtn type={pdfType} period={period} />}
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <PeriodPills period={period} onChange={p => { setPeriod(p); setReportData(null) }} />
+              <div style={{ display: 'flex', gap: 6 }}>
+                {showWa && reportData && <WaShareBtn data={reportData} bizName={bizName} tab={tab} period={period} from={from} to={to} />}
+                {showPdf && <PdfBtn type={pdfType} period={period} from={from} to={to} />}
+              </div>
             </div>
-          </div>
+            {period === 'custom' && (
+              <CustomDateRange from={from} to={to} asOf={tab === 'bs'} onChange={(f, t) => { setFrom(f); setTo(t); setReportData(null) }} />
+            )}
+          </>
         )}
-        {tab === 'pnl' && <PnlReport period={period} onData={setReportData} />}
-        {tab === 'bs' && <BsReport period={period} onData={setReportData} />}
-        {tab === 'cf' && <CfReport period={period} onData={setReportData} />}
-        {tab === 'tb' && <TbReport period={period} />}
+        {tab === 'pnl' && <PnlReport period={period} from={from} to={to} onData={setReportData} />}
+        {tab === 'bs' && <BsReport period={period} from={from} to={to} onData={setReportData} />}
+        {tab === 'cf' && <CfReport period={period} from={from} to={to} onData={setReportData} />}
+        {tab === 'tb' && <TbReport period={period} from={from} to={to} />}
         {tab === 'ledger' && <LedgerReport />}
       </div>
     </div>
